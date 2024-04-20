@@ -17,6 +17,7 @@
 Апликација по својој природи треба да стриктно сагледа акције корисника. Пријава корисника на систем, објављивање артикала на продају, куповина артикала, остављање рецензије, качење фајлова су неке од акција које се прате у систему и које корисник може злоупотребити.
 
 Апликација би за сваку сумњиву радњу и контекст корисника (описаног IP адресом или корисничким налогом) давала "казнене бодове". На основу сакупљених казнених бодова, корисник би био адекватно кажњен у одређеној мери. У ситуацијама где се детектује потенцијална опасност, апликација би привремено постала недоступна.
+Дакле, крајњи корисник нашег KBS-а чини администрација и/или део развојног тима који је задужен за безбедност. 
 
 Слична решења која смо пронашли пате од преуског домена применљивости [1] [2]. У данашње време су много популарнија решења заснована на техникама дубоког учења [3] [4]. Овакви производи су најчешће комерцијални [5].
 Наше решење је засновано на онтолошком _if-then_ закључивању, отвореног је кода, и дизајнирано је да се може применити у веб апликацијама других домена.
@@ -50,8 +51,8 @@
 
 ### Излази
 
-- казна (корисник, казнени бодови)
-- додатна мера:
+- казна (корисник, казнени бодови, тип)
+- предузета мера:
     - активација аларма
     - одбијање захтева
     - привремено блокирање корисника
@@ -62,7 +63,10 @@
 
 ### База знања
 
-Примери правила детекције сумњивог понашања:
+Базу знања попуњавају корисници током интеракције са апликацијом.
+Систем користи чињенице и догађаје из базе знања како би реаговао на сумњиво понашање.
+
+Пример резоновања:
 
 ```ruby
 class Note {
@@ -79,32 +83,36 @@ class Request {
     ...
 }
 
-when
-    count(Request($user) over 10s) > 50
-then
-    Note($user, 5, Type.Requests, "Too many requests")
-
-when
-    count(Login($password) over 10 min) > 100
-then
-    new Note(None, 2, Type.Auth_Pass, "Weak password {password}")
-    new WeakPassword($password)
-```
-
-Примери реаговања:
-
-```ruby
 class Alarm {
     type,
     severity,
     desc,
 }
 
+
+# Казнити корисника који шаље превише захтева у секунди.
+when
+    count(Request($user) over 10s) > 50
+then
+    Note($user, 5, Type.Requests, "Too many requests")
+
+
+# Обележити често коришћену лозинку као слабу.
+when
+    count(Login($password) over 10 min) > 100
+then
+    new Note(None, 2, Type.Auth_Pass, "Weak password {password}")
+    new WeakPassword($password)
+
+
+# Ако у систему постоји много слабих лозинки, обавести развојни тим да повећа сложеност.
 when
     count_unique(WeakPassword) > 50
 then
     new Alarm(Type.Auth_Pass, Severity.Medium, "Please increase password complexity for new users.")
 
+
+# Ако у систему постоји превише слабих лозинки, обавестити кориснике да промене шифру.
 when
     count_unique(WeakPassword) > 100
 then
@@ -113,14 +121,16 @@ then
     end
 ```
 
-Пример сложеног ланца правила:
+Пример сложеног ланца правила (CEP, FC):
 
 ```ruby
+# Ако се деси превише неуспелих пријава са једне локације, казни IP адресу.
 when
     count(FailedLogin($ip, $email) over 1min) > 5
 then
     new Note($ip, 3, Type.Auth, "Brute forcing user {email}")
 
+# Ако иста IP адреса добија превише казнених поена за аутентификацију, блокирај је.
 when
     accumulate(
         Note($ip, $points, Type.Auth) over 24h, 
@@ -129,6 +139,7 @@ when
 then
     new Block($ip, 24h)
 
+# Ако велик број IP адреса у скорије време буде блокирано, обавести да се можда извршио DDoS напад.
 when
     count_unique(Block over 24h) > 100
 then  
@@ -137,6 +148,64 @@ then
     # Admin has to check the logs and manually re-enable access to users.
     Server.Config.SetAvailability(ServerAvailability.RestrictAccessToAdmins)
 ```
+
+Template-и ће се реализовати параметризацијом правила користећи UI (или учитавањем
+података из табеле). Пример:
+
+```ruby
+when
+    count(Transaction($user, amount > 1000) over 1h) >= 3
+then
+    new Note($user, 2, Type.Transaction, "Suspicious transactions")
+
+when
+    count(Transaction($user, amount > 5000) over 6h) >= 3
+then
+    new Note($user, 3, Type.Transaction, "Suspicious transactions")
+
+# Template
+when
+    count(Transaction($user, amount > ${AMOUNT}) over ${TIME}) >= ${NUM_OF_TRANSACTIONS}
+then
+    new Note($user, ${POINTS}, Type.Transaction, "Suspicious transactions")
+
+# -----------------------------------------------------------------------------
+
+when
+    $user: User
+    $user.balance <= 0.5 * (
+        $user.balance + accumulate(Transaction($user, $amount) over 1h, sum($amount))
+    )
+then
+    new Note($user, 3, Type.Transaction, "User spent too much, account possibly breached")
+
+when
+    $user: User
+    $user.balance <= 0.1 * (
+        $user.balance + accumulate(Transaction($user, $amount) over 24h, sum($amount))
+    )
+then
+    new Note($user, 7, Type.Transaction, "User spent too much, account possibly breached")
+
+when
+    $user: User
+    $user.balance <= 0.1 * (
+        $user.balance + accumulate(Transaction($user, $amount) over 1h, sum($amount))
+    )
+then
+    new Note($user, 10, Type.Transaction, "User spent too much, account possibly breached")
+
+# Template
+when
+    $user: User
+    $user.balance <= ${REMAINING_BALANCE} * (
+        $user.balance + accumulate(Transaction($user, $amount) over ${TIME}, sum($amount))
+    )
+then
+    new Note($user, ${POINTS}, Type.Transaction, "User spent too much, account possibly breached")
+```
+
+Backward chaining: Извештаји или упити на основу рецензија артикала/корисника (**TODO**: Прецизиније...)
 
 ## Литература
 

@@ -40,7 +40,13 @@
 
 Улазне податке уноси корисник током рада са апликацијом:
 
-- контекст корисника (претходне казне)
+- контекст захтева (симулира се, део је сваког захтева):
+  - IP адреса извора
+  - IP адреса дестинације
+  - Port извора
+  - Port дестинације
+  - Протокол (`TCP`)
+  - Endpoint
 - кориснички захев:
   - регистрација корисника (име, презиме, имејл адреса, лозинка, профилна слика)
   - пријава корисника (имејл адреса, лозинка)
@@ -87,6 +93,12 @@ class Note {
 }
 
 class Request {
+    srcIp,
+    srcPort,
+    destIp,
+    destPort,
+    protocol,
+    endpoint,
     user,
     timestamp,
     type,
@@ -110,14 +122,12 @@ class PurchaseBlock {
 }
 
 
-# Казнити корисника који шаље превише захтева у секунди.
 when
     count(Request($user) over 10s) > 50
 then
     Note($user, 5, Type.Requests, "Too many requests")
 
 
-# Обележити често коришћену лозинку као слабу.
 when
     count(Login($password) over 10 min) > 100
 then
@@ -125,14 +135,12 @@ then
     new WeakPassword($password)
 
 
-# Ако у систему постоји много слабих лозинки, обавести развојни тим да повећа сложеност.
 when
     count_unique(WeakPassword) > 50
 then
     new Alarm(Type.Auth_Pass, Severity.Medium, "Please increase password complexity for new users.")
 
 
-# Ако у систему постоји превише слабих лозинки, обавестити кориснике да промене шифру.
 when
     count_unique(WeakPassword) > 100
 then
@@ -140,7 +148,7 @@ then
         user.Notify("Your password is too weak.")
     end
 
-# Ако је корисник у протеклих недељу дана добио превише казнених поена због сумњивих транзакција, блокирај га да не може куповати наредна два дана
+
 when
     accumulate(
         Note($user, $points, Type.Transaction) over 1w,
@@ -153,14 +161,13 @@ then
 Пример сложеног ланца правила (**CEP** и **FC**):
 
 ```ruby
-# Ако се деси превише неуспелих пријава са једне локације, казни IP адресу.
-when
+
+when # Level 1
     count(FailedLogin($ip, $email) over 1min) > 5
 then
     new Note($ip, 3, Type.Auth, "Brute forcing user {email}")
 
-# Ако иста IP адреса добија превише казнених поена за аутентификацију, блокирај је.
-when
+when # Level 2
     accumulate(
         Note($ip, $points, Type.Auth) over 24h,
         sum($points)
@@ -168,13 +175,73 @@ when
 then
     new Block($ip, 24h)
 
-# Ако велик број IP адреса у скорије време буде блокирано, обавести да се можда извршио DDoS напад.
-when
+
+when # Level 3
     count_unique(Block over 24h) > 100
 then
-    new Alarm(Type.DDoS, Severity.High, "Large number of recent IPs have been blocked. User intervention needed.")
+    new Alarm(Severity.High)
+    new Attack(Type.AuthenticationAttack)
 
-    # Admin has to check the logs and manually re-enable access to users.
+
+when # Level 1
+    count(Request($srcIp, $destIp, $srcIp == $destIp) over 1min) > 1000
+then
+    new Alarm(Severity.SuperHigh)
+    new Attack(Type.DoS) # TCP Flood Attack
+
+
+when # Level 1
+    $t1: Transaction($ip1, $accountId1, $time1) &&
+    $t2: Transaction($ip2, $accountId2, $time2) &&
+    $t1 != $t2 &&
+    ($time1 - $time2) < 1min
+then
+    new Alarm(Severity.SuperHigh)
+    new Attack(Type.AccessControlAttack)
+
+
+when # Level 1
+    Transaction($ip, $port1) &&
+    ($port1 != 3000 || ($ip not in internalIpAddresses))
+then
+    new Alarm(Severity.Medium)
+    new Attack(Type.AccessControlAttack) # CORS
+
+
+when # Level 1
+    SearchQuery($ip, $queryText) &&
+    queryText like "' UNION SELECT"
+then
+    new Alarm(Severity.Low)
+    new Attack(Type.Injection) 
+    # Hibernate protects us against SQLi, but someone tried to attack either way
+
+when # Level 4
+    Attack($type1, $severity1) &&
+    Attack($type2, $severity2) &&
+    $type1 != $type2 &&
+    ($severity1 >= Severity.SuperHigh || $severity2 >= Severity.SuperHigh)
+then
+    new Alarm(Severity.SuperHigh)
+    Server.Config.SetAvailability(ServerAvailability.RestrictAccessToAdmins)
+
+
+when # Level 4
+    Attack($type1, $severity1) &&
+    $severity1 >= Severity.Critical
+then
+    new Alarm(Severity.Critical)
+    Server.Config.SetAvailability(ServerAvailability.RestrictAccessToAdmins)
+    # Do something else...
+
+when # Level 4
+    Attack($type1) &&
+    Attack($type2) &&
+    Attack($type3) &&
+    Attack($type4) &&
+    $type1 != $type2 != $type3 != $type4
+then
+    new Alarm(Severity.Critical)
     Server.Config.SetAvailability(ServerAvailability.RestrictAccessToAdmins)
 ```
 
@@ -238,7 +305,7 @@ then
 
 - добавити све кориснике који су у последњих месец дана блокирани бар три пута због високих транзакција
 - добавити IP адресе које су спамовале сервер у периоду између два датума
-- ...
+- читање логова... **TODO**
 
 ## Пример резоновања
 

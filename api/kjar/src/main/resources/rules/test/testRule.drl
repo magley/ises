@@ -1,0 +1,10 @@
+package rules.test;
+
+import rs.sbnz.model.Request;
+
+rule "Source IP is Dest IP"
+    when
+        Request($srcIp: srcIp, $destIp: destIp, $srcIp == $destIp)
+    then
+        System.out.println("Ding Ding Ding!");
+end

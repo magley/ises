@@ -8,18 +8,16 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import rs.sbnz.model.Request;
+import rs.sbnz.service.request.RequestService;
 
 @RestController
 @RequestMapping("api/test")
 public class TestController {
-    @Autowired private KieSession ksession;
+     @Autowired private RequestService requestService;
 
     @GetMapping
     public ResponseEntity<?> basicGetTest(@RequestParam String srcIp, @RequestParam String destIp) {
-        ksession.insert(new Request(srcIp, destIp));
-        ksession.fireAllRules();
+        requestService.onRequest(srcIp, destIp);
 
         return new ResponseEntity<String>("Hello from the backend!", HttpStatus.OK);
     }

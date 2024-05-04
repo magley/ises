@@ -18,9 +18,9 @@ class ServiceApplicationTests {
         SessionPseudoClock clock = ksession.getSessionClock();
         int firedRules = 0;
 
-        Request req1 = new Request("141.212.12.8", "38.27.110.3");
-        Request req2 = new Request("38.27.110.3", "38.27.110.3");
-        Request req3 = new Request("131.1.0.34", "12.178.192.8");
+        Request req1 = new Request(0L, "141.212.12.8", "38.27.110.3");
+        Request req2 = new Request(1L, "38.27.110.3", "38.27.110.3");
+        Request req3 = new Request(2L, "131.1.0.34", "12.178.192.8");
 
         ksession.insert(req1);
         ksession.insert(req2);

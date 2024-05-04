@@ -29,7 +29,7 @@ public class AppConfig implements WebMvcConfigurer {
     public KieSession getKieSession() {
         KieServices ks = KieServices.Factory.get();
         KieContainer kContainer = ks.getKieClasspathContainer(); 
-        KieSession ksession = kContainer.newKieSession("ksessionPseudoClock");
+        KieSession ksession = kContainer.newKieSession("ksessionRealtimeClock");
         return ksession;
     }
 }

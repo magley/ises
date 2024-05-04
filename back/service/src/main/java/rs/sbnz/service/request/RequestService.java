@@ -1,5 +1,8 @@
 package rs.sbnz.service.request;
 
+import java.time.ZonedDateTime;
+import java.util.Date;
+
 import org.kie.api.runtime.KieSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -23,6 +26,7 @@ public class RequestService {
         Request request = new Request();
         request.setSrcIp(srcIp);
         request.setDestIp(destIp);
+        request.setTimestamp(new Date());
         request = requestRepo.save(request);
 
         ksession.insert(request);

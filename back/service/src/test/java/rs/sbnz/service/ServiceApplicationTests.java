@@ -1,6 +1,7 @@
 package rs.sbnz.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.concurrent.TimeUnit;
 import org.drools.core.time.SessionPseudoClock;
 import org.junit.jupiter.api.Test;
@@ -18,16 +19,26 @@ class ServiceApplicationTests {
         SessionPseudoClock clock = ksession.getSessionClock();
         int firedRules = 0;
 
-        Request req1 = new Request(0L, "141.212.12.8", "38.27.110.3");
-        Request req2 = new Request(1L, "38.27.110.3", "38.27.110.3");
-        Request req3 = new Request(2L, "131.1.0.34", "12.178.192.8");
+        // --------------------------------------------------------------------
+        // Won't activate because not enough requests have been submitted 
+        // --------------------------------------------------------------------
 
-        ksession.insert(req1);
-        ksession.insert(req2);
-        ksession.insert(req3);
+        for (int i = 0; i < 999; i++) {
+            ksession.insert(new Request(Long.valueOf(i), "141.212.12.8", "141.212.12.8"));
+        }
         firedRules = ksession.fireAllRules();
-        clock.advanceTime(9000, TimeUnit.MINUTES);
+        assertEquals(0, firedRules);
 
+        // --------------------------------------------------------------------
+        // Will activate
+        // --------------------------------------------------------------------
+
+        clock.advanceTime(5, TimeUnit.MINUTES);
+        
+        for (int i = 0; i < 1000; i++) {
+            ksession.insert(new Request(Long.valueOf(i), "141.212.12.8", "141.212.12.8"));
+        }
+        firedRules = ksession.fireAllRules();
         assertEquals(1, firedRules);
     }
 }

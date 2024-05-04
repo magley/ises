@@ -19,6 +19,6 @@ Check `service/.../application.properties` for the parameters.
 Instructions (Windows):
 
 1. Download [mariadb-11.3.2-winx64.msi](https://mariadb.org/download/?t=mariadb&p=mariadb&r=11.3.2&os=windows&cpu=x86_64&pkg=msi&mirror=bme)
-2. Install anywhere (reccommended to install as a service)
+2. Install anywhere (recommended to install as a service)
 3. Create a database named `sbnz_db` (using HeidiSQL which comes bundled with MariaDB or through the CLI)
 4. Username and password should be the default values: `root` and (empty) respsectively (see `application.properties` for more info)

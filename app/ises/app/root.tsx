@@ -10,8 +10,24 @@ export default function App() {
     const [text, setText] = useState<string | null>(null);
 
     useEffect(() => {
-        axiosInstance.get("http://localhost:8080/api/test").then((res) => {
-            setText(res.data);
+        let jwt: string = "";
+
+        axiosInstance.post("http://localhost:8080/api/auth/login", {
+            email: "admin@sbnz.com",
+            password: "admin123"
+        }).then((res) => {
+            jwt = res.data;
+
+            const config = {
+                headers: {
+                    Authorization: "Bearer " + jwt
+                }
+            };
+            axiosInstance.get("http://localhost:8080/api/test/any", config)
+                .then((res) => setText(res.data))
+                .catch((err) => console.error(err));
+        }).catch((err) => {
+            console.error(err);
         });
     }, []);
 

@@ -1,4 +1,6 @@
 import type { MetaFunction } from "@remix-run/node";
+import { useEffect, useState } from "react";
+import axiosInstance from "~/util/axiosInterceptor";
 
 export const meta: MetaFunction = () => {
     return [
@@ -7,35 +9,24 @@ export const meta: MetaFunction = () => {
     ];
 };
 
-export default function Index() {
+
+export default function Home() {
+    const [text, setText] = useState<string | null>(null);
+
+    useEffect(() => {
+        axiosInstance.get("http://localhost:8080/api/test/any")
+            .then((res) => setText(res.data))
+            .catch((err) => console.error(err));
+    }, []);
+
     return (
-        <div style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.8" }}>
-            <h1>Welcome to Remix</h1>
-            <ul>
-                <li>
-                    <a
-                        target="_blank"
-                        href="https://remix.run/tutorials/blog"
-                        rel="noreferrer"
-                    >
-                        15m Quickstart Blog Tutorial
-                    </a>
-                </li>
-                <li>
-                    <a
-                        target="_blank"
-                        href="https://remix.run/tutorials/jokes"
-                        rel="noreferrer"
-                    >
-                        Deep Dive Jokes App Tutorial
-                    </a>
-                </li>
-                <li>
-                    <a target="_blank" href="https://remix.run/docs" rel="noreferrer">
-                        Remix Docs
-                    </a>
-                </li>
-            </ul>
+        <div>
+            Welcome to <b>ises</b>.
+
+            <div>Message from the backend: <b>{text}</b></div>
+            <br />
+            This page should contain articles and other stuff that all users have
+            access to.
         </div>
     );
 }

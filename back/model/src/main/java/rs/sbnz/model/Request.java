@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 
 import org.kie.api.definition.type.Expires;
 import org.kie.api.definition.type.Role;
@@ -30,11 +31,24 @@ public class Request {
     @Column
     private Date timestamp;
 
+    @Column
+    @ManyToOne
+    private User user;
+
     public Request(Long id, String srcIp, String destIp) {
         this.id = id;
         this.srcIp = srcIp;
         this.destIp = destIp;
         this.timestamp = new Date();
+        this.user = null;
+    }
+
+    public Request(Long id, String srcIp, String destIp, User user) {
+        this.id = id;
+        this.srcIp = srcIp;
+        this.destIp = destIp;
+        this.timestamp = new Date();
+        this.user = user;
     }
 
     public Request() {
@@ -70,5 +84,13 @@ public class Request {
 
     public void setTimestamp(Date timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }

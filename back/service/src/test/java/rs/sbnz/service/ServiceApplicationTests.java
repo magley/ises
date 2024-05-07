@@ -114,18 +114,50 @@ class ServiceApplicationTests {
         ksession.insert(u4);
         ksession.fireAllRules();
 
-        // Debug console should print out something like this:
-        /*
-            User with id 4 has permission 4 (ban_user)
-            User with id 4 has permission 1 (comment_on_articles)
-            User with id 2 has permission 2 (buy_article)
-            User with id 2 has permission 1 (comment_on_articles)
-            User with id 4 has permission 5 (unlock_system)
-            User with id 3 has permission 4 (ban_user)
-            User with id 3 has permission 1 (comment_on_articles)
-            User with id 2 has permission 3 (sell_article)
+        int k = 0;
+
+        /* Debug console should print out something like this:
+
             User with id 1 has permission 2 (buy_article)
             User with id 1 has permission 1 (comment_on_articles)
         */
+        ksession.insert(new Request(1L, "", "", u1));
+        k = ksession.fireAllRules();
+        assertEquals(2, k);
+
+
+        /* Debug console should print out something like this:
+
+            User with id 1 has permission 2 (buy_article)
+            User with id 1 has permission 1 (comment_on_articles)
+            User with id 2 has permission 2 (buy_article)
+            User with id 2 has permission 1 (comment_on_articles)
+            User with id 2 has permission 3 (sell_article)
+        */
+        ksession.insert(new Request(2L, "", "", u1));
+        ksession.insert(new Request(3L, "", "", u2));
+        k = ksession.fireAllRules();
+        assertEquals(5, k);
+
+
+        /* Debug console should print out something like this:
+
+            User with id 1 has permission 2 (buy_article)
+            User with id 1 has permission 1 (comment_on_articles)
+            User with id 2 has permission 2 (buy_article)
+            User with id 2 has permission 1 (comment_on_articles)
+            User with id 2 has permission 3 (sell_article)
+            User with id 3 has permission 4 (ban_user)
+            User with id 3 has permission 1 (comment_on_articles)
+            User with id 4 has permission 4 (ban_user)
+            User with id 4 has permission 1 (comment_on_articles)
+            User with id 4 has permission 5 (unlock_system)
+        */
+        ksession.insert(new Request(4L, "", "", u1));
+        ksession.insert(new Request(5L, "", "", u2));
+        ksession.insert(new Request(6L, "", "", u3));
+        ksession.insert(new Request(7L, "", "", u4));
+        k = ksession.fireAllRules();
+        assertEquals(10, k);
     }
 }

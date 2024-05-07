@@ -1,6 +1,9 @@
 package rules.test;
 
 import rs.sbnz.model.Request;
+import rs.sbnz.model.Permission;
+import rs.sbnz.model.Role;
+import rs.sbnz.model.User;
 
 rule "Source IP is Dest IP"
     when
@@ -15,4 +18,30 @@ rule "Source IP is Dest IP"
         )
     then
         System.out.println("TCP Flood Attack!");
+end
+
+query roleHasPermission(int roleId, int permissionId)
+    Role(id == roleId, $permissions: permissions, $parent: parent)
+    (
+        Permission(id == permissionId ) from $permissions
+    )
+    or 
+    (
+        Role($parentId: id, this == $parent)
+        and roleHasPermission($parentId, permissionId;)
+    )
+end
+
+query userHasPermission(int userId, int permissionId)
+    User(id == userId, $rbacRole: rbacRole, rbacRole != null)
+    and roleHasPermission($rbacRole.id, permissionId;)
+end
+
+rule "Show which permissions the user has"
+    when
+        User($userId: id)
+        Permission($permId: id, $permName: name)
+        userHasPermission($userId, $permId;)
+    then
+        System.out.printf("User with id %d has permission %d (%s)\n", $userId, $permId, $permName);
 end

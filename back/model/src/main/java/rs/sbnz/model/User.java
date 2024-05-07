@@ -10,6 +10,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -35,6 +36,9 @@ public class User implements UserDetails {
 
     @Column
     private String lastName;
+    
+    @ManyToOne
+    private Role rbacRole;
 
     // ------------------------------------------------------------------------
     // UserDetails interface implementation
@@ -80,6 +84,10 @@ public class User implements UserDetails {
     public User() {
     }
 
+    public User(Long id) {
+        this.id = id;
+    }
+
     public User(Long id, String email, String password, UserRole role, String name, String lastName) {
         this.id = id;
         this.email = email;
@@ -87,6 +95,7 @@ public class User implements UserDetails {
         this.role = role;
         this.name = name;
         this.lastName = lastName;
+        this.rbacRole = null;
     }
 
     public Long getId() {
@@ -135,5 +144,13 @@ public class User implements UserDetails {
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
+    }
+
+    public Role getRbacRole() {
+        return rbacRole;
+    }
+
+    public void setRbacRole(Role rbacRole) {
+        this.rbacRole = rbacRole;
     }
 }

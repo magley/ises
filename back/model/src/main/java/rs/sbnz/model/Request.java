@@ -31,7 +31,6 @@ public class Request {
     @Column
     private Date timestamp;
 
-    @Column
     @ManyToOne
     private User user;
 

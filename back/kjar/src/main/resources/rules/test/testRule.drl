@@ -5,21 +5,6 @@ import rs.sbnz.model.Permission;
 import rs.sbnz.model.Role;
 import rs.sbnz.model.User;
 
-rule "Source IP is Dest IP"
-    when
-        Number(intValue >= 1000) from accumulate(
-            $r: Request(
-                $id: id,
-                $srcIp: srcIp, 
-                $destIp: destIp, 
-                $srcIp == $destIp
-            ) over window:time(1m),
-            count($id)
-        )
-    then
-        System.out.println("TCP Flood Attack!");
-end
-
 query roleHasPermission(int roleId, int permissionId)
     Role(id == roleId, $permissions: permissions, $parent: parent)
     (

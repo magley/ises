@@ -1,0 +1,13 @@
+package rules.compound;
+
+import rs.sbnz.model.Request;
+import rs.sbnz.model.events.AttackEvent;
+import rs.sbnz.model.AttackType;
+
+rule "Two different attacks"
+    when
+        $attack1: AttackEvent($type1: type)
+        $attack2: AttackEvent($type2: type, $type2 != $type1, this after $attack1)
+    then
+        System.out.println("Block system!");
+end

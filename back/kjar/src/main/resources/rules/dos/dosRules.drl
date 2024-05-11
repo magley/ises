@@ -1,0 +1,21 @@
+package rules.dos;
+
+import rs.sbnz.model.Request;
+import rs.sbnz.model.events.AttackEvent;
+import rs.sbnz.model.AttackType;
+
+rule "Source IP is Dest IP"
+    when
+        Number(intValue >= 1000) from accumulate(
+            $r: Request(
+                $id: id,
+                $srcIp: srcIp, 
+                $destIp: destIp, 
+                $srcIp == $destIp
+            ) over window:time(1m),
+            count($id)
+        )
+    then
+        System.out.printf("TCP Flood Attack!\n");
+        insert(new AttackEvent(AttackType.DENIAL_OF_SERVICE));
+end

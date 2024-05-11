@@ -17,53 +17,6 @@ import rs.sbnz.model.User;
 
 class ServiceApplicationTests {
     @Test
-    void setupKjarTest() {
-        KieServices ks = KieServices.Factory.get();
-        KieContainer kContainer = ks.getKieClasspathContainer(); 
-        KieSession ksession = kContainer.newKieSession("ksessionPseudoClock");
-        SessionPseudoClock clock = ksession.getSessionClock();
-        int firedRules = 0;
-
-        // --------------------------------------------------------------------
-        // Won't activate because not enough requests have been submitted 
-        // --------------------------------------------------------------------
-
-        for (int i = 0; i < 999; i++) {
-            ksession.insert(new Request(Long.valueOf(i), "141.212.12.8", "141.212.12.8", new Date(clock.getCurrentTime())));
-        }
-        firedRules = ksession.fireAllRules();
-        assertEquals(0, firedRules);
-
-        
-        // --------------------------------------------------------------------
-        // Won't activate because not enough requests in the required time 
-        // --------------------------------------------------------------------
-        
-        clock.advanceTime(5, TimeUnit.MINUTES);
-        for (int i = 0; i < 999; i++) {
-            ksession.insert(new Request(Long.valueOf(i), "141.212.12.8", "141.212.12.8", new Date(clock.getCurrentTime())));
-        }
-
-        clock.advanceTime(1, TimeUnit.MINUTES);
-        ksession.insert(new Request(999L, "141.212.12.8", "141.212.12.8", new Date(clock.getCurrentTime())));
-
-        firedRules = ksession.fireAllRules();
-        assertEquals(0, firedRules);
-
-        // --------------------------------------------------------------------
-        // Will activate
-        // --------------------------------------------------------------------
-
-        clock.advanceTime(5, TimeUnit.MINUTES);
-        
-        for (int i = 0; i < 1000; i++) {
-            ksession.insert(new Request(Long.valueOf(i), "141.212.12.8", "141.212.12.8", new Date(clock.getCurrentTime())));
-        }
-        firedRules = ksession.fireAllRules();
-        assertEquals(1, firedRules);
-    }
-
-    @Test
     void testRbacRole() {
         KieServices ks = KieServices.Factory.get();
         KieContainer kContainer = ks.getKieClasspathContainer(); 

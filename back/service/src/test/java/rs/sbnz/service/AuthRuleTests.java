@@ -2,7 +2,6 @@ package rs.sbnz.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 import org.drools.core.time.SessionPseudoClock;
@@ -11,8 +10,10 @@ import org.kie.api.KieServices;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
 
+import rs.sbnz.model.BlockReason;
 import rs.sbnz.model.NoteType;
 import rs.sbnz.model.Request;
+import rs.sbnz.model.events.BlockEvent;
 import rs.sbnz.model.events.FailedLoginEvent;
 import rs.sbnz.model.events.Note;
 
@@ -25,6 +26,7 @@ class AuthRuleTests {
         SessionPseudoClock clock = ksession.getSessionClock();
 
         String attackerIp = "127.0.0.1";
+        String otherIp = "192.168.0.1";
         String victimEmail = "bob@gmail.com";
         String otherEmail = "johhny@test.com";
 
@@ -39,6 +41,19 @@ class AuthRuleTests {
         ksession.insert(new Request(4L, attackerIp, victimEmail));
 
         int k = ksession.fireAllRules();
+        assertEquals(0, k);
+
+        
+        // --------------------------------------------------------------------
+        // Won't activate: different ip. 
+        // --------------------------------------------------------------------
+
+        for (int i = 0; i < 4; i++) {
+            ksession.insert(new FailedLoginEvent(Long.valueOf(i), attackerIp, victimEmail));
+        }
+        ksession.insert(new Request(4L, otherIp, victimEmail));
+
+        k = ksession.fireAllRules();
         assertEquals(0, k);
 
         // --------------------------------------------------------------------
@@ -145,5 +160,69 @@ class AuthRuleTests {
         ksession.insert(new Note(102L, attackerIp, 100L, NoteType.FAILED_LOGIN));
         k = ksession.fireAllRules();
         assertEquals(1, k);
+    }
+
+    @Test
+    void manyBlocksThereforeAuthAttack() {
+        KieServices ks = KieServices.Factory.get();
+        KieContainer kContainer = ks.getKieClasspathContainer(); 
+        KieSession ksession = kContainer.newKieSession("ksessionPseudoClock");
+        SessionPseudoClock clock = ksession.getSessionClock();
+
+        // --------------------------------------------------------------------
+        // Won't activate: They must be AUTH_ATTACK.
+        // --------------------------------------------------------------------
+        
+        for (int i = 0; i < 99; i++) {
+            String fakeIp = "" + i;
+            ksession.insert(new BlockEvent(fakeIp, BlockReason.AUTH_ATTACK));
+        }
+        ksession.insert(new BlockEvent("dhjkds", BlockReason.TEMP));
+
+        int k = ksession.fireAllRules();
+        assertEquals(0, k);
+
+        // --------------------------------------------------------------------
+        // Won't activate: Must be 100 unique IPs blocked.
+        // --------------------------------------------------------------------
+
+        clock.advanceTime(2, TimeUnit.DAYS);
+
+        for (int i = 0; i < 99; i++) {
+            String fakeIp = "" + i;
+            ksession.insert(new BlockEvent(fakeIp, BlockReason.AUTH_ATTACK));
+        }
+        ksession.insert(new BlockEvent("0", BlockReason.AUTH_ATTACK));
+
+        k = ksession.fireAllRules();
+        assertEquals(0, k);
+
+        // --------------------------------------------------------------------
+        // Will activate
+        // --------------------------------------------------------------------
+
+        clock.advanceTime(2, TimeUnit.DAYS);
+        
+        for (int i = 0; i < 100; i++) {
+            String fakeIp = "" + i;
+            ksession.insert(new BlockEvent(fakeIp, BlockReason.AUTH_ATTACK));
+        }
+
+        k = ksession.fireAllRules();
+        assertEquals(1, k);
+
+        // --------------------------------------------------------------------
+        // Won't activate: attack is in progress.
+        // --------------------------------------------------------------------
+
+        clock.advanceTime(1, TimeUnit.HOURS);
+        
+        for (int i = 0; i < 100; i++) {
+            String fakeIp = "" + i;
+            ksession.insert(new BlockEvent(fakeIp, BlockReason.AUTH_ATTACK));
+        }
+
+        k = ksession.fireAllRules();
+        assertEquals(0, k);
     }
 }

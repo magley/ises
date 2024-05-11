@@ -1,0 +1,52 @@
+package rules.auth;
+
+import rs.sbnz.model.events.FailedLoginEvent;
+import rs.sbnz.model.events.Note;
+import rs.sbnz.model.events.BlockEvent;
+import rs.sbnz.model.NoteType;
+
+rule "Note when too many failed logins from same ip to the same account"
+    when
+        FailedLoginEvent(
+            $attackerIp: ip, 
+            $victimEmail: email
+        )
+        Number(intValue >= 5) from accumulate(
+            FailedLoginEvent(
+                $eventId: id,
+                $attackerIp == ip,
+                $victimEmail == email
+            ) over window:time(1m),
+            count($eventId)
+        )
+        not Note(
+            $attackerIp == ip, 
+            $noteType: type, 
+            $noteType == NoteType.FAILED_LOGIN
+        ) over window:time(1m)
+    then
+        System.out.printf("New FAILED_LOGIN note for ip %s\n", $attackerIp);
+        insert(new Note(0L, $attackerIp, 3L, NoteType.FAILED_LOGIN));
+end
+
+
+rule "Block IP with too many failed login notes"
+    when
+        Note(
+            $ip: ip, 
+            $type: type,
+            $type == NoteType.FAILED_LOGIN
+        )
+        Number(intValue >= 100) from accumulate(
+            Note(
+                $ip == ip,
+                $points: points,
+                $type == type
+            ) over window:time(24h),
+            sum($points)
+        )
+        not BlockEvent($ip == ip)
+    then
+        System.out.printf("New block for ip %s\n", $ip);
+        insert(new BlockEvent($ip));
+end

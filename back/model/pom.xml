@@ -9,7 +9,7 @@
         <version>2.7.9</version>
         <relativePath /> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.ftn.sbnz</groupId>
+    <groupId>rs.sbnz</groupId>
     <artifactId>model</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>model</name>

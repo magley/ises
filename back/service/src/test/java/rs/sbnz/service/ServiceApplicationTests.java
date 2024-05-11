@@ -2,6 +2,7 @@ package rs.sbnz.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 import org.drools.core.time.SessionPseudoClock;
 import org.junit.jupiter.api.Test;
@@ -28,8 +29,24 @@ class ServiceApplicationTests {
         // --------------------------------------------------------------------
 
         for (int i = 0; i < 999; i++) {
-            ksession.insert(new Request(Long.valueOf(i), "141.212.12.8", "141.212.12.8"));
+            ksession.insert(new Request(Long.valueOf(i), "141.212.12.8", "141.212.12.8", new Date(clock.getCurrentTime())));
         }
+        firedRules = ksession.fireAllRules();
+        assertEquals(0, firedRules);
+
+        
+        // --------------------------------------------------------------------
+        // Won't activate because not enough requests in the required time 
+        // --------------------------------------------------------------------
+        
+        clock.advanceTime(5, TimeUnit.MINUTES);
+        for (int i = 0; i < 999; i++) {
+            ksession.insert(new Request(Long.valueOf(i), "141.212.12.8", "141.212.12.8", new Date(clock.getCurrentTime())));
+        }
+
+        clock.advanceTime(1, TimeUnit.MINUTES);
+        ksession.insert(new Request(999L, "141.212.12.8", "141.212.12.8", new Date(clock.getCurrentTime())));
+
         firedRules = ksession.fireAllRules();
         assertEquals(0, firedRules);
 
@@ -40,7 +57,7 @@ class ServiceApplicationTests {
         clock.advanceTime(5, TimeUnit.MINUTES);
         
         for (int i = 0; i < 1000; i++) {
-            ksession.insert(new Request(Long.valueOf(i), "141.212.12.8", "141.212.12.8"));
+            ksession.insert(new Request(Long.valueOf(i), "141.212.12.8", "141.212.12.8", new Date(clock.getCurrentTime())));
         }
         firedRules = ksession.fireAllRules();
         assertEquals(1, firedRules);

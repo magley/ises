@@ -42,11 +42,27 @@ public class Request {
         this.user = null;
     }
 
+    public Request(Long id, String srcIp, String destIp, Date timestamp) {
+        this.id = id;
+        this.srcIp = srcIp;
+        this.destIp = destIp;
+        this.timestamp = timestamp;
+        this.user = null;
+    }
+
     public Request(Long id, String srcIp, String destIp, User user) {
         this.id = id;
         this.srcIp = srcIp;
         this.destIp = destIp;
         this.timestamp = new Date();
+        this.user = user;
+    }
+
+    public Request(Long id, String srcIp, String destIp, User user, Date timestamp) {
+        this.id = id;
+        this.srcIp = srcIp;
+        this.destIp = destIp;
+        this.timestamp = timestamp;
         this.user = user;
     }
 

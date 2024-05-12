@@ -36,7 +36,7 @@ end
 
 rule "Block IP with too many failed login notes"
     when
-        Note(
+        $n: Note(
             $ip: ip, 
             $type: type,
             $type == NoteType.FAILED_LOGIN
@@ -49,10 +49,14 @@ rule "Block IP with too many failed login notes"
             ) over window:time(24h),
             sum($points)
         )
-        not BlockEvent($ip == ip)
+        (
+            (not BlockEvent($ip == ip))
+            or 
+            (BlockEvent($ip == ip, this before $n))
+        )
     then
         System.out.printf("New block for ip %s\n", $ip);
-        insert(new BlockEvent($ip, BlockReason.AUTH_ATTACK));
+        insert(new BlockEvent($ip, 24 * 60 * 60 * 1000L, BlockReason.AUTH_ATTACK));
 end
 
 rule "Too many blocked IPs for auth attacks"

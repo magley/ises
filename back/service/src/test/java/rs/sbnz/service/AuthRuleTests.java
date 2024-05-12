@@ -147,7 +147,7 @@ class AuthRuleTests {
 
         clock.advanceTime(1, TimeUnit.HOURS); // Block lasts 24h.
 
-        ksession.insert(new Note(101L, attackerIp, 100L, NoteType.FAILED_LOGIN));
+        ksession.insert(new Note(101L, attackerIp, 1000L, NoteType.FAILED_LOGIN));
         k = ksession.fireAllRules();
         assertEquals(0, k);
 
@@ -175,9 +175,9 @@ class AuthRuleTests {
         
         for (int i = 0; i < 99; i++) {
             String fakeIp = "" + i;
-            ksession.insert(new BlockEvent(fakeIp, BlockReason.AUTH_ATTACK));
+            ksession.insert(new BlockEvent(fakeIp, 24*60*60*1000L, BlockReason.AUTH_ATTACK));
         }
-        ksession.insert(new BlockEvent("dhjkds", BlockReason.TEMP));
+        ksession.insert(new BlockEvent("dhjkds", 24*60*60*1000L, BlockReason.TEMP));
 
         int k = ksession.fireAllRules();
         assertEquals(0, k);
@@ -190,9 +190,9 @@ class AuthRuleTests {
 
         for (int i = 0; i < 99; i++) {
             String fakeIp = "" + i;
-            ksession.insert(new BlockEvent(fakeIp, BlockReason.AUTH_ATTACK));
+            ksession.insert(new BlockEvent(fakeIp, 24*60*60*1000L, BlockReason.AUTH_ATTACK));
         }
-        ksession.insert(new BlockEvent("0", BlockReason.AUTH_ATTACK));
+        ksession.insert(new BlockEvent("0", 24*60*60*1000L, BlockReason.AUTH_ATTACK));
 
         k = ksession.fireAllRules();
         assertEquals(0, k);
@@ -205,7 +205,7 @@ class AuthRuleTests {
         
         for (int i = 0; i < 100; i++) {
             String fakeIp = "" + i;
-            ksession.insert(new BlockEvent(fakeIp, BlockReason.AUTH_ATTACK));
+            ksession.insert(new BlockEvent(fakeIp, 24*60*60*1000L, BlockReason.AUTH_ATTACK));
         }
 
         k = ksession.fireAllRules();
@@ -219,7 +219,7 @@ class AuthRuleTests {
         
         for (int i = 0; i < 100; i++) {
             String fakeIp = "" + i;
-            ksession.insert(new BlockEvent(fakeIp, BlockReason.AUTH_ATTACK));
+            ksession.insert(new BlockEvent(fakeIp, 24*60*60*1000L, BlockReason.AUTH_ATTACK));
         }
 
         k = ksession.fireAllRules();

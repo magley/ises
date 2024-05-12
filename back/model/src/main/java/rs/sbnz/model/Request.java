@@ -14,7 +14,6 @@ import org.kie.api.definition.type.Role;
 import org.kie.api.definition.type.Timestamp;
 
 @Role(Role.Type.EVENT)
-@Timestamp("timestamp")
 @Entity
 @Expires("6h")
 public class Request {
@@ -31,27 +30,18 @@ public class Request {
     @Column
     private String srcPort;
 
-    @Column
-    private Date timestamp;
-
     @ManyToOne
     private User user;
+
+    // TODO: Is a flag the right way to do this? Would it be better to remove
+    // the event altogether if its rejected?
+    private boolean isRejected = false;
 
     public Request(Long id, String srcIp, String destIp, String srcPort) {
         this.id = id;
         this.srcIp = srcIp;
         this.destIp = destIp;
         this.srcPort = srcPort;
-        this.timestamp = new Date();
-        this.user = null;
-    }
-
-    public Request(Long id, String srcIp, String destIp, String srcPort, Date timestamp) {
-        this.id = id;
-        this.srcIp = srcIp;
-        this.destIp = destIp;
-        this.srcPort = srcPort;
-        this.timestamp = timestamp;
         this.user = null;
     }
 
@@ -60,18 +50,9 @@ public class Request {
         this.srcIp = srcIp;
         this.destIp = destIp;
         this.srcPort = srcPort;
-        this.timestamp = new Date();
         this.user = user;
     }
 
-    public Request(Long id, String srcIp, String destIp, String srcPort, User user, Date timestamp) {
-        this.id = id;
-        this.srcIp = srcIp;
-        this.destIp = destIp;
-        this.srcPort = srcPort;
-        this.timestamp = timestamp;
-        this.user = user;
-    }
 
     public Request() {
     }
@@ -108,19 +89,20 @@ public class Request {
         this.srcPort = srcPort;
     }
 
-    public Date getTimestamp() {
-        return this.timestamp;
-    }
-
-    public void setTimestamp(Date timestamp) {
-        this.timestamp = timestamp;
-    }
-
     public User getUser() {
         return this.user;
     }
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+
+    public boolean getIsRejected() {
+        return isRejected;
+    }
+
+    public void setIsRejected(boolean isRejected) {
+        this.isRejected = isRejected;
     }
 }

@@ -28,7 +28,6 @@ public class RequestService {
         request.setSrcIp(srcIp);
         request.setDestIp(destIp);
         request.setSrcPort(srcPort);
-        request.setTimestamp(new Date());
         request = requestRepo.save(request);
 
         ksession.insert(request);

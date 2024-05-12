@@ -8,6 +8,7 @@ rule "Source IP is Dest IP"
     when
         Number(intValue >= 1000) from accumulate(
             $r: Request(
+                isRejected == false,
                 $id: id,
                 $srcIp: srcIp, 
                 $destIp: destIp, 

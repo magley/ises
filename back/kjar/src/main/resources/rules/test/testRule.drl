@@ -25,7 +25,7 @@ end
 rule "Show which permissions the user has"
     when
         $user: User($userId: id)
-        Request(user == $user)
+        Request(isRejected == false, user == $user)
         Permission($permId: id, $permName: name)
         userHasPermission($userId, $permId;)
     then

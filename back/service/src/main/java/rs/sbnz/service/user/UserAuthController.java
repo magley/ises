@@ -33,8 +33,8 @@ public class UserAuthController {
 
     @PermitAll
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody RegisterDTO dto, @RequestParam String srcIp, @RequestParam String destIp) {
-        requestService.onRequest(srcIp, destIp);
+    public ResponseEntity<?> registerUser(@RequestBody RegisterDTO dto, @RequestParam String srcIp, @RequestParam String destIp, @RequestParam String srcPort) {
+        requestService.onRequest(srcIp, destIp, srcPort);
 
         userService.add(dto.getEmail(), dto.getPassword(), dto.getName(), dto.getLastName());
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -42,7 +42,9 @@ public class UserAuthController {
 
     @PermitAll
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginDTO dto, @RequestParam String srcIp, @RequestParam String destIp) {
+    public ResponseEntity<?> login(@RequestBody LoginDTO dto, @RequestParam String srcIp, @RequestParam String destIp, @RequestParam String srcPort) {
+        requestService.onRequest(srcIp, destIp, srcPort);
+        
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword());
         Authentication auth = authManager.authenticate(authToken);
         User user = (User)auth.getPrincipal();

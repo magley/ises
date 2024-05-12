@@ -1,7 +1,5 @@
 package rs.sbnz.service;
 
-import javax.annotation.security.PermitAll;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,24 +16,24 @@ public class TestController {
     @Autowired private RequestService requestService;
 
     @GetMapping("/any")
-    public ResponseEntity<?> test1(@RequestParam String srcIp, @RequestParam String destIp) {
-        requestService.onRequest(srcIp, destIp);
+    public ResponseEntity<?> test1(@RequestParam String srcIp, @RequestParam String destIp, @RequestParam String srcPort) {
+        requestService.onRequest(srcIp, destIp, srcPort);
 
         return new ResponseEntity<String>("Hello any authenticated user!", HttpStatus.OK);
     }
 
     @GetMapping("/admin")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> test2(@RequestParam String srcIp, @RequestParam String destIp) {
-        requestService.onRequest(srcIp, destIp);
+    public ResponseEntity<?> test2(@RequestParam String srcIp, @RequestParam String destIp, @RequestParam String srcPort) {
+        requestService.onRequest(srcIp, destIp, srcPort);
 
         return new ResponseEntity<String>("Hello admin!", HttpStatus.OK);
     }
 
     @GetMapping("/client")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<?> test3(@RequestParam String srcIp, @RequestParam String destIp) {
-        requestService.onRequest(srcIp, destIp);
+    public ResponseEntity<?> test3(@RequestParam String srcIp, @RequestParam String destIp, @RequestParam String srcPort) {
+        requestService.onRequest(srcIp, destIp, srcPort);
 
         return new ResponseEntity<String>("Hello client!", HttpStatus.OK);
     }

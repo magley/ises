@@ -29,28 +29,33 @@ public class Request {
     private String destIp;
 
     @Column
+    private String srcPort;
+
+    @Column
     private Date timestamp;
 
     @ManyToOne
     private User user;
 
-    public Request(Long id, String srcIp, String destIp) {
+    public Request(Long id, String srcIp, String destIp, String srcPort) {
         this.id = id;
         this.srcIp = srcIp;
         this.destIp = destIp;
+        this.srcPort = srcPort;
         this.timestamp = new Date();
         this.user = null;
     }
 
-    public Request(Long id, String srcIp, String destIp, Date timestamp) {
+    public Request(Long id, String srcIp, String destIp, String srcPort, Date timestamp) {
         this.id = id;
         this.srcIp = srcIp;
         this.destIp = destIp;
+        this.srcPort = srcPort;
         this.timestamp = timestamp;
         this.user = null;
     }
 
-    public Request(Long id, String srcIp, String destIp, User user) {
+    public Request(Long id, String srcIp, String destIp, String srcPort, User user) {
         this.id = id;
         this.srcIp = srcIp;
         this.destIp = destIp;
@@ -58,7 +63,7 @@ public class Request {
         this.user = user;
     }
 
-    public Request(Long id, String srcIp, String destIp, User user, Date timestamp) {
+    public Request(Long id, String srcIp, String destIp, String srcPort, User user, Date timestamp) {
         this.id = id;
         this.srcIp = srcIp;
         this.destIp = destIp;
@@ -93,6 +98,14 @@ public class Request {
         this.destIp = destIp;
     }
 
+    public String getSrcPort() {
+        return this.srcPort;
+    }
+
+    public void setSrcPort(String srcPort) {
+        this.srcPort = srcPort;
+    }
+
     public Date getTimestamp() {
         return this.timestamp;
     }
@@ -102,7 +115,7 @@ public class Request {
     }
 
     public User getUser() {
-        return user;
+        return this.user;
     }
 
     public void setUser(User user) {

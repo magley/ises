@@ -38,7 +38,7 @@ class AuthRuleTests {
             ksession.insert(new FailedLoginEvent(Long.valueOf(i), attackerIp, victimEmail));
         }
         clock.advanceTime(1, TimeUnit.MINUTES);
-        ksession.insert(new Request(4L, attackerIp, victimEmail));
+        ksession.insert(new FailedLoginEvent(4L, attackerIp, victimEmail));
 
         int k = ksession.fireAllRules();
         assertEquals(0, k);
@@ -48,10 +48,11 @@ class AuthRuleTests {
         // Won't activate: different ip. 
         // --------------------------------------------------------------------
 
+        clock.advanceTime(10, TimeUnit.HOURS);
         for (int i = 0; i < 4; i++) {
             ksession.insert(new FailedLoginEvent(Long.valueOf(i), attackerIp, victimEmail));
         }
-        ksession.insert(new Request(4L, otherIp, victimEmail));
+        ksession.insert(new FailedLoginEvent(4L, otherIp, victimEmail));
 
         k = ksession.fireAllRules();
         assertEquals(0, k);
@@ -60,12 +61,11 @@ class AuthRuleTests {
         // Won't activate: not enough failed logins for the same email 
         // --------------------------------------------------------------------
 
-        clock.advanceTime(5, TimeUnit.MINUTES);
-
+        clock.advanceTime(10, TimeUnit.HOURS);
         for (int i = 0; i < 4; i++) {
             ksession.insert(new FailedLoginEvent(Long.valueOf(i), attackerIp, victimEmail));
         }
-        ksession.insert(new Request(4L, attackerIp, otherEmail));
+        ksession.insert(new FailedLoginEvent(4L, attackerIp, otherEmail));
 
         k = ksession.fireAllRules();
         assertEquals(0, k);
@@ -74,8 +74,7 @@ class AuthRuleTests {
         // Will activate
         // --------------------------------------------------------------------
 
-        clock.advanceTime(5, TimeUnit.MINUTES);
-
+        clock.advanceTime(10, TimeUnit.HOURS);
         for (int i = 0; i < 5; i++) {
             ksession.insert(new FailedLoginEvent(Long.valueOf(i), attackerIp, victimEmail));
         }

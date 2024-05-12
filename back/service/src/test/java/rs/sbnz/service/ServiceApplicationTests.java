@@ -91,7 +91,7 @@ class ServiceApplicationTests {
             User with id 1 has permission 2 (buy_article)
             User with id 1 has permission 1 (comment_on_articles)
         */
-        ksession.insert(new Request(1L, "", "", u1));
+        ksession.insert(new Request(1L, "", "", "5173", u1));
         k = ksession.fireAllRules();
         assertEquals(2, k);
 
@@ -104,8 +104,8 @@ class ServiceApplicationTests {
             User with id 2 has permission 1 (comment_on_articles)
             User with id 2 has permission 3 (sell_article)
         */
-        ksession.insert(new Request(2L, "", "", u1));
-        ksession.insert(new Request(3L, "", "", u2));
+        ksession.insert(new Request(2L, "", "", "5173", u1));
+        ksession.insert(new Request(3L, "", "", "5173", u2));
         k = ksession.fireAllRules();
         assertEquals(5, k);
 
@@ -123,10 +123,10 @@ class ServiceApplicationTests {
             User with id 4 has permission 1 (comment_on_articles)
             User with id 4 has permission 5 (unlock_system)
         */
-        ksession.insert(new Request(4L, "", "", u1));
-        ksession.insert(new Request(5L, "", "", u2));
-        ksession.insert(new Request(6L, "", "", u3));
-        ksession.insert(new Request(7L, "", "", u4));
+        ksession.insert(new Request(4L, "", "", "5173", u1));
+        ksession.insert(new Request(5L, "", "", "5173", u2));
+        ksession.insert(new Request(6L, "", "", "5173", u3));
+        ksession.insert(new Request(7L, "", "", "5173", u4));
         k = ksession.fireAllRules();
         assertEquals(10, k);
     }

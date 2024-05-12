@@ -20,12 +20,14 @@ public class RequestService {
      * 
      * @param srcIp Source IP address from the packet. 
      * @param destIp Destination IP address from the packet.
+     * @param srcPort Source port from which the request was sent
      * @return The Request entity.
      */
-    public Request onRequest(String srcIp, String destIp) {
+    public Request onRequest(String srcIp, String destIp, String srcPort) {
         Request request = new Request();
         request.setSrcIp(srcIp);
         request.setDestIp(destIp);
+        request.setSrcPort(srcPort);
         request.setTimestamp(new Date());
         request = requestRepo.save(request);
 

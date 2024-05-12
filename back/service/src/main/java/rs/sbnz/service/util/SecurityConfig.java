@@ -32,6 +32,7 @@ public class SecurityConfig {
         http.authorizeHttpRequests(request -> {
             request.antMatchers(HttpMethod.OPTIONS,"/**").permitAll(); // Without this, CORS won't work!
             request.antMatchers("/api/auth/**").permitAll();
+            request.antMatchers("/api/test/**").permitAll();
             request.anyRequest().authenticated();
         });
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

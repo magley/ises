@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -45,10 +46,15 @@ public class UserAuthController {
     public ResponseEntity<?> login(@RequestBody LoginDTO dto, @RequestParam String srcIp, @RequestParam String destIp, @RequestParam String srcPort) {
         requestService.onRequest(srcIp, destIp, srcPort);
         
-        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword());
-        Authentication auth = authManager.authenticate(authToken);
-        User user = (User)auth.getPrincipal();
-        String jwt = jwtUtil.generateJWT(user.getUsername(), user.getId(), user.getRole().toString());
-        return ResponseEntity.ok(jwt);
+        try {
+            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword());
+            Authentication auth = authManager.authenticate(authToken);
+            User user = (User)auth.getPrincipal();
+            String jwt = jwtUtil.generateJWT(user.getUsername(), user.getId(), user.getRole().toString());
+            return ResponseEntity.ok(jwt);
+        } catch (AuthenticationException ex) {
+            requestService.onFailedLogin(srcIp, dto.getEmail());
+            throw ex;
+        }
     }
 }

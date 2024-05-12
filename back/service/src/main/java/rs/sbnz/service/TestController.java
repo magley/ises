@@ -8,12 +8,28 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import rs.sbnz.model.events.BlockEvent;
 import rs.sbnz.service.request.RequestService;
 
 @RestController
 @RequestMapping("api/test")
 public class TestController {
     @Autowired private RequestService requestService;
+    
+    @GetMapping("/gimmie/ip-block")
+    public ResponseEntity<?> ipBlock(@RequestParam String srcIp, @RequestParam String destIp, @RequestParam String srcPort, @RequestParam Long durationMs) {
+        requestService.onRequest(srcIp, destIp, srcPort);
+        BlockEvent event = requestService.TEMP_force_block_ip(srcIp, durationMs);
+
+        return new ResponseEntity<String>(event.getIp() + " has been blocked for " + durationMs + "ms!", HttpStatus.OK);
+    }
+
+    // NOTE: /api/test allows unauthenticated users to access
+    // (SecurityConfig.java), these endpoints were written with security in
+    // mind. Not that it matters because they were for testing authorization
+    // which is [at the time of writing this] under maintenance because of
+    // backward chaining logic. 
 
     @GetMapping("/any")
     public ResponseEntity<?> test1(@RequestParam String srcIp, @RequestParam String destIp, @RequestParam String srcPort) {

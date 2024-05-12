@@ -59,6 +59,7 @@ public class Request {
         this.id = id;
         this.srcIp = srcIp;
         this.destIp = destIp;
+        this.srcPort = srcPort;
         this.timestamp = new Date();
         this.user = user;
     }
@@ -67,6 +68,7 @@ public class Request {
         this.id = id;
         this.srcIp = srcIp;
         this.destIp = destIp;
+        this.srcPort = srcPort;
         this.timestamp = timestamp;
         this.user = user;
     }

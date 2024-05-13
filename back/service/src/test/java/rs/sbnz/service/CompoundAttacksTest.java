@@ -16,7 +16,40 @@ import rs.sbnz.model.events.AttackEvent;
 
 public class CompoundAttacksTest {
     @Test
-    void twoDifferentAttacks() {
+    void singleCriticalAttack() {
+        KieServices ks = KieServices.Factory.get();
+        KieContainer kContainer = ks.getKieClasspathContainer(); 
+        KieSession ksession = kContainer.newKieSession("ksessionPseudoClock");
+
+        // ---------------------------------------------------------------------
+        // Will activate
+        // ---------------------------------------------------------------------
+
+        ksession.insert(new AttackEvent(AttackType.AUTHENTICATION, AttackSeverity.CRITICAL));
+        int k = ksession.fireAllRules();
+        assertEquals(1, k);
+    }
+
+    @Test
+    void fourDifferentAttacks() {
+        KieServices ks = KieServices.Factory.get();
+        KieContainer kContainer = ks.getKieClasspathContainer(); 
+        KieSession ksession = kContainer.newKieSession("ksessionPseudoClock");
+
+        // ---------------------------------------------------------------------
+        // Will activate
+        // ---------------------------------------------------------------------
+
+        ksession.insert(new AttackEvent(AttackType.AUTHENTICATION, AttackSeverity.LOW));
+        ksession.insert(new AttackEvent(AttackType.DENIAL_OF_SERVICE, AttackSeverity.LOW));
+        ksession.insert(new AttackEvent(AttackType.ACCESS_CONTROL, AttackSeverity.LOW));
+        ksession.insert(new AttackEvent(AttackType.INJECTION, AttackSeverity.LOW));
+        int k = ksession.fireAllRules();
+        assertEquals(1, k);
+    }
+
+    @Test
+    void twoDifferentAttacksSuperHighOrAbove() {
         KieServices ks = KieServices.Factory.get();
         KieContainer kContainer = ks.getKieClasspathContainer(); 
         KieSession ksession = kContainer.newKieSession("ksessionPseudoClock");

@@ -1,7 +1,7 @@
 # Експертски систем за информациону безбедност
 
-- Филип Контић, SV 20/2020
-- Лазар Магазин, SV 25/2020
+-   Филип Контић, SV 20/2020
+-   Лазар Магазин, SV 25/2020
 
 ## Мотивација
 
@@ -40,20 +40,20 @@
 
 Улазне податке уноси корисник током рада са апликацијом:
 
-- контекст захтева (симулира се, део је сваког захтева):
-  - IP адреса извора
-  - IP адреса дестинације
-  - Port извора
-  - Port дестинације
-  - Протокол (`TCP`)
-  - Endpoint
-- кориснички захев:
-  - регистрација корисника (име, презиме, имејл адреса, лозинка, профилна слика)
-  - пријава корисника (имејл адреса, лозинка)
-  - уплата на рачун (износ)
-  - објава артикла (назив, опис, слика, цена)
-  - куповина артикла
-  - рецензија (артикал/корисник, оцена, коментар)
+-   контекст захтева (симулира се, део је сваког захтева):
+    -   IP адреса извора
+    -   IP адреса дестинације
+    -   Port извора
+    -   Port дестинације
+    -   Протокол (`TCP`)
+    -   Endpoint
+-   кориснички захев:
+    -   регистрација корисника (име, презиме, имејл адреса, лозинка, профилна слика)
+    -   пријава корисника (имејл адреса, лозинка)
+    -   уплата на рачун (износ)
+    -   објава артикла (назив, опис, слика, цена)
+    -   куповина артикла
+    -   рецензија (артикал/корисник, оцена, коментар)
 
 За сваку акцију се прати и корисник који је ту акцију извршио (његов налог, евентуално и IP адреса).
 
@@ -61,13 +61,13 @@
 
 ### Излази
 
-- казна (корисник, казнени бодови, тип)
-- предузета мера:
-  - активација аларма
-  - одбијање захтева
-  - привремено блокирање корисника
-  - трајно блокирање корисника
-  - привремени прекид рада система
+-   казна (корисник, казнени бодови, тип)
+-   предузета мера:
+    -   активација аларма
+    -   одбијање захтева
+    -   привремено блокирање корисника
+    -   трајно блокирање корисника
+    -   привремени прекид рада система
 
 Наведени излази нису коначни.
 
@@ -213,7 +213,7 @@ when # Level 1
     queryText like "' UNION SELECT"
 then
     new Alarm(Severity.Low)
-    new Attack(Type.Injection) 
+    new Attack(Type.Injection)
     # Hibernate protects us against SQLi, but someone tried to attack either way
 
 when # Level 4
@@ -244,6 +244,114 @@ then
     new Alarm(Severity.Critical)
     Server.Config.SetAvailability(ServerAvailability.RestrictAccessToAdmins)
 ```
+
+```ruby
+when
+    $r: Request($ip)
+    Block($ip)
+then
+    $r.setRejected(true);
+    # Finish the request early, returning 403 Forbidden.
+```
+
+**Backward chaining**:
+
+1. Хијерархијски RBAC: Сваки endpoint зависи од једне (или потенцијално више)
+   пермисија које мора имати корисник који при шаље захтев. Улога има ниједну или
+   више пермисија. Улога може имати највише једну улогу као родитеља, при чему она
+   наслеђује пермисије родитељске улоге. Сваки корисник има једну улогу.
+   Неаутентификовани корисник нема улогу.
+
+Пример стабла улога:
+
+```
+        [SuperAdmin]
+           |      \
+         Admin     \
+           |        \
+      [Ban users]  [Unlock system]
+```
+
+Пример уланчавања уназад:
+
+```ruby
+declar Role {
+    id: int
+    name: string,
+    permissions: Permission[],
+    parent: Role
+}
+
+declare Permission {
+    id: int,
+    name: string
+}
+
+declare User {
+    ...,
+    role: Role
+}
+
+query RoleHasPermission(role: Role, permission: Permission) {
+    Role(id == $role.id, $permissions: permissions)
+    Permission(id == $permission.id, this in $permissions)
+    or
+    $parentRole: Role($role.parent == this)
+    RoleHasPermission($rparentRole, $permission)
+}
+
+query UserHasPermission(user: User, permission: Permission) {
+    User(id == user.id, $role: role)
+    RoleHasPermission($role, $permission)
+}
+```
+
+Пример употребе уланчавања уназад у правилима:
+
+```ruby
+class RbacQuery {
+    user: User,
+    permission: Permission,
+    granted: Bool
+}
+
+rule "Check access for user"
+when
+    $q: RbacQuery($user: user, $permission: permission)
+    !UserHasPermission($user, $permission)
+then
+    $q.granted = false;
+end
+```
+
+Употреба у коду:
+
+```java
+void preAuthorize2(String permissionName) {
+    User user = authFacade.getUser();
+    Permission permission = permissionService.findByName(permissionName);
+
+    RbacQuery query = new RbacQuery(user, permission);
+    ksession.insert(query);
+    ksession.fireAllRules();
+
+    if (query.granted == false) {
+        throw UnauthorizedException();
+    }
+}
+
+@Post("/user/ban?userId")
+void banUser(Long userId) {
+    preAuthorize2("ban_users");
+    ...
+}
+```
+
+2. Извештавање система ради препознавања најчешћих догађаја који доводе до нарушавања безбедности. Пример:
+
+-   добавити све кориснике који су у последњих месец дана блокирани бар три пута због високих транзакција
+-   добавити IP адресе које су спамовале сервер у периоду између два датума
+-   читање логова... **TODO**
 
 **Template**-и ће се реализовати параметризацијом правила користећи UI (или учитавањем
 података из xlsx табеле). Пример:
@@ -300,12 +408,6 @@ when
 then
     new Note($user, ${POINTS}, Type.Transaction, "User spent too much, account possibly breached")
 ```
-
-**Backward chaining**: Извештавање система ради препознавања најчешћих догађаја који доводе до нарушавања безбедности. Пример:
-
-- добавити све кориснике који су у последњих месец дана блокирани бар три пута због високих транзакција
-- добавити IP адресе које су спамовале сервер у периоду између два датума
-- читање логова... **TODO**
 
 ## Пример резоновања
 

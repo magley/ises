@@ -9,6 +9,7 @@ import rs.sbnz.model.BlockReason;
 import rs.sbnz.model.AttackType;
 import java.util.Set;
 import rs.sbnz.model.Request;
+import rs.sbnz.model.AttackSeverity;
 
 rule "Detect CORS violation"
     when
@@ -24,5 +25,5 @@ rule "Detect CORS violation"
         )
     then
         System.out.printf("Access Control Attack (CORS Violation)!\n");
-        insert(new AttackEvent(AttackType.ACCESS_CONTROL));
+        insert(new AttackEvent(AttackType.ACCESS_CONTROL, AttackSeverity.MEDIUM));
 end

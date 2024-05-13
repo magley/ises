@@ -3,6 +3,7 @@ package rules.dos;
 import rs.sbnz.model.Request;
 import rs.sbnz.model.events.AttackEvent;
 import rs.sbnz.model.AttackType;
+import rs.sbnz.model.AttackSeverity;
 
 rule "Source IP is Dest IP"
     when
@@ -18,5 +19,5 @@ rule "Source IP is Dest IP"
         )
     then
         System.out.printf("TCP Flood Attack!\n");
-        insert(new AttackEvent(AttackType.DENIAL_OF_SERVICE));
+        insert(new AttackEvent(AttackType.DENIAL_OF_SERVICE, AttackSeverity.SUPERHIGH));
 end

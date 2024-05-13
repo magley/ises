@@ -10,6 +10,7 @@ import org.kie.api.KieServices;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
 
+import rs.sbnz.model.AttackSeverity;
 import rs.sbnz.model.AttackType;
 import rs.sbnz.model.BlockReason;
 import rs.sbnz.model.events.AttackEvent;
@@ -26,7 +27,7 @@ public class ReportTests {
 
         // Won't print anything
         for (int i = 0; i < 2; ++i) {
-            ksession.insert(new AttackEvent(AttackType.AUTHENTICATION));
+            ksession.insert(new AttackEvent(AttackType.AUTHENTICATION, AttackSeverity.HIGH));
             clock.advanceTime(1, TimeUnit.SECONDS);
         }
         ksession.getAgenda().getAgendaGroup("reports").setFocus();
@@ -37,7 +38,7 @@ public class ReportTests {
 
         // Will print the 5 attacks
         for (int i = 0; i < 5; ++i) {
-            ksession.insert(new AttackEvent(AttackType.AUTHENTICATION));
+            ksession.insert(new AttackEvent(AttackType.AUTHENTICATION, AttackSeverity.HIGH));
             clock.advanceTime(1, TimeUnit.SECONDS);
         }
         ksession.getAgenda().getAgendaGroup("reports").setFocus();
@@ -54,7 +55,7 @@ public class ReportTests {
 
         // Won't print anything
         for (int i = 0; i < 2; ++i) {
-            ksession.insert(new AttackEvent(AttackType.AUTHENTICATION));
+            ksession.insert(new AttackEvent(AttackType.AUTHENTICATION, AttackSeverity.HIGH));
             clock.advanceTime(1, TimeUnit.SECONDS);
         }
         ksession.getAgenda().getAgendaGroup("reports2").setFocus();
@@ -67,7 +68,7 @@ public class ReportTests {
         AttackType types[] = { AttackType.AUTHENTICATION, AttackType.ACCESS_CONTROL, AttackType.DENIAL_OF_SERVICE, AttackType.INJECTION, AttackType.INJECTION };
         for (int i = 0; i < 5; ++i) {
             AttackType type = types[i];
-            ksession.insert(new AttackEvent(type));
+            ksession.insert(new AttackEvent(type, AttackSeverity.HIGH));
             clock.advanceTime(1, TimeUnit.SECONDS);
         }
         ksession.getAgenda().getAgendaGroup("reports2").setFocus();

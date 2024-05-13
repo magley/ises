@@ -7,6 +7,7 @@ import rs.sbnz.model.events.AttackEvent;
 import rs.sbnz.model.NoteType;
 import rs.sbnz.model.BlockReason;
 import rs.sbnz.model.AttackType;
+import rs.sbnz.model.AttackSeverity;
 import java.util.Set;
 
 rule "Note when too many failed logins from same ip to the same account"
@@ -72,5 +73,5 @@ rule "Too many blocked IPs for auth attacks"
         not AttackEvent($type: type, $type == AttackType.AUTHENTICATION)
     then
         System.out.printf("Authentication attack detected!\n");
-        insert(new AttackEvent(AttackType.AUTHENTICATION));
+        insert(new AttackEvent(AttackType.AUTHENTICATION, AttackSeverity.HIGH));
 end

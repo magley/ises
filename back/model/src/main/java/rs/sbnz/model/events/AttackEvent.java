@@ -25,4 +25,9 @@ public class AttackEvent {
         this.type = type;
     }
 
+    @Override
+    public String toString() {
+        return "AttackEvent [type=" + type + "]";
+    }
+
 }

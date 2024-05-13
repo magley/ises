@@ -49,4 +49,9 @@ public class BlockEvent {
     public void setReason(BlockReason reason) {
         this.reason = reason;
     }
+
+    @Override
+    public String toString() {
+        return "BlockEvent [ip=" + ip + ", duration=" + duration + ", reason=" + reason + "]";
+    }
 }

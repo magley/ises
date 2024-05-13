@@ -1,8 +1,12 @@
 <kmodule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns="http://jboss.org/kie/6.0.0/kmodule">
 
-    <kbase name="isesKbase" default="true" eventProcessingMode="stream">
+    <kbase name="isesKbase" default="true" eventProcessingMode="stream" packages="rules.*">
         <ksession name="ksessionPseudoClock" clockType="pseudo" />
         <ksession name="ksessionRealtimeClock" clockType="realtime" />
+    </kbase>
+    <kbase name="isesKbaseReports" eventProcessingMode="stream" packages="reports">
+        <ksession name="reportsPseudoClock" clockType="pseudo" />
+        <ksession name="reportsRealtimeClock" clockType="realtime" />
     </kbase>
 </kmodule>

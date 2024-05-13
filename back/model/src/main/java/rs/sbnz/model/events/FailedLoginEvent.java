@@ -46,4 +46,11 @@ public class FailedLoginEvent {
     public void setEmail(String email) {
         this.email = email;
     }
+
+    @Override
+    public String toString() {
+        return "FailedLoginEvent [id=" + id + ", ip=" + ip + ", email=" + email + "]";
+    }
+
+    
 }

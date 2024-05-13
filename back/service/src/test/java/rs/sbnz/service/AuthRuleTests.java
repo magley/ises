@@ -12,7 +12,6 @@ import org.kie.api.runtime.KieSession;
 
 import rs.sbnz.model.BlockReason;
 import rs.sbnz.model.NoteType;
-import rs.sbnz.model.Request;
 import rs.sbnz.model.events.BlockEvent;
 import rs.sbnz.model.events.FailedLoginEvent;
 import rs.sbnz.model.events.Note;

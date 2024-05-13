@@ -1,7 +1,5 @@
 package rs.sbnz.model;
 
-import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -11,7 +9,6 @@ import javax.persistence.ManyToOne;
 
 import org.kie.api.definition.type.Expires;
 import org.kie.api.definition.type.Role;
-import org.kie.api.definition.type.Timestamp;
 
 @Role(Role.Type.EVENT)
 @Entity

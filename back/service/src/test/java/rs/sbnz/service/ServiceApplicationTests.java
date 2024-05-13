@@ -2,9 +2,6 @@ package rs.sbnz.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.Date;
-import java.util.concurrent.TimeUnit;
-import org.drools.core.time.SessionPseudoClock;
 import org.junit.jupiter.api.Test;
 import org.kie.api.KieServices;
 import org.kie.api.runtime.KieContainer;

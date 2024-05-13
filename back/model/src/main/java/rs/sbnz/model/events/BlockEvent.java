@@ -1,7 +1,6 @@
 package rs.sbnz.model.events;
 
 import org.kie.api.definition.type.Duration;
-import org.kie.api.definition.type.Expires;
 import org.kie.api.definition.type.Role;
 
 import rs.sbnz.model.BlockReason;

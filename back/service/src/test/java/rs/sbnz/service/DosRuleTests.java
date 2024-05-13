@@ -28,6 +28,7 @@ public class DosRuleTests {
         clock.advanceTime(5, TimeUnit.MINUTES);
         for (int i = 0; i < 999; i++) {
             ksession.insert(new Request(Long.valueOf(i), "141.212.12.8", "141.212.12.8", "5173"));
+            clock.advanceTime(100, TimeUnit.MILLISECONDS);
         }
 
         clock.advanceTime(1, TimeUnit.MINUTES);
@@ -41,9 +42,11 @@ public class DosRuleTests {
         // --------------------------------------------------------------------
 
         clock.advanceTime(5, TimeUnit.MINUTES);
+
         
         for (int i = 0; i < 1000; i++) {
             ksession.insert(new Request(Long.valueOf(i), "141.212.12.8", "141.212.12.8", "5173"));
+            clock.advanceTime(100, TimeUnit.MILLISECONDS);
         }
         firedRules = ksession.fireAllRules();
         assertEquals(1, firedRules);

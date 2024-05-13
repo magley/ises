@@ -2,12 +2,31 @@ package rules.common;
 
 import rs.sbnz.model.Request;
 import rs.sbnz.model.events.BlockEvent;
+import rs.sbnz.model.events.Note;
+import rs.sbnz.model.NoteType;
 
-// rule "If too many requests in a short amount of time, create a Note"
-//     when
-//         Request()
-//     then
-// end
+// TODO: Write similar rule for User instead of IP.
+rule "If too many requests in a short amount of time, create a Note"
+    when
+        $r: Request(
+            $srcIp: srcIp
+        )
+        Number(intValue >= 50) from accumulate(
+            Request(
+                $ip: srcIp,
+                $ip == $srcIp,
+                this != $r
+            ) over window:time(10s),
+            count($ip)
+        )
+        not Note(
+            ip == $srcIp, 
+            type == NoteType.SPAMMING_REQUESTS
+        ) over window:time(10s)
+    then
+        System.out.printf("Stop spamming, %s!\n", $srcIp);
+        insert(new Note(0L, $srcIp, 5L, NoteType.SPAMMING_REQUESTS));
+end
 
 rule "If IP blocked, reject request"
     salience 1000

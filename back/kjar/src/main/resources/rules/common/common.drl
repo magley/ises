@@ -3,6 +3,12 @@ package rules.common;
 import rs.sbnz.model.Request;
 import rs.sbnz.model.events.BlockEvent;
 
+// rule "If too many requests in a short amount of time, create a Note"
+//     when
+//         Request()
+//     then
+// end
+
 rule "If IP blocked, reject request"
     salience 1000
     when

@@ -10,6 +10,8 @@ import javax.persistence.ManyToOne;
 import org.kie.api.definition.type.Expires;
 import org.kie.api.definition.type.Role;
 
+import rs.sbnz.model.api.Packet;
+
 @Role(Role.Type.EVENT)
 @Entity
 @Expires("6h")
@@ -33,6 +35,14 @@ public class Request {
     // TODO: Is a flag the right way to do this? Would it be better to remove
     // the event altogether if its rejected?
     private boolean isRejected = false;
+
+    public Request(Long id, Packet packet) {
+        this.id = id;
+        this.srcIp = packet.getSrcIp();
+        this.destIp = packet.getDestIp();
+        this.srcPort = packet.getSrcPort();
+        this.user = null;
+    }
 
     public Request(Long id, String srcIp, String destIp, String srcPort) {
         this.id = id;

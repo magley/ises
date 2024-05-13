@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import rs.sbnz.model.api.Packet;
 import rs.sbnz.model.events.BlockEvent;
 import rs.sbnz.service.request.RequestService;
 
@@ -18,9 +19,9 @@ public class TestController {
     @Autowired private RequestService requestService;
     
     @GetMapping("/gimmie/ip-block")
-    public ResponseEntity<?> ipBlock(@RequestParam String srcIp, @RequestParam String destIp, @RequestParam String srcPort, @RequestParam Long durationMs) {
-        requestService.onRequest(srcIp, destIp, srcPort);
-        BlockEvent event = requestService.TEMP_force_block_ip(srcIp, durationMs);
+    public ResponseEntity<?> ipBlock(Packet packet, @RequestParam Long durationMs) {
+        requestService.onRequest(packet);
+        BlockEvent event = requestService.TEMP_force_block_ip(packet.getSrcIp(), durationMs);
 
         return new ResponseEntity<String>(event.getIp() + " has been blocked for " + durationMs + "ms!", HttpStatus.OK);
     }
@@ -32,24 +33,24 @@ public class TestController {
     // backward chaining logic. 
 
     @GetMapping("/any")
-    public ResponseEntity<?> test1(@RequestParam String srcIp, @RequestParam String destIp, @RequestParam String srcPort) {
-        requestService.onRequest(srcIp, destIp, srcPort);
+    public ResponseEntity<?> test1(Packet packet) {
+        requestService.onRequest(packet);
 
         return new ResponseEntity<String>("Hello any authenticated user!", HttpStatus.OK);
     }
 
     @GetMapping("/admin")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> test2(@RequestParam String srcIp, @RequestParam String destIp, @RequestParam String srcPort) {
-        requestService.onRequest(srcIp, destIp, srcPort);
+    public ResponseEntity<?> test2(Packet packet) {
+        requestService.onRequest(packet);
 
         return new ResponseEntity<String>("Hello admin!", HttpStatus.OK);
     }
 
     @GetMapping("/client")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<?> test3(@RequestParam String srcIp, @RequestParam String destIp, @RequestParam String srcPort) {
-        requestService.onRequest(srcIp, destIp, srcPort);
+    public ResponseEntity<?> test3(Packet packet) {
+        requestService.onRequest(packet);
 
         return new ResponseEntity<String>("Hello client!", HttpStatus.OK);
     }

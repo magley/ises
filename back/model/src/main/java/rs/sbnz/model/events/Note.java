@@ -10,9 +10,19 @@ import rs.sbnz.model.User;
 @Expires("6h")
 public class Note {
     private Long id;
+    
+    /** IP address of the user receiving a note. If `user` is specified, this
+     * should be empty. */
     private String ip;
+
+    /** User receiving a note. If `ip` is specified, this should be null. */
     private User user;
+
+    /** Number of points this note is worth. There's no intrinsic semantics to
+     * this value: it's up to you to decide. */
     private Long points;
+
+    /** Type of note. */
     private NoteType type;
 
     public Note() {

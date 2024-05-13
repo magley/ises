@@ -11,10 +11,10 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import rs.sbnz.model.User;
+import rs.sbnz.model.api.Packet;
 import rs.sbnz.service.request.RequestService;
 import rs.sbnz.service.user.dto.LoginDTO;
 import rs.sbnz.service.user.dto.RegisterDTO;
@@ -30,8 +30,8 @@ public class UserAuthController {
 
     @PermitAll
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody RegisterDTO dto, @RequestParam String srcIp, @RequestParam String destIp, @RequestParam String srcPort) {
-        requestService.onRequest(srcIp, destIp, srcPort);
+    public ResponseEntity<?> registerUser(Packet packet, @RequestBody RegisterDTO dto) {
+        requestService.onRequest(packet);
 
         userService.add(dto.getEmail(), dto.getPassword(), dto.getName(), dto.getLastName());
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -39,8 +39,8 @@ public class UserAuthController {
 
     @PermitAll
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginDTO dto, @RequestParam String srcIp, @RequestParam String destIp, @RequestParam String srcPort) {
-        requestService.onRequest(srcIp, destIp, srcPort);
+    public ResponseEntity<?> login(Packet packet, @RequestBody LoginDTO dto) {
+        requestService.onRequest(packet);
         
         try {
             UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword());
@@ -49,7 +49,7 @@ public class UserAuthController {
             String jwt = jwtUtil.generateJWT(user.getUsername(), user.getId(), user.getRole().toString());
             return ResponseEntity.ok(jwt);
         } catch (AuthenticationException ex) {
-            requestService.onFailedLogin(srcIp, dto.getEmail());
+            requestService.onFailedLogin(packet.getSrcIp(), dto.getEmail());
             throw ex;
         }
     }

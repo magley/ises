@@ -1,0 +1,77 @@
+package rules.auth;
+
+import rs.sbnz.model.events.FailedLoginEvent;
+import rs.sbnz.model.events.Note;
+import rs.sbnz.model.events.BlockEvent;
+import rs.sbnz.model.events.AttackEvent;
+import rs.sbnz.model.NoteType;
+import rs.sbnz.model.BlockReason;
+import rs.sbnz.model.AttackType;
+import rs.sbnz.model.AttackSeverity;
+import java.util.Set;
+
+rule "Note when too many failed logins from same ip to the same account"
+    when
+        FailedLoginEvent(
+            $attackerIp: ip, 
+            $victimEmail: email
+        )
+        Number(intValue >= 5) from accumulate(
+            FailedLoginEvent(
+                $eventId: id,
+                $attackerIp == ip,
+                $victimEmail == email
+            ) over window:time(1m),
+            count($eventId)
+        )
+        not Note(
+            $attackerIp == ip, 
+            $noteType: type, 
+            $noteType == NoteType.FAILED_LOGIN
+        ) over window:time(1m)
+    then
+        System.out.printf("New FAILED_LOGIN note for ip %s\n", $attackerIp);
+        insert(new Note(0L, $attackerIp, 3L, NoteType.FAILED_LOGIN));
+end
+
+
+rule "Block IP with too many failed login notes"
+    when
+        $n: Note(
+            $ip: ip, 
+            $type: type,
+            $type == NoteType.FAILED_LOGIN
+        )
+        Number(intValue >= 100) from accumulate(
+            Note(
+                $ip == ip,
+                $points: points,
+                $type == type
+            ) over window:time(24h),
+            sum($points)
+        )
+        (
+            (not BlockEvent($ip == ip))
+            or 
+            (BlockEvent($ip == ip, this before $n))
+        )
+    then
+        System.out.printf("New block for ip %s\n", $ip);
+        insert(new BlockEvent($ip, 24 * 60 * 60 * 1000L, BlockReason.AUTH_ATTACK));
+end
+
+rule "Too many blocked IPs for auth attacks"
+    when
+        Set(size >= 100) from accumulate(
+            BlockEvent(
+                $ip: ip,
+                $reason: reason,
+                $reason == BlockReason.AUTH_ATTACK
+            ) over window:time(24h),
+            collectSet($ip)
+        )
+        not AttackEvent($type: type, $type == AttackType.AUTHENTICATION)
+    then
+        System.out.printf("Authentication attack detected!\n");
+        insert(new AttackEvent(AttackType.AUTHENTICATION, AttackSeverity.HIGH));
+end

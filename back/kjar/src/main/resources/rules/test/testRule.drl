@@ -1,0 +1,47 @@
+package rules.test;
+
+import rs.sbnz.model.Request;
+import rs.sbnz.model.Permission;
+import rs.sbnz.model.Role;
+import rs.sbnz.model.User;
+import rs.sbnz.model.RbacRequest;
+
+query roleHasPermission(int roleId, int permissionId)
+    Role(id == roleId, $permissions: permissions, $parent: parent)
+    (
+        Permission(id == permissionId ) from $permissions
+    )
+    or 
+    (
+        Role($parentId: id, this == $parent)
+        and roleHasPermission($parentId, permissionId;)
+    )
+end
+
+query userHasPermission(int userId, int permissionId)
+    User(id == userId, $rbacRole: rbacRole, rbacRole != null)
+    and roleHasPermission($rbacRole.id, permissionId;)
+end
+
+rule "Show which permissions the user has"
+    when
+        $user: User($userId: id)
+        Request(isRejected == false, user == $user)
+        Permission($permId: id, $permName: name)
+        userHasPermission($userId, $permId;)
+    then
+        System.out.printf("User with id %d has permission %d (%s)\n", $userId, $permId, $permName);
+end
+
+rule "Pre-authorize"
+    no-loop
+    salience 1
+    when
+        $req: RbacRequest($user: user, $permission: permission)
+        not userHasPermission($user.id, $permission.id; )
+    then
+        System.out.printf("Unauthorized user %d for permission %d\n", $user.getId(), $permission.getId());
+        modify($req) {
+            setRejected(true);
+        }
+end

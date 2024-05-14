@@ -1,0 +1,29 @@
+package rules.access;
+
+import rs.sbnz.model.events.FailedLoginEvent;
+import rs.sbnz.model.events.Note;
+import rs.sbnz.model.events.BlockEvent;
+import rs.sbnz.model.events.AttackEvent;
+import rs.sbnz.model.NoteType;
+import rs.sbnz.model.BlockReason;
+import rs.sbnz.model.AttackType;
+import java.util.Set;
+import rs.sbnz.model.Request;
+import rs.sbnz.model.AttackSeverity;
+
+rule "Detect CORS violation"
+    when
+        Request(
+            isRejected == false,
+            $srcIp: srcIp, 
+            $srcPort: srcPort, 
+            !(
+                $srcPort == "5173"
+                ||
+                $srcIp in ("123.0.1.1", "123.0.1.2", "123.0.2.1", "123.0.2.2")
+            )
+        )
+    then
+        System.out.printf("Access Control Attack (CORS Violation)!\n");
+        insert(new AttackEvent(AttackType.ACCESS_CONTROL, AttackSeverity.MEDIUM));
+end

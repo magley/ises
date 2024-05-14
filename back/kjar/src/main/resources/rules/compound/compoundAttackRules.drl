@@ -1,0 +1,86 @@
+package rules.compound;
+
+import rs.sbnz.model.Request;
+import rs.sbnz.model.events.AttackEvent;
+import rs.sbnz.model.AttackType;
+import rs.sbnz.model.AttackSeverity;
+
+
+rule "One Critical attack"
+    salience 5
+    when
+        $attack1: AttackEvent(
+            severity >= AttackSeverity.CRITICAL,
+            madeAwareOf == false
+        )
+    then
+        System.out.println("A single ciritcal attack! Aah!");
+        modify($attack1) {
+            setMadeAwareOf(true);
+        }    
+end
+
+rule "Two SuperHigh (or above) attacks of different type"
+    salience 4
+    when
+        $attack1: AttackEvent(
+            $type1: type, 
+            severity >= AttackSeverity.SUPERHIGH,
+            madeAwareOf == false
+        )
+        $attack2: AttackEvent(
+            type != $type1, 
+            severity >= AttackSeverity.SUPERHIGH,
+            madeAwareOf == false,
+            this after $attack1 
+        )
+    then
+        System.out.println("Two super high attacks of different type! Aaah!");
+        modify($attack1) {
+            setMadeAwareOf(true);
+        }
+        modify($attack2) {
+            setMadeAwareOf(true);
+        }
+end
+
+rule "Four attacks of any severity, each with a different attack"
+    salience 3
+    when
+        $attack1: AttackEvent(
+            $type1: type,
+            madeAwareOf == false
+        )
+        $attack2: AttackEvent(
+            $type2: type,
+            type != $type1,
+            madeAwareOf == false
+        )
+        $attack3: AttackEvent(
+            $type3: type,
+            type != $type1,
+            type != $type2,
+            madeAwareOf == false
+        )
+        $attack4: AttackEvent(
+            $type4: type,
+            type != $type1,
+            type != $type2,
+            type != $type3,
+            madeAwareOf == false
+        )
+    then
+        System.out.println("Four attacks of a different type! Aaah!");
+        modify($attack1) {
+            setMadeAwareOf(true);
+        }
+        modify($attack2) {
+            setMadeAwareOf(true);
+        }
+        modify($attack3) {
+            setMadeAwareOf(true);
+        }
+        modify($attack4) {
+            setMadeAwareOf(true);
+        }
+end

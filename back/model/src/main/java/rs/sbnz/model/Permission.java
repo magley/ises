@@ -25,15 +25,13 @@ public class Permission {
     public Permission() {
     }
 
-    public Permission(Long id, String code) {
-        this.id = id;
+    public Permission(String code) {
         this.code = code;
         this.name = code;
         this.description = code;
     }
     
-    public Permission(Long id, String code, String name, String description) {
-        this.id = id;
+    public Permission(String code, String name, String description) {
         this.code = code;
         this.name = name;
         this.description = description;

@@ -17,6 +17,7 @@ import rs.sbnz.service.request.RequestService;
 @RequestMapping("api/test")
 public class TestController {
     @Autowired private RequestService requestService;
+
     
     @GetMapping("/gimmie/ip-block")
     public ResponseEntity<?> ipBlock(Packet packet, @RequestParam Long durationMs) {

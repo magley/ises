@@ -26,6 +26,11 @@ public class UserService implements UserDetailsService {
         return user;
     }
 
+    public User save(User user) {
+        userRepo.save(user);
+        return user;
+    }
+
     /**
      * Add a new User into the database.
      * 

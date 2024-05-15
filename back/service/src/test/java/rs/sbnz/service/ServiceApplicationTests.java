@@ -23,16 +23,16 @@ class ServiceApplicationTests {
         // Create permissions and roles.
         // --------------------------------------------------------------------
 
-        Permission p1 = new Permission(1L, "comment_on_articles");
-        Permission p2 = new Permission(2L, "buy_article");
-        Permission p3 = new Permission(3L, "sell_article");
-        Permission p4 = new Permission(4L, "ban_user");
-        Permission p5 = new Permission(5L, "unlock_system");
+        Permission p1 = new Permission("comment_on_articles");
+        Permission p2 = new Permission("buy_article");
+        Permission p3 = new Permission("sell_article");
+        Permission p4 = new Permission("ban_user");
+        Permission p5 = new Permission("unlock_system");
 
-        Role rBasicClient = new Role(1L, "Basic client", "");
-        Role rClient = new Role(2L, "Client", "");
-        Role rAdmin = new Role(3L, "Admin", "");
-        Role rSuperAdmin = new Role(4L, "Super Admin", "");
+        Role rBasicClient = new Role("Basic client", "");
+        Role rClient = new Role("Client", "");
+        Role rAdmin = new Role("Admin", "");
+        Role rSuperAdmin = new Role("Super Admin", "");
 
         rBasicClient.getPermissions().add(p1);
         rBasicClient.getPermissions().add(p2);

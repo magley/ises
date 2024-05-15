@@ -33,8 +33,7 @@ public class Role {
     public Role() {
     }
 
-    public Role(Long id, String name, String description) {
-        this.id = id;
+    public Role(String name, String description) {
         this.name = name;
         this.description = description;
         this.permissions = new HashSet<>();

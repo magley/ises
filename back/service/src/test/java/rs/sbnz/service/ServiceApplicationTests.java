@@ -28,11 +28,13 @@ class ServiceApplicationTests {
         Permission p3 = new Permission("sell_article");
         Permission p4 = new Permission("ban_user");
         Permission p5 = new Permission("unlock_system");
+        p1.setId(1L); p2.setId(2L); p3.setId(3L); p4.setId(4L); p5.setId(5L);
 
         Role rBasicClient = new Role("Basic client", "");
         Role rClient = new Role("Client", "");
         Role rAdmin = new Role("Admin", "");
         Role rSuperAdmin = new Role("Super Admin", "");
+        rBasicClient.setId(1L); rClient.setId(2L); rAdmin.setId(3L); rSuperAdmin.setId(4L);
 
         rBasicClient.getPermissions().add(p1);
         rBasicClient.getPermissions().add(p2);

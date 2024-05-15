@@ -12,11 +12,13 @@ import org.springframework.web.bind.annotation.RestController;
 import rs.sbnz.model.api.Packet;
 import rs.sbnz.model.events.BlockEvent;
 import rs.sbnz.service.request.RequestService;
+import rs.sbnz.service.util.RBACUtil;
 
 @RestController
 @RequestMapping("api/test")
 public class TestController {
     @Autowired private RequestService requestService;
+    @Autowired private RBACUtil rbacUtil;
 
     
     @GetMapping("/gimmie/ip-block")
@@ -41,9 +43,9 @@ public class TestController {
     }
 
     @GetMapping("/admin")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> test2(Packet packet) {
         requestService.onRequest(packet);
+        rbacUtil.preAuthorize2("view_reports"); // i.e. needs admin.
 
         return new ResponseEntity<String>("Hello admin!", HttpStatus.OK);
     }

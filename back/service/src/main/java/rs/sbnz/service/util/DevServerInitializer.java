@@ -68,9 +68,14 @@ public class DevServerInitializer {
         ////////////////////////
 
         // password = admin123
-        User u01 = new User(0L, "admin@sbnz.com", "$2a$10$85M6hDvkRHC5.vPon8tn2.dSD8vksJpRCr6N7BDRrwepOdhs2axqq", UserRole.ADMIN, "Adam", "Adamov");
+        User u01 = new User(1L, "admin@sbnz.com", "$2a$10$85M6hDvkRHC5.vPon8tn2.dSD8vksJpRCr6N7BDRrwepOdhs2axqq", UserRole.ADMIN, "Adam", "Adamov");
         u01.setRbacRole(r04);
         u01 = userService.save(u01);
+
+        // password = john123
+        User u02 = new User(2L, "john@gmail.com", "$2a$10$6rcDsHTnQkoCGzI/As4PlOHbmoeWF5ebLyNA7qFKpW2RSQSqtt8aO", UserRole.CLIENT, "John", "Test");
+        u02.setRbacRole(r01);
+        u02 = userService.save(u02);
 
         ////////////////////////
     }

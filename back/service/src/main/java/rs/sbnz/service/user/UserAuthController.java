@@ -46,7 +46,13 @@ public class UserAuthController {
             UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword());
             Authentication auth = authManager.authenticate(authToken);
             User user = (User)auth.getPrincipal();
-            String jwt = jwtUtil.generateJWT(user.getUsername(), user.getId(), user.getRole().toString());
+
+            String roleName = "";
+            if (user.getRbacRole() != null) {
+                roleName = user.getRbacRole().getName();
+            }
+            
+            String jwt = jwtUtil.generateJWT(user.getUsername(), user.getId(), roleName);
             return ResponseEntity.ok(jwt);
         } catch (AuthenticationException ex) {
             requestService.onFailedLogin(packet.getSrcIp(), dto.getEmail());

@@ -1,0 +1,26 @@
+package rules.injection;
+
+import rs.sbnz.model.events.TextQueryEvent;
+import rs.sbnz.model.Request;
+import rs.sbnz.model.events.AttackEvent;
+import rs.sbnz.model.events.Note;
+import rs.sbnz.model.NoteType;
+import rs.sbnz.model.AttackType;
+import rs.sbnz.model.AttackSeverity;
+
+rule "Detect SQL injection"
+    when
+        $r: Request(
+            $ip: srcIp, 
+            isRejected == false
+        )
+        $q: TextQueryEvent(
+            $queryText: queryText,
+            request == $r,
+            $queryText matches "'(([^']*);)|(\\b(ALTER|CREATE|DELETE|DROP|EXEC(UTE){0,1}|INSERT( +INTO){0,1}|MERGE|SELECT|UPDATE|UNION( +ALL){0,1})\b)"
+        )
+    then
+        System.out.printf("SQL Injection: %s!\n", $queryText);
+        insert(new AttackEvent(AttackType.INJECTION, AttackSeverity.LOW));
+        insert(new Note(0L, $ip, 3L, NoteType.INJECTION));
+end

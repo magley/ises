@@ -7,6 +7,8 @@ import rs.sbnz.model.events.Note;
 import rs.sbnz.model.NoteType;
 import rs.sbnz.model.AttackType;
 import rs.sbnz.model.AttackSeverity;
+import rs.sbnz.model.events.BlockEvent;
+import rs.sbnz.model.BlockReason;
 
 rule "Detect SQL injection"
     when
@@ -22,5 +24,30 @@ rule "Detect SQL injection"
     then
         System.out.printf("SQL Injection: %s!\n", $queryText);
         insert(new AttackEvent(AttackType.INJECTION, AttackSeverity.LOW));
-        insert(new Note(0L, $ip, 3L, NoteType.INJECTION));
+        insert(new Note(0L, $ip, 5L, NoteType.INJECTION));
+end
+
+rule "If too many SQL injections by the same IP address, block him"
+    when
+        $n: Note(
+            $ip: ip, 
+            $type: type,
+            $type == NoteType.INJECTION
+        )
+        Number(intValue >= 25) from accumulate(
+            Note(
+                $ip == ip,
+                $points: points,
+                $type == type
+            ) over window:time(10h),
+            sum($points)
+        )
+        (
+            (not BlockEvent($ip == ip))
+            or 
+            (BlockEvent($ip == ip, this before $n))
+        )
+    then
+        System.out.printf("New block for ip %s\n", $ip);
+        insert(new BlockEvent($ip, 30 * 60 * 1000L, BlockReason.INJECTION));
 end

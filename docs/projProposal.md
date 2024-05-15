@@ -214,7 +214,17 @@ when # Level 1
 then
     new Alarm(Severity.Low)
     new Attack(Type.Injection)
+    new Note($ip, 5, Type.Injection)
     # Hibernate protects us against SQLi, but someone tried to attack either way
+
+when # Level 2
+    accumulate(
+        Note($ip, $points, Type.Injection) over 10h,
+        sum($points)
+    ) > 25
+then
+    new Block($ip, 30m)
+
 
 when # Level 4
     Attack($type1, $severity1) &&

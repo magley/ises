@@ -7,7 +7,6 @@ import org.springframework.stereotype.Repository;
 
 import rs.sbnz.model.article.ArticlePurchase;
 
-@Repository
 public interface IArticlePurchaseRepo extends JpaRepository<ArticlePurchase, Long> {
     List<ArticlePurchase> findByArticle(Long articleId);
     List<ArticlePurchase> findByUser(Long userId);

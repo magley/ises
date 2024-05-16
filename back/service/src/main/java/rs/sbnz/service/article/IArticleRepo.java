@@ -7,7 +7,6 @@ import org.springframework.stereotype.Repository;
 
 import rs.sbnz.model.article.Article;
 
-@Repository
 public interface IArticleRepo extends JpaRepository<Article, Long> {
     List<Article> findByOwner(Long ownerId);
 }

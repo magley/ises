@@ -27,7 +27,7 @@ public class ArticleComment {
     @ManyToOne
     private User user;
 
-    @OneToMany
+    @ManyToOne
     private Article article;
 
     public ArticleComment() {

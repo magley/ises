@@ -1,13 +1,14 @@
 import axios from "axios";
 import { Packet } from "./packet";
-import { getJWTorNull } from "./localstorage";
+import { getJWTStringOrNull } from "./localstorage";
 
 const axiosInstance = axios.create();
 
 axiosInstance.interceptors.request.use((config) => {
     const packet: Packet = {
         srcIp: "123.12.23.31",
-        destIp: "123.12.23.31"
+        destIp: "123.12.23.31",
+        srcPort: "5173",
     }
     // According to the HTTP specification, GET does not support `body`. While
     // we _could_ ignore the spec, there's no guarantee that Spring Boot (or any
@@ -15,7 +16,7 @@ axiosInstance.interceptors.request.use((config) => {
     config.params = packet;
 
 
-    const jwt = getJWTorNull();
+    const jwt = getJWTStringOrNull();
     if (jwt != null) {
         config.headers.Authorization = "Bearer " + jwt;
     }

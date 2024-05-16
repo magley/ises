@@ -39,7 +39,7 @@ public class TestController {
     public ResponseEntity<?> test1(Packet packet) {
         requestService.onRequest(packet);
 
-        return new ResponseEntity<String>("Hello any authenticated user!", HttpStatus.OK);
+        return new ResponseEntity<String>("Hello any user!", HttpStatus.OK);
     }
 
     @GetMapping("/admin")
@@ -51,9 +51,9 @@ public class TestController {
     }
 
     @GetMapping("/client")
-    @PreAuthorize("hasRole('ROLE_CLIENT')")
     public ResponseEntity<?> test3(Packet packet) {
         requestService.onRequest(packet);
+        rbacUtil.preAuthorize2("buy_articles"); // i.e. needs client.
 
         return new ResponseEntity<String>("Hello client!", HttpStatus.OK);
     }

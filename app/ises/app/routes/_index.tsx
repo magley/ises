@@ -13,17 +13,9 @@ export const meta: MetaFunction = () => {
 export default function Home() {
     const [text, setText] = useState<string | null>(null);
 
-    useEffect(() => {
-        axiosInstance.get("http://localhost:8080/api/test/any")
-            .then((res) => setText(res.data))
-            .catch((err) => console.error(err));
-    }, []);
-
     return (
         <div>
             Welcome to <b>ises</b>.
-
-            <div>Message from the backend: <b>{text}</b></div>
             <br />
             This page should contain articles and other stuff that all users have
             access to.

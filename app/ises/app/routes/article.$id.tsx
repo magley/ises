@@ -1,7 +1,7 @@
 import { Form, useParams } from "@remix-run/react";
 import { useEffect } from "react";
 import { useState } from "react";
-import { ArticleCommentDTO, ArticleDetailsDTO, ArticleService, NewArticleCommentDTO } from "~/service/article";
+import { ArticleCommentDTO, ArticleDetailsDTO, ArticleService, NewArticleCommentDTO, NewArticlePurchaseDTO } from "~/service/article";
 import toast from "react-hot-toast";
 import { UserService } from "~/service/user";
 
@@ -15,6 +15,9 @@ export default function ArticleDetails() {
     const [errMsg, setErrMsg] = useState<string | null>("");
     const [canLeaveComment, setCanLeaveComment] = useState<boolean>(true);
 
+    // Purchase state
+    const [canPurchase, setCanPurchase] = useState<boolean>(true);
+
     const loadProduct = (id: number) => {
         ArticleService.findById(id).then((res) => {
             setProduct(res.data);
@@ -27,22 +30,34 @@ export default function ArticleDetails() {
         });
     }
 
-    const checkIfCanLeaveComment = () => {
+    const checkPermissions = () => {
         UserService.hasPermission("comment_on_articles").then((res) => {
-            console.log(res.data);
             setCanLeaveComment(res.data);
+        }).catch((err) => {
+            console.error(err);
+        });
+
+        UserService.hasPermission("buy_articles").then((res) => {
+            setCanPurchase(res.data);
         }).catch((err) => {
             console.error(err);
         });
     }
 
     const buyArticle = () => {
-        if (product == undefined) {
+        if (!product) {
             return;
         }
 
-        console.log(`Buy ${product.id}`);
-        toast.success("Item bought.");
+        const dto: NewArticlePurchaseDTO = {
+            articleId: product.id,
+        }
+
+        ArticleService.purchase(dto).then((res) => {
+            toast.success("Article purchased.");
+        }).catch((err) => {
+            console.error(err);
+        });
     }
 
     const submitComment = () => {
@@ -71,7 +86,7 @@ export default function ArticleDetails() {
 
     useEffect(() => {
         loadProduct(params['id'] as unknown as number);
-        checkIfCanLeaveComment();
+        checkPermissions();
     }, []);
 
     return (
@@ -99,9 +114,13 @@ export default function ArticleDetails() {
                 {/* Purchase button */}
                 <>
                     <button
-                        className="flex justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                         onClick={buyArticle}
-                    >
+                        {...(!canLeaveComment && { disabled: true })}
+                        className="
+                            flex justify-center rounded-md bg-indigo-600 px-5 py-1.5 text-sm font-semibold leading-6 
+                            text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 
+                            focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:bg-slate-300 
+                            disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none">
                         Purchase
                     </button>
                 </>
@@ -151,8 +170,8 @@ export default function ArticleDetails() {
                             </div>
                             <div>
                                 <button
-                                    {...(!canLeaveComment && { disabled: true })}
                                     onClick={e => { e.preventDefault(); submitComment(); }}
+                                    {...(!canLeaveComment && { disabled: true })}
                                     className="
                                         flex justify-center rounded-md bg-indigo-600 px-5 py-1.5 text-sm font-semibold leading-6 
                                         text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 

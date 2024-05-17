@@ -6,12 +6,10 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 import rs.sbnz.model.User;
 import rs.sbnz.model.article.Article;
 import rs.sbnz.model.article.ArticleComment;
 import rs.sbnz.model.article.ArticlePurchase;
-import rs.sbnz.service.article.dto.ArticleCommentDTO;
 import rs.sbnz.service.article.dto.NewArticleCommentDTO;
 import rs.sbnz.service.exceptions.NotFoundException;
 
@@ -73,6 +71,13 @@ public class ArticleService {
     //-------------------------------------------------------------------------
     // Article Purchase
     //-------------------------------------------------------------------------
+
+    public ArticlePurchase save(Long articleId, User user) {
+        Article article = findArticleById(articleId).orElseThrow(() -> new NotFoundException());
+        ArticlePurchase ap = new ArticlePurchase(null, user, article, Instant.now());
+        ap = save(ap);
+        return ap;
+    }
 
     public ArticlePurchase save(ArticlePurchase ap) {
         ap = articlePurchaseRepo.save(ap);

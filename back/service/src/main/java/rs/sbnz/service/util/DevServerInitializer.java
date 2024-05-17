@@ -1,6 +1,10 @@
 package rs.sbnz.service.util;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAmount;
+import java.time.temporal.TemporalUnit;
+import java.util.concurrent.TimeUnit;
 
 import org.kie.api.runtime.KieSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,12 +95,14 @@ public class DevServerInitializer {
 
         ////////////////////////////////////////////////////////////////////////
 
-        Article a01 = new Article(1L, Instant.now(), u02);
+        Article a01 = new Article(1L, Instant.now().minus(10L, ChronoUnit.DAYS), u02, "Shirt", 123.0);
         a01 = articleService.save(a01);
-
         articleService.save(new ArticlePurchase(1L, u03, a01, Instant.now()));
-
         articleService.save(new ArticleComment(1L, Instant.now(), "Mine!", u02, a01));
         articleService.save(new ArticleComment(2L, Instant.now(), "Good...", u03, a01));
+
+        Article a02 = new Article(2L, Instant.now(), u03, "Lamp", 456.0);
+        a02 = articleService.save(a02);
+        articleService.save(new ArticleComment(3L, Instant.now(), "too bright..........", u02, a02));
     }
 }

@@ -1,6 +1,37 @@
+import { AxiosResponse } from "axios";
+import axiosInstance from "~/util/axiosInterceptor";
+import { UserDTO } from "./user";
+
 export interface ArticleDTO {
     id: number,
     name: string,
     imageB64: string,
     price: number,
 }
+
+export interface ArticleCommentDTO {
+    id: number,
+    userId: number,
+    userEmail: string,
+    timestamp: Date,
+    comment: string
+}
+
+export interface ArticleDetailsDTO {
+    id: number,
+    timestamp: Date,
+    owner: UserDTO,
+    comments: ArticleCommentDTO[],
+    name: string,
+    price: number
+}
+
+export abstract class ArticleService {
+    static getAllArticles(): Promise<AxiosResponse<ArticleDTO[]>> {
+        return axiosInstance.get(`http://localhost:8080/api/article/all`);
+    }
+
+    static findById(id: number): Promise<AxiosResponse<ArticleDetailsDTO>> {
+        return axiosInstance.get(`http://localhost:8080/api/article/${id}`);
+    }
+};

@@ -1,37 +1,12 @@
 import { Form, useParams } from "@remix-run/react";
 import { useEffect } from "react";
 import { useState } from "react";
-import { ArticleDTO } from "~/service/article";
-import { CommentDTO } from "~/service/comment";
+import { ArticleCommentDTO, ArticleDetailsDTO, ArticleService } from "~/service/article";
 import toast from "react-hot-toast";
 
-const commentExamples: CommentDTO[] = [
-    {
-        id: 1,
-        userId: 1,
-        userEmail: "john@gmail.com",
-        timestamp: new Date(),
-        comment: "i hate this"
-    },
-    {
-        id: 2,
-        userId: 2,
-        userEmail: "bob@gmail.com",
-        timestamp: new Date("2024.5.15."),
-        comment: "Looks just like in the pictures!"
-    },
-    {
-        id: 3,
-        userId: 3,
-        userEmail: "rajeshpoomar@gmail.com",
-        timestamp: new Date("2024.5.14."),
-        comment: "download free bitcoins >>>>>>>>>>> bit.ly/d38fh"
-    }
-]
-
 export default function ArticleDetails() {
-    const [product, setProduct] = useState<ArticleDTO>();
-    const [comments, setComments] = useState<CommentDTO[]>([]);
+    const [product, setProduct] = useState<ArticleDetailsDTO>();
+    const [comments, setComments] = useState<ArticleCommentDTO[]>([]);
     const params = useParams();
 
     // Comment section state
@@ -39,13 +14,10 @@ export default function ArticleDetails() {
     const [errMsg, setErrMsg] = useState<string | null>("");
 
     const loadProduct = (id: number) => {
-        const article: ArticleDTO = {
-            id: id,
-            name: "Bla bla",
-            imageB64: 'iVBORw0KGgoAAAANSUhEUgAAAFgAAABCCAIAAABcuoaeAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAANSSURBVHhe7ZqxixNBFMZzlcED9cBAjrOInIVgZWltK5gydimDVdBCLCwllZ0QsUkv2Njkz0jpf2AjanO6qS5+5H15xOzu7GR2JsnJ+7GFuzP77Xu/zO1t9mwsjCUmgpgIYiKIiSAmgpgI8l+JmE6nnU6n8S84MplMOKMcXxHIyl/DB886arKh4HHz+pfW2bPjG7LbbDY5rxwvEePxWBKDQZUIYVw8CpcA+Hp698ede9/OzrnfqG7TS0S73UbWhuZK8vMjrg7HCh0MBrAgGw/FEiFZovnn+QMereLXw0da0Oy0o0aCdZR9/goUyEy9LgfiitB0Hq0CyvQUbFio/eObEgXQUuUPi7tzrDj4xfbxyVOesEIvyqn7FfHn/Qc9RTfUva4jDCwu5GhmfpHqEE/YrwilvhH58DcSdPv9+g2vtEKHeH5cEVjbko7GOODN5Xx+8eKV1re+ocPCG7C7ed3yFoCOMiuuiLe3bku6//1yA4eObbeL50OkMTeHTpPKAQfK2ULEtaMjvQAHQgkzUvjhF6KnSOWAA+VsIQLoBThQm8Lbx/rm3/w6ejrrPnwRidA6WbeJYN3pRMw/febYQaJ1su7oIr537ssFgn9x7IZUIvA1VuJenrTkAmH3sJ2RSsRoNGLeCp9vCnsklQgwHA4Z6ST4m2VcEorIsqzf7zO1iujrJf811H2JhCLW8ZQScXXIm6E8ZTp2JKKM/K3E52WhD4wrIa9DX4XIBH1h4yCmCGFjvcAOB2rArNUHW7YkdQ3Kk/u7k5Ycl7PcxBch6M01yqKQKMD9JQ4dskC4v18RqJJV+NXhhkFFUT43LE51kkoE0Mew2WzGQ6FIDuB+Efk7lMIZThKK6PV6Uke32+WhUCQHcL+c/ALxuVOChCKwEFiL32figCm1cxwkjAYs30SwfBPB8k2E/uKo+VglIYD7CUgrItZjlYQA7icgrYhYj1WMuLoiADswEezARLADE8EOTAQ7MBHswESwAxPBDkwEOzAR7MBEsAMTwQ5MBDswEezARLADE8EOTAQ7MBHsoNGo818EGHGlRej7W/xjWxeY31kiCYADCUguwvEnyQAYmoDkIkAsF55/xQxjFyJAsIter5dlGVNSsiMRh4+JICZiyWLxF4pLkguoYtLQAAAAAElFTkSuQmCC',
-            price: 123
-        };
-        setProduct(article);
+        ArticleService.findById(id).then((res) => {
+            setProduct(res.data);
+            setComments(res.data.comments);
+        });
     }
 
     const buyArticle = () => {
@@ -70,7 +42,6 @@ export default function ArticleDetails() {
 
     useEffect(() => {
         loadProduct(params['id'] as unknown as number);
-        setComments(commentExamples);
     }, []);
 
     return (
@@ -86,7 +57,7 @@ export default function ArticleDetails() {
                             Name: {product.name} <br />
                             Price: ${product.price} <br />
                             <img
-                                src={`data:image/png;base64,${product.imageB64}`}
+                                src={`data:image/png;base64,${''}`}
                                 className="h-full w-full object-cover object-center lg:h-full lg:w-full"
                             />
                         </div>

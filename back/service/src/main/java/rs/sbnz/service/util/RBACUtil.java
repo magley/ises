@@ -16,7 +16,7 @@ public class RBACUtil {
     @Autowired private PermissionService permissionService;
     @Autowired private KieSession kSession;
 
-    public void preAuthorize2(String permissionCode) {
+    public void preAuthorize2(String permissionCode) throws UnauthorizedException {
         User user = authFacade.getUser();
         Permission permission = permissionService.findByCode(permissionCode).orElseThrow(
             () -> new UnauthorizedException()

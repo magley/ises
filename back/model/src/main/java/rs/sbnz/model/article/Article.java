@@ -31,14 +31,22 @@ public class Article {
     @OneToMany(cascade = CascadeType.ALL , fetch = FetchType.EAGER, mappedBy = "article")
     private Set<ArticleComment> comments;
 
+    @Column
+    private String name;
+
+    @Column
+    private Double price;
+
     public Article() {
     }
 
-    public Article(Long id, Instant timestamp, User owner) {
+    public Article(Long id, Instant timestamp, User owner, String name, Double price) {
         this.id = id;
         this.timestamp = timestamp;
         this.owner = owner;
         this.comments = new HashSet<>();
+        this.name = name;
+        this.price = price;
     }
 
     public Long getId() {
@@ -71,5 +79,21 @@ public class Article {
 
     public void setComments(Set<ArticleComment> comments) {
         this.comments = comments;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Double getPrice() {
+        return this.price;
+    }
+
+    public void setPrice(Double price) {
+        this.price = price;
     }
 }

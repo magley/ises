@@ -20,6 +20,10 @@ public class ArticleService {
     // Article
     //-------------------------------------------------------------------------
 
+    public List<Article> findAllArticles() {
+        return articleRepo.findAll();
+    }
+
     public Article save(Article a) {
         a = articleRepo.save(a);
         return a;

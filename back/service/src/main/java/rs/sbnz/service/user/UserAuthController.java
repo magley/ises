@@ -1,6 +1,5 @@
 package rs.sbnz.service.user;
 
-import javax.annotation.security.PermitAll;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -8,6 +7,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,10 +15,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import rs.sbnz.model.User;
 import rs.sbnz.model.api.Packet;
+import rs.sbnz.service.exceptions.UnauthorizedException;
 import rs.sbnz.service.request.RequestService;
 import rs.sbnz.service.user.dto.LoginDTO;
 import rs.sbnz.service.user.dto.RegisterDTO;
 import rs.sbnz.service.util.JWTUtil;
+import rs.sbnz.service.util.RBACUtil;
 
 @RestController
 @RequestMapping("api/auth")
@@ -27,8 +29,20 @@ public class UserAuthController {
     @Autowired private UserService userService;
     @Autowired private JWTUtil jwtUtil;
     @Autowired private AuthenticationManager authManager;
+    @Autowired private RBACUtil rbacUtil;
 
-    @PermitAll
+    @GetMapping("/permission")
+    public ResponseEntity<?> checkForPermission(Packet packet, String permissionCode) {
+        requestService.onRequest(packet);
+
+        try {
+            rbacUtil.preAuthorize2(permissionCode);
+            return ResponseEntity.status(HttpStatus.OK).body(true);
+        } catch (UnauthorizedException ex) {
+            return ResponseEntity.status(HttpStatus.OK).body(false);
+        }
+    }
+
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(Packet packet, @RequestBody RegisterDTO dto) {
         requestService.onRequest(packet);
@@ -37,7 +51,6 @@ public class UserAuthController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @PermitAll
     @PostMapping("/login")
     public ResponseEntity<?> login(Packet packet, @RequestBody LoginDTO dto) {
         requestService.onRequest(packet);

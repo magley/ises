@@ -13,4 +13,8 @@ export abstract class UserService {
     static hasPermission(permissionCode: string): Promise<AxiosResponse<boolean>> {
         return axiosInstance.get(`http://localhost:8080/api/auth/permission?permissionCode=${permissionCode}`);
     }
+
+    static findById(id: number): Promise<AxiosResponse<UserDTO>> {
+        return axiosInstance.get(`http://localhost:8080/api/user/${id}`);
+    }
 }

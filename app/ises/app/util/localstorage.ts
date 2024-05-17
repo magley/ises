@@ -51,3 +51,11 @@ export function getJwtShouldNagPassword(): boolean {
     }
     return getJWT(jwtString).nagPassword;
 }
+
+export function getJwtId(): number {
+    const jwtString = getJWTStringOrNull();
+    if (jwtString == null) {
+        return -1;
+    }
+    return getJWT(jwtString).id;
+}

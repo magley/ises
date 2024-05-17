@@ -18,6 +18,7 @@ import rs.sbnz.model.article.Article;
 import rs.sbnz.service.article.dto.ArticleDTO;
 import rs.sbnz.service.article.dto.ArticleDetailsDTO;
 import rs.sbnz.service.article.dto.NewArticleCommentDTO;
+import rs.sbnz.service.article.dto.NewArticleDTO;
 import rs.sbnz.service.article.dto.NewArticlePurchaseDTO;
 import rs.sbnz.service.exceptions.NotFoundException;
 import rs.sbnz.service.request.RequestService;
@@ -65,5 +66,15 @@ public class ArticleController {
 
         articleService.save(dto.getArticleId(), user);
         return ResponseEntity.status(HttpStatus.CREATED).body(null);    
+    }
+
+    @PostMapping
+    public ResponseEntity<?> newArticle(Packet packet, @RequestBody NewArticleDTO dto) {
+        requestService.onRequest(packet);
+        User user = authenticationFacade.getUser();
+        rbacUtil.preAuthorize2("sell_articles");
+
+        articleService.save(dto, user);
+        return ResponseEntity.status(HttpStatus.CREATED).body(null);  
     }
 }

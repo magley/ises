@@ -11,6 +11,7 @@ import rs.sbnz.model.article.Article;
 import rs.sbnz.model.article.ArticleComment;
 import rs.sbnz.model.article.ArticlePurchase;
 import rs.sbnz.service.article.dto.NewArticleCommentDTO;
+import rs.sbnz.service.article.dto.NewArticleDTO;
 import rs.sbnz.service.exceptions.NotFoundException;
 
 @Component
@@ -25,6 +26,12 @@ public class ArticleService {
 
     public List<Article> findAllArticles() {
         return articleRepo.findAll();
+    }
+
+    public Article save(NewArticleDTO dto, User ownerOfTheArticle) {
+        Article a = new Article(null, Instant.now(), ownerOfTheArticle, dto.getName(), dto.getPrice());
+        a = save(a);
+        return a;
     }
 
     public Article save(Article a) {

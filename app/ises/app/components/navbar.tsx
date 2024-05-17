@@ -28,6 +28,12 @@ export default () => {
         { name: 'Log Out', route: null, onClick: logOut },
     ];
 
+    const navigationFullClient: NavigationItem[] = [
+        { name: 'Home', route: '/', onClick: null },
+        { name: 'New Article', route: '/article/new', onClick: null },
+        { name: 'Log Out', route: null, onClick: logOut },
+    ];
+
     const navigationAdmin: NavigationItem[] = [
         { name: 'Home', route: '/', onClick: null },
         { name: 'Log Out', route: null, onClick: logOut },
@@ -45,8 +51,11 @@ export default () => {
             case "SuperAdmin": case "Admin":
                 setNavigation(navigationAdmin);
                 break;
-            case "User": case "Full user":
+            case "User":
                 setNavigation(navigationClient);
+                break;
+            case "Full user":
+                setNavigation(navigationFullClient);
                 break;
             default:
                 setNavigation(navigationGuest);

@@ -5,6 +5,7 @@ import rs.sbnz.model.events.Note;
 import rs.sbnz.model.events.BlockEvent;
 import rs.sbnz.model.events.AttackEvent;
 import rs.sbnz.model.events.LoginEvent;
+import rs.sbnz.model.events.PasswordChangeEvent;
 import rs.sbnz.model.NoteType;
 import rs.sbnz.model.BlockReason;
 import rs.sbnz.model.AttackType;
@@ -34,12 +35,23 @@ rule "Nag user if his password is weak"
     no-loop true
     when
         $loginEvent: LoginEvent($email: email, $password: password)
-        WeakPassword(password == $password);
+        WeakPassword(password == $password)
     then
         modify($loginEvent){
             setWeakPassword(true);   
         }
         System.out.printf("User %s has a weak password.\n", $email);
+end
+
+rule "Toggle flag if new password is weak"
+    no-loop true
+    when
+       $ev: PasswordChangeEvent($password: password)
+       WeakPassword(password == $password)
+    then
+        modify($ev){
+            setIsWeak(true);   
+        }
 end
 
 

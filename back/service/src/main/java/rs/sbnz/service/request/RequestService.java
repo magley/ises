@@ -10,6 +10,7 @@ import rs.sbnz.model.api.Packet;
 import rs.sbnz.model.events.BlockEvent;
 import rs.sbnz.model.events.FailedLoginEvent;
 import rs.sbnz.model.events.LoginEvent;
+import rs.sbnz.model.events.PasswordChangeEvent;
 import rs.sbnz.service.exceptions.IPBlockedException;
 
 @Component
@@ -62,6 +63,19 @@ public class RequestService {
         FailedLoginEvent event = new FailedLoginEvent(0L, srcIp, email);
         ksession.insert(event);
         ksession.fireAllRules();
+    }
+
+    /**
+     * Method to call when a password change event is attempted, used for
+     * detecting weak passwords.
+     * @param newPassword The new password
+     * @return True if the password is weak.
+     */
+    public boolean onChangePassword(String newPassword) {
+        PasswordChangeEvent ev = new PasswordChangeEvent(newPassword);
+        ksession.insert(ev);
+        ksession.fireAllRules();
+        return ev.getIsWeak();
     }
 
     /**

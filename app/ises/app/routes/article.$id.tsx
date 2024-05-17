@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { useState } from "react";
 import { ArticleCommentDTO, ArticleDetailsDTO, ArticleService, NewArticleCommentDTO } from "~/service/article";
 import toast from "react-hot-toast";
+import { UserService } from "~/service/user";
 
 export default function ArticleDetails() {
     const [product, setProduct] = useState<ArticleDetailsDTO>();
@@ -12,6 +13,7 @@ export default function ArticleDetails() {
     // Comment section state
     const [comment, setComment] = useState<string>("");
     const [errMsg, setErrMsg] = useState<string | null>("");
+    const [canLeaveComment, setCanLeaveComment] = useState<boolean>(true);
 
     const loadProduct = (id: number) => {
         ArticleService.findById(id).then((res) => {
@@ -22,6 +24,15 @@ export default function ArticleDetails() {
                 return d2.getTime() - d1.getTime();
             });
             setComments(res.data.comments);
+        });
+    }
+
+    const checkIfCanLeaveComment = () => {
+        UserService.hasPermission("comment_on_articles").then((res) => {
+            console.log(res.data);
+            setCanLeaveComment(res.data);
+        }).catch((err) => {
+            console.error(err);
         });
     }
 
@@ -60,6 +71,7 @@ export default function ArticleDetails() {
 
     useEffect(() => {
         loadProduct(params['id'] as unknown as number);
+        checkIfCanLeaveComment();
     }, []);
 
     return (
@@ -126,6 +138,7 @@ export default function ArticleDetails() {
                                 </label>
                                 <div className="mt-2">
                                     <textarea
+                                        {...(!canLeaveComment && { disabled: true })}
                                         id="comment"
                                         name="comment"
                                         rows={5}
@@ -138,9 +151,13 @@ export default function ArticleDetails() {
                             </div>
                             <div>
                                 <button
+                                    {...(!canLeaveComment && { disabled: true })}
                                     onClick={e => { e.preventDefault(); submitComment(); }}
-                                    className="flex justify-center rounded-md bg-indigo-600 px-5 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                                >
+                                    className="
+                                        flex justify-center rounded-md bg-indigo-600 px-5 py-1.5 text-sm font-semibold leading-6 
+                                        text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 
+                                        focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:bg-slate-300 
+                                        disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none">
                                     Post
                                 </button>
                                 <div className="mt-5 font-semibold text-red-600">

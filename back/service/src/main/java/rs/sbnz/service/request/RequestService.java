@@ -9,6 +9,7 @@ import rs.sbnz.model.Request;
 import rs.sbnz.model.api.Packet;
 import rs.sbnz.model.events.BlockEvent;
 import rs.sbnz.model.events.FailedLoginEvent;
+import rs.sbnz.model.events.LoginEvent;
 import rs.sbnz.service.exceptions.IPBlockedException;
 
 @Component
@@ -35,6 +36,12 @@ public class RequestService {
         }
 
         return request;
+    }
+
+    public void onLoginAttempt(String email, String password) {
+        LoginEvent ev = new LoginEvent(email, password);
+        ksession.insert(ev);
+        ksession.fireAllRules();
     }
 
     /**

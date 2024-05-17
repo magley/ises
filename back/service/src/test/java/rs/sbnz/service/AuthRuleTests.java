@@ -14,9 +14,26 @@ import rs.sbnz.model.BlockReason;
 import rs.sbnz.model.NoteType;
 import rs.sbnz.model.events.BlockEvent;
 import rs.sbnz.model.events.FailedLoginEvent;
+import rs.sbnz.model.events.LoginEvent;
 import rs.sbnz.model.events.Note;
 
 class AuthRuleTests {
+    @Test
+    void tooManyLoginsOfDirrentAccountsWithTheSamePassword() {
+        KieServices ks = KieServices.Factory.get();
+        KieContainer kContainer = ks.getKieClasspathContainer(); 
+        KieSession ksession = kContainer.newKieSession("ksessionPseudoClock");
+        SessionPseudoClock clock = ksession.getSessionClock();
+
+        for (int i = 0; i < 5; i++) {
+            ksession.insert(new LoginEvent(i + "@gmail.com", "123"));
+            clock.advanceTime(1, TimeUnit.MINUTES);
+        }
+
+        int k = ksession.fireAllRules();
+        assertEquals(1, k);
+    }
+
     @Test
     void tooManyFailedLogins() {
         KieServices ks = KieServices.Factory.get();

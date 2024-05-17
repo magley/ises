@@ -129,7 +129,7 @@ then
 
 
 when
-    count(Login($password) over 10 min) > 100
+    count_unique(Login(same $password, count $email) over 6h) > 5
 then
     new Note(None, 2, Type.Auth_Pass, "Weak password {password}")
     new WeakPassword($password)

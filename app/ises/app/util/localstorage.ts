@@ -35,3 +35,11 @@ export function getJwtRole(): string {
     }
     return getJWT(jwtString).role;
 }
+
+export function getJwtEmail(): string {
+    const jwtString = getJWTStringOrNull();
+    if (jwtString == null) {
+        return "";
+    }
+    return getJWT(jwtString).sub;
+}

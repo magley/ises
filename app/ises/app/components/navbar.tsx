@@ -1,13 +1,13 @@
 import { Link, useNavigate } from "@remix-run/react";
 import { useEffect, useState } from "react";
-import { clearJWT, getJwtRole } from "~/util/localstorage";
+import { clearJWT, getJwtEmail, getJwtRole } from "~/util/localstorage";
 
 export default () => {
     const navigate = useNavigate();
+    const [email, setEmail] = useState<string>("");
 
     const logOut = () => {
         clearJWT();
-        //navigate("/login");
         window.location.replace("/login");
     }
 
@@ -39,6 +39,8 @@ export default () => {
     useEffect(() => {
         const role = getJwtRole();
 
+        setEmail(getJwtEmail());
+
         switch (role) {
             case "SuperAdmin": case "Admin":
                 setNavigation(navigationAdmin);
@@ -55,23 +57,28 @@ export default () => {
     return (
         <nav className="bg-slate-900 py-2">
             <h1 className="text-indigo-400 rounded-md px-3 py-2 text-2xl font-medium inline-block">ises</h1>
+            {email != "" &&
+                <h1 className="text-white rounded-md px-3 py-2 font-medium inline-block">{email}</h1>
+            }
             <span className="space-y-1 px-2 pb-3 pt-2">
-                {navigation.map((item) => (
-                    item.route ?
-                        <Link
-                            key={item.name}
-                            to={item.route}
-                            className="text-gray-300 hover:bg-gray-700 hover:text-white inline-block rounded-md px-3 py-2 text-base font-extrabold">
-                            {item.name}
-                        </Link> :
-                        <Link
-                            key={item.name}
-                            to=""
-                            onClick={(e) => { e.preventDefault(); if (item.onClick != null) item.onClick(); }}
-                            className="text-gray-300 hover:bg-gray-700 hover:text-white inline-block rounded-md px-3 py-2 text-base font-extrabold">
-                            {item.name}
-                        </Link>
-                ))}
+                {
+                    navigation.map((item) => (
+                        item.route ?
+                            <Link
+                                key={item.name}
+                                to={item.route}
+                                className="text-gray-300 hover:bg-gray-700 hover:text-white inline-block rounded-md px-3 py-2 text-base font-extrabold">
+                                {item.name}
+                            </Link> :
+                            <Link
+                                key={item.name}
+                                to=""
+                                onClick={(e) => { e.preventDefault(); if (item.onClick != null) item.onClick(); }}
+                                className="text-gray-300 hover:bg-gray-700 hover:text-white inline-block rounded-md px-3 py-2 text-base font-extrabold">
+                                {item.name}
+                            </Link>
+                    ))
+                }
             </span>
         </nav >
     );

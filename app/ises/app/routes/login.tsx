@@ -42,7 +42,7 @@ export default function Login() {
                 </div>
 
                 <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-                    <Form className="space-y-6" onSubmit={submitLogin}>
+                    <Form className="space-y-6" onSubmit={e => { e.preventDefault(); submitLogin(); }}>
                         <div>
                             <label
                                 htmlFor="email"

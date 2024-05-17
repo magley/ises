@@ -38,10 +38,17 @@ public class RequestService {
         return request;
     }
 
-    public void onLoginAttempt(String email, String password) {
+    /**
+     * Method to call after a successful login. Used to capture weak passwords.
+     * @param email Email
+     * @param password Password
+     * @return Whether the password is weak.
+     */
+    public boolean onLoginAttempt(String email, String password) {
         LoginEvent ev = new LoginEvent(email, password);
         ksession.insert(ev);
         ksession.fireAllRules();
+        return ev.isWeakPassword();
     }
 
     /**

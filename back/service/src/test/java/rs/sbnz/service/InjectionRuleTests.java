@@ -1,25 +1,19 @@
 package rs.sbnz.service;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 
-import org.drools.core.common.EventFactHandle;
 import org.drools.core.time.SessionPseudoClock;
 import org.junit.jupiter.api.Test;
 import org.kie.api.KieServices;
-import org.kie.api.runtime.ClassObjectFilter;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
 
-import rs.sbnz.model.BlockReason;
 import rs.sbnz.model.NoteType;
 import rs.sbnz.model.Request;
 import rs.sbnz.model.api.Packet;
-import rs.sbnz.model.events.BlockEvent;
 import rs.sbnz.model.events.Note;
 import rs.sbnz.model.events.TextQueryEvent;
 

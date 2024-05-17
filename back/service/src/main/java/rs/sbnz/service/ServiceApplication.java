@@ -1,7 +1,5 @@
 package rs.sbnz.service;
 
-import java.security.Provider.Service;
-
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;

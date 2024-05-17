@@ -43,3 +43,11 @@ export function getJwtEmail(): string {
     }
     return getJWT(jwtString).sub;
 }
+
+export function getJwtShouldNagPassword(): boolean {
+    const jwtString = getJWTStringOrNull();
+    if (jwtString == null) {
+        return false;
+    }
+    return getJWT(jwtString).nagPassword;
+}

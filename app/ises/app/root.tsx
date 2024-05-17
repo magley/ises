@@ -1,36 +1,45 @@
 import {
-	Links,
-	Meta,
-	Outlet,
-	Scripts,
-	ScrollRestoration,
+    Links,
+    Meta,
+    Outlet,
+    Scripts,
+    ScrollRestoration,
 } from "@remix-run/react";
 
 import type { LinksFunction } from "@remix-run/node";
 import stylesheet from "~/tailwind.css?url";
 import Navbar from "./components/navbar";
-import { Toaster } from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
+import { useEffect } from "react";
+import { getJwtShouldNagPassword } from "./util/localstorage";
 
 export const links: LinksFunction = () => [
-	{ rel: "stylesheet", href: stylesheet },
+    { rel: "stylesheet", href: stylesheet },
 ];
 
 export default function App() {
-	return (
-		<html>
-			<head>
-				<link rel="icon" href="data:image/x-icon;base64,AA" />
-				<Meta />
-				<Links />
-			</head>
-			<body>
-				<Navbar />
+    useEffect(() => {
+        if (getJwtShouldNagPassword()) {
+            toast.error('Your password is too weak! Please change your password.');
+        }
+    });
 
-				<ScrollRestoration />
-				<Scripts />
-				<Outlet />
-				<Toaster />
-			</body>
-		</html>
-	);
+    return (
+        <html>
+            <head>
+                <link rel="icon" href="data:image/x-icon;base64,AA" />
+                <Meta />
+                <Links />
+            </head>
+            <body>
+
+                <Navbar />
+
+                <ScrollRestoration />
+                <Scripts />
+                <Outlet />
+                <Toaster />
+            </body>
+        </html>
+    );
 }

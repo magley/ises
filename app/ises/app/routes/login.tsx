@@ -1,7 +1,8 @@
 import { Form, Link, redirect, useNavigate } from "@remix-run/react";
 import { useState } from "react";
+import toast from "react-hot-toast";
 import axiosInstance from "~/util/axiosInterceptor";
-import { setJWT } from "~/util/localstorage";
+import { getJwtShouldNagPassword, setJWT } from "~/util/localstorage";
 
 export default function Login() {
     const [email, setEmail] = useState<string>("");
@@ -10,8 +11,6 @@ export default function Login() {
     const navigate = useNavigate();
 
     const submitLogin = () => {
-        console.log(email, password);
-
         axiosInstance
             .post("http://localhost:8080/api/auth/login", { email, password })
             .then((res) => {

@@ -1,5 +1,6 @@
 package rs.sbnz.service;
 
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.concurrent.TimeUnit;
@@ -25,13 +26,16 @@ class AuthRuleTests {
         KieSession ksession = kContainer.newKieSession("ksessionPseudoClock");
         SessionPseudoClock clock = ksession.getSessionClock();
 
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 4; i++) {
             ksession.insert(new LoginEvent(i + "@gmail.com", "123"));
             clock.advanceTime(1, TimeUnit.MINUTES);
         }
 
+        LoginEvent ev = new LoginEvent("@gmail.com", "123");
+        ksession.insert(ev);
+
         int k = ksession.fireAllRules();
-        assertEquals(1, k);
+        assertTrue(ev.getWeakPassword());
     }
 
     @Test

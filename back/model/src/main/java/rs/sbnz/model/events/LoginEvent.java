@@ -12,12 +12,19 @@ public class LoginEvent {
     /** Password that was submitted while logging in. */
     private String password;
 
+    /** Flag that gets set by the rule engine in case 'password' is a WeakPassword.
+     * When the user successfully logs in with a weak password, a flag is set in
+     * the JWT so that he gets nagged by the web app to change his password.
+     */
+    private boolean weakPassword;
+
     public LoginEvent() {
     }
 
     public LoginEvent(String email, String password) {
         this.email = email;
         this.password = password;
+        this.weakPassword = false;
     }
 
     public String getEmail() {
@@ -35,4 +42,17 @@ public class LoginEvent {
     public void setPassword(String password) {
         this.password = password;
     }
+
+    public boolean isWeakPassword() {
+        return this.weakPassword;
+    }
+
+    public boolean getWeakPassword() {
+        return this.weakPassword;
+    }
+
+    public void setWeakPassword(boolean weakPassword) {
+        this.weakPassword = weakPassword;
+    }
+
 }

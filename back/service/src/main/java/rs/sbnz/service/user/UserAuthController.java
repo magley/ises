@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import rs.sbnz.model.User;
 import rs.sbnz.model.api.Packet;
+import rs.sbnz.model.events.LoginEvent;
 import rs.sbnz.service.exceptions.UnauthorizedException;
 import rs.sbnz.service.request.RequestService;
 import rs.sbnz.service.user.dto.LoginDTO;
@@ -54,7 +55,7 @@ public class UserAuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(Packet packet, @RequestBody LoginDTO dto) {
         requestService.onRequest(packet);
-        
+
         try {
             UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword());
             Authentication auth = authManager.authenticate(authToken);
@@ -64,8 +65,10 @@ public class UserAuthController {
             if (user.getRbacRole() != null) {
                 roleName = user.getRbacRole().getName();
             }
+
+            boolean isWeakPassword = requestService.onLoginAttempt(dto.getEmail(), dto.getPassword());
             
-            String jwt = jwtUtil.generateJWT(user.getUsername(), user.getId(), roleName);
+            String jwt = jwtUtil.generateJWT(user.getUsername(), user.getId(), roleName, isWeakPassword);
             return ResponseEntity.ok(jwt);
         } catch (AuthenticationException ex) {
             requestService.onFailedLogin(packet.getSrcIp(), dto.getEmail());

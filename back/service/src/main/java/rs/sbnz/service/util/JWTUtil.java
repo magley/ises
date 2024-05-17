@@ -14,11 +14,12 @@ public class JWTUtil {
     // TODO: Externalize secret.
     private static String secret = "QVlFX0dVVk5PUl9USElTX0lTX0FfV0VFX0JJVF9VTlNBRkVfSU5OSVQ=";
 
-    public String generateJWT(String username, Long id, String role) {   
+    public String generateJWT(String username, Long id, String role, boolean shouldChangePassword) {   
         Map<String, Object> claims = new HashMap<String, Object>();
         claims.put("id", id);
         claims.put("role", role);
         claims.put("email", username);
+        claims.put("nagPassword", shouldChangePassword);
         return Jwts.builder()
             .setIssuer("ises")
             .setClaims(claims)

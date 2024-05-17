@@ -136,6 +136,13 @@ then
 
 
 when
+    Login($password)
+    WeakPassword($password)
+then
+    user.shouldChangePassword = true;
+
+
+when
     count_unique(WeakPassword) > 50
 then
     new Alarm(Type.Auth_Pass, Severity.Medium, "Please increase password complexity for new users.")

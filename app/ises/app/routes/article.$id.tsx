@@ -1,7 +1,7 @@
 import { Form, useParams } from "@remix-run/react";
 import { useEffect } from "react";
 import { useState } from "react";
-import { ArticleCommentDTO, ArticleDetailsDTO, ArticleService } from "~/service/article";
+import { ArticleCommentDTO, ArticleDetailsDTO, ArticleService, NewArticleCommentDTO } from "~/service/article";
 import toast from "react-hot-toast";
 
 export default function ArticleDetails() {
@@ -16,6 +16,11 @@ export default function ArticleDetails() {
     const loadProduct = (id: number) => {
         ArticleService.findById(id).then((res) => {
             setProduct(res.data);
+            res.data.comments.sort((c1, c2) => {
+                const d1 = new Date(c1.timestamp as unknown as string);
+                const d2 = new Date(c2.timestamp as unknown as string);
+                return d2.getTime() - d1.getTime();
+            });
             setComments(res.data.comments);
         });
     }
@@ -34,10 +39,23 @@ export default function ArticleDetails() {
             setErrMsg("Comment cannot be empty.");
             return;
         }
+        if (!product) {
+            return;
+        }
         setErrMsg("");
 
-        console.log('Submit comment', comment);
-        toast.success("Comment submitted.");
+        const dto: NewArticleCommentDTO = {
+            comment: comment,
+            articleId: product.id,
+        }
+
+        ArticleService.leaveComment(dto).then((res) => {
+            toast.success("Comment submitted.");
+            loadProduct(product.id);
+            setComment("");
+        }).catch((err) => {
+            console.error(err);
+        });
     }
 
     useEffect(() => {
@@ -81,7 +99,7 @@ export default function ArticleDetails() {
 
                     <ul role="list" className="divide-y divide-gray-100">
                         {comments.map((comment) => (
-                            <li key={comment.userEmail} className="flex justify-between gap-x-6 py-5">
+                            <li key={comment.id} className="flex justify-between gap-x-6 py-5">
                                 <div className="flex min-w-0 gap-x-4">
                                     <div className="min-w-0 flex-auto">
                                         <p className="text-sm font-semibold leading-6 text-gray-900">{comment.userEmail}</p>
@@ -120,7 +138,7 @@ export default function ArticleDetails() {
                             </div>
                             <div>
                                 <button
-                                    onClick={submitComment}
+                                    onClick={e => { e.preventDefault(); submitComment(); }}
                                     className="flex justify-center rounded-md bg-indigo-600 px-5 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                                 >
                                     Post

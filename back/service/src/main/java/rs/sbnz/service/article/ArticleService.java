@@ -1,14 +1,19 @@
 package rs.sbnz.service.article;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import rs.sbnz.model.User;
 import rs.sbnz.model.article.Article;
 import rs.sbnz.model.article.ArticleComment;
 import rs.sbnz.model.article.ArticlePurchase;
+import rs.sbnz.service.article.dto.ArticleCommentDTO;
+import rs.sbnz.service.article.dto.NewArticleCommentDTO;
+import rs.sbnz.service.exceptions.NotFoundException;
 
 @Component
 public class ArticleService {
@@ -40,6 +45,13 @@ public class ArticleService {
     //-------------------------------------------------------------------------
     // Article Comment
     //-------------------------------------------------------------------------
+
+    public ArticleComment save(NewArticleCommentDTO dto, User user) {
+        Article article = findArticleById(dto.getArticleId()).orElseThrow(() -> new NotFoundException());
+        ArticleComment comment = new ArticleComment(null, Instant.now(), dto.getComment(), user, article);
+        comment = save(comment);
+        return comment;
+    }
 
     public ArticleComment save(ArticleComment ac) {
         ac = articleCommentRepo.save(ac);

@@ -17,6 +17,11 @@ export interface ArticleCommentDTO {
     comment: string
 }
 
+export interface NewArticleCommentDTO {
+    comment: string,
+    articleId: number,
+}
+
 export interface ArticleDetailsDTO {
     id: number,
     timestamp: Date,
@@ -33,5 +38,9 @@ export abstract class ArticleService {
 
     static findById(id: number): Promise<AxiosResponse<ArticleDetailsDTO>> {
         return axiosInstance.get(`http://localhost:8080/api/article/${id}`);
+    }
+
+    static leaveComment(dto: NewArticleCommentDTO): Promise<AxiosResponse<void>> {
+        return axiosInstance.post(`http://localhost:8080/api/article/${dto.articleId}/comment`, dto);
     }
 };

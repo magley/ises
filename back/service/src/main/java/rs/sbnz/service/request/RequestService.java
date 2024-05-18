@@ -2,12 +2,14 @@ package rs.sbnz.service.request;
 
 import org.kie.api.runtime.KieSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import rs.sbnz.model.BlockReason;
 import rs.sbnz.model.Request;
 import rs.sbnz.model.api.Packet;
 import rs.sbnz.model.events.BlockEvent;
+import rs.sbnz.model.events.DeleteStaleBlocksEvent;
 import rs.sbnz.model.events.FailedLoginEvent;
 import rs.sbnz.model.events.LoginEvent;
 import rs.sbnz.model.events.PasswordChangeEvent;
@@ -18,6 +20,12 @@ import rs.sbnz.service.exceptions.IPBlockedException;
 public class RequestService {
     @Autowired private KieSession ksession;
     @Autowired private IRequestRepo requestRepo;
+
+    @Scheduled(fixedRate = 5 * 60 * 1000)
+    private void TryToClearStaleBlocks() {
+        ksession.insert(new DeleteStaleBlocksEvent());
+        ksession.fireAllRules();
+    }
 
     /**
      * Method to call on start of every HTTP Request made to the server.

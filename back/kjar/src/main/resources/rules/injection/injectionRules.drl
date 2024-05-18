@@ -39,7 +39,7 @@ rule "If too many SQL injections by the same IP address, block him"
                 $ip == ip,
                 $points: points,
                 $type == type
-            ) over window:time(10h),
+            ) over window:time(30m),
             sum($points)
         )
         (
@@ -48,6 +48,8 @@ rule "If too many SQL injections by the same IP address, block him"
             (BlockEvent($ip == ip, this before $n))
         )
     then
-        System.out.printf("New block for ip %s\n", $ip);
+        System.out.printf("[SQL injection attack] New block for ip %s\n", $ip);
+
+        // Duration must match the window for the Note collection.
         insert(new BlockEvent($ip, 30 * 60 * 1000L, BlockReason.INJECTION));
 end

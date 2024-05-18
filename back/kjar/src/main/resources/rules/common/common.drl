@@ -6,6 +6,12 @@ import rs.sbnz.model.events.Note;
 import rs.sbnz.model.NoteType;
 import rs.sbnz.model.events.UnblockEvent;
 
+
+query "getAllBlockEventsForIp"
+    $block: BlockEvent()
+end
+
+
 rule "Unblock user"
     salience 90091
     when

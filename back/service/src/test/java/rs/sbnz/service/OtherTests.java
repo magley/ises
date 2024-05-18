@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.drools.core.time.SessionPseudoClock;
@@ -11,6 +13,8 @@ import org.junit.jupiter.api.Test;
 import org.kie.api.KieServices;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
+import org.kie.api.runtime.rule.QueryResults;
+import org.kie.api.runtime.rule.QueryResultsRow;
 
 import rs.sbnz.model.BlockReason;
 import rs.sbnz.model.Request;
@@ -18,6 +22,30 @@ import rs.sbnz.model.events.BlockEvent;
 import rs.sbnz.model.events.UnblockEvent;
 
 public class OtherTests {
+    @Test void gettingBlockEvents() {
+        KieServices ks = KieServices.Factory.get();
+        KieContainer kContainer = ks.getKieClasspathContainer(); 
+        KieSession ksession = kContainer.newKieSession("ksessionPseudoClock");
+        SessionPseudoClock clock = ksession.getSessionClock();  
+        
+        ksession.insert((new BlockEvent("123", 60 * 1000L, BlockReason.TEMP)));
+        clock.advanceTime(1, TimeUnit.SECONDS);
+        ksession.insert((new BlockEvent("456", 120 * 1000L, BlockReason.INJECTION)));
+        clock.advanceTime(1, TimeUnit.SECONDS);
+        ksession.insert((new BlockEvent("789", 180 * 1000L, BlockReason.AUTH_ATTACK)));
+        clock.advanceTime(1, TimeUnit.SECONDS);
+        ksession.fireAllRules();
+        
+        List<BlockEvent> blocks = new ArrayList<BlockEvent>();
+        QueryResults results = ksession.getQueryResults("getAllBlockEventsForIp"); 
+        for ( QueryResultsRow row : results ) {
+            BlockEvent block = (BlockEvent) row.get( "$block" );
+            blocks.add(block);
+        }
+
+        assertEquals(3, blocks.size());
+    }
+
     @Test
     void unblockUser() {
         KieServices ks = KieServices.Factory.get();

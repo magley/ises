@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import rs.sbnz.model.Request;
 import rs.sbnz.model.User;
 import rs.sbnz.model.api.Packet;
 import rs.sbnz.model.events.LoginEvent;
@@ -46,7 +47,12 @@ public class UserAuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(Packet packet, @RequestBody RegisterDTO dto) {
-        requestService.onRequest(packet);
+        Request request = requestService.onRequest(packet);
+        requestService.onTextSubmission(dto.getEmail(), request);
+        requestService.onTextSubmission(dto.getPassword(), request);
+        requestService.onTextSubmission(dto.getPasswordConfirm(), request);
+        requestService.onTextSubmission(dto.getName(), request);
+        requestService.onTextSubmission(dto.getLastName(), request);
 
         userService.add(dto.getEmail(), dto.getPassword(), dto.getName(), dto.getLastName());
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -54,7 +60,9 @@ public class UserAuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(Packet packet, @RequestBody LoginDTO dto) {
-        requestService.onRequest(packet);
+        Request request = requestService.onRequest(packet);
+        requestService.onTextSubmission(dto.getEmail(), request);
+        requestService.onTextSubmission(dto.getPassword(), request);
 
         try {
             UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword());

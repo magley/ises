@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import rs.sbnz.model.Request;
 import rs.sbnz.model.User;
 import rs.sbnz.model.api.Packet;
 import rs.sbnz.service.exceptions.NewPasswordIsWeakException;
@@ -39,8 +40,10 @@ public class UserController {
 
     @PostMapping("/passchange")
     public ResponseEntity<?> changePassword(Packet packet, @RequestBody PasswordChangeDTO dto) {
-        requestService.onRequest(packet);
+        Request request =  requestService.onRequest(packet);
         User user = authenticationFacade.getUser();
+        requestService.onTextSubmission(dto.getCurrentPassword(), request);
+        requestService.onTextSubmission(dto.getNewPassword(), request);
 
         try {
         userService.changePassword(user, dto);

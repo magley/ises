@@ -11,6 +11,7 @@ import rs.sbnz.model.events.BlockEvent;
 import rs.sbnz.model.events.FailedLoginEvent;
 import rs.sbnz.model.events.LoginEvent;
 import rs.sbnz.model.events.PasswordChangeEvent;
+import rs.sbnz.model.events.TextQueryEvent;
 import rs.sbnz.service.exceptions.IPBlockedException;
 
 @Component
@@ -53,8 +54,19 @@ public class RequestService {
     }
 
     /**
+     * Method to call whenever the user submits a request with textual data.
+     * Used to detect SQL injection.
+     * @param text The submitted text.
+     * @param req The request where the text was submitted.
+     */
+    public void onTextSubmission(String text, Request req) {
+        TextQueryEvent ev = new TextQueryEvent(text, req);
+        ksession.insert(ev);
+        ksession.fireAllRules();
+    }
+
+    /**
      * Method to call when the user enters incorrect credentails for logging in.
-     * TODO: This method may not belong here. Rename the class or split it.
      * 
      * @param srcIp IP address from where the request came.
      * @param email Email address that the user attempted to enter.

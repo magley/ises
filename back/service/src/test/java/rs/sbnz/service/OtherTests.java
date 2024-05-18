@@ -19,9 +19,32 @@ import org.kie.api.runtime.rule.QueryResultsRow;
 import rs.sbnz.model.BlockReason;
 import rs.sbnz.model.Request;
 import rs.sbnz.model.events.BlockEvent;
+import rs.sbnz.model.events.DeleteStaleBlocksEvent;
 import rs.sbnz.model.events.UnblockEvent;
 
 public class OtherTests {
+    @Test void deleteStaleBlockEvents() {
+        KieServices ks = KieServices.Factory.get();
+        KieContainer kContainer = ks.getKieClasspathContainer(); 
+        KieSession ksession = kContainer.newKieSession("ksessionPseudoClock");
+        SessionPseudoClock clock = ksession.getSessionClock();
+
+        for (int i = 0; i < 5; i++) {
+            ksession.insert((new BlockEvent("123", (i + 1) * 1000L, BlockReason.TEMP)));
+            clock.advanceTime(1, TimeUnit.MILLISECONDS);
+        }
+        ksession.fireAllRules();
+
+        clock.advanceTime(3, TimeUnit.SECONDS);
+        ksession.insert(new DeleteStaleBlocksEvent());
+        ksession.fireAllRules();
+
+        clock.advanceTime(3, TimeUnit.SECONDS);
+        ksession.insert(new DeleteStaleBlocksEvent());
+        ksession.fireAllRules();
+    }
+
+
     @Test void gettingBlockEvents() {
         KieServices ks = KieServices.Factory.get();
         KieContainer kContainer = ks.getKieClasspathContainer(); 

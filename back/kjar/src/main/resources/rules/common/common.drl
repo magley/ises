@@ -4,6 +4,30 @@ import rs.sbnz.model.Request;
 import rs.sbnz.model.events.BlockEvent;
 import rs.sbnz.model.events.Note;
 import rs.sbnz.model.NoteType;
+import rs.sbnz.model.events.UnblockEvent;
+
+rule "Unblock user"
+    salience 90091
+    when
+        $unblock: UnblockEvent($ip: ip)
+        $block: BlockEvent(ip == $ip)
+    then
+        delete($block);
+        delete($unblock);
+        System.out.printf("IP address %s has been manually unblocked.\n", $ip);
+end
+
+
+rule "Unblock when there is no block for that IP"
+    salience 90091
+    when
+        $unblock: UnblockEvent($ip: ip)
+        not BlockEvent(ip == $ip)
+    then
+        delete($unblock);
+        System.out.printf("There is no active block on IP address %s.\n", $ip);
+end
+
 
 // TODO: Write similar rule for User instead of IP.
 rule "If too many requests in a short amount of time, create a Note"

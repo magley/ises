@@ -15,8 +15,42 @@ import org.kie.api.runtime.KieSession;
 import rs.sbnz.model.BlockReason;
 import rs.sbnz.model.Request;
 import rs.sbnz.model.events.BlockEvent;
+import rs.sbnz.model.events.UnblockEvent;
 
 public class OtherTests {
+    @Test
+    void unblockUser() {
+        KieServices ks = KieServices.Factory.get();
+        KieContainer kContainer = ks.getKieClasspathContainer(); 
+        KieSession ksession = kContainer.newKieSession("ksessionPseudoClock");
+        SessionPseudoClock clock = ksession.getSessionClock();
+
+        String ip = "123";
+        ksession.insert((new BlockEvent(ip, 60 * 1000L, BlockReason.TEMP)));
+        ksession.fireAllRules();
+
+        clock.advanceTime(1, TimeUnit.SECONDS);
+        Request r1 = new Request(1L, ip, "", "5173");
+        ksession.insert(r1);
+        ksession.fireAllRules();
+        assertTrue(r1.getIsRejected());
+
+        clock.advanceTime(1, TimeUnit.SECONDS);
+        ksession.insert(new UnblockEvent(ip));
+        ksession.fireAllRules();
+
+        clock.advanceTime(1, TimeUnit.SECONDS);
+        Request r2 = new Request(2L, ip, "", "5173");
+        ksession.insert(r2);
+        ksession.fireAllRules();
+        assertFalse(r2.getIsRejected());
+
+        clock.advanceTime(1, TimeUnit.SECONDS);
+        ksession.insert(new UnblockEvent(ip));
+        int k = ksession.fireAllRules();
+        assertEquals(1, k); // unblock when there's no block => "no block exists" rule gets fired
+    }
+
     @Test
     void IfUserIsSpamming_ThenCreateNote() {
         KieServices ks = KieServices.Factory.get();

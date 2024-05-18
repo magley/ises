@@ -40,6 +40,13 @@ export interface NewArticlePurchaseDTO {
     articleId: number
 }
 
+export interface ArticlePurchaseDTO {
+    id: number,
+    user: UserDTO,
+    article: ArticleDTO,
+    timestamp: Date
+}
+
 export abstract class ArticleService {
     static getAllArticles(): Promise<AxiosResponse<ArticleDTO[]>> {
         return axiosInstance.get(`http://localhost:8080/api/article/all`);
@@ -59,5 +66,9 @@ export abstract class ArticleService {
 
     static create(dto: NewArticleDTO): Promise<AxiosResponse<void>> {
         return axiosInstance.post(`http://localhost:8080/api/article`, dto);
+    }
+
+    static getPurchases(): Promise<AxiosResponse<ArticlePurchaseDTO[]>> {
+        return axiosInstance.get(`http://localhost:8080/api/article/purchases`);
     }
 };

@@ -99,7 +99,7 @@ public class ArticleService {
         return articlePurchaseRepo.findByArticle(articleId);
     }
 
-    public List<ArticlePurchase> findArticlePurcasesByUser(Long userId) {
-        return articlePurchaseRepo.findByUser(userId);
+    public List<ArticlePurchase> findArticlePurcasesByUser(User user) {
+        return articlePurchaseRepo.findByUser(user);
     }
 }

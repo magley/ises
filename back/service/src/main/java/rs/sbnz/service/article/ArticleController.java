@@ -17,6 +17,7 @@ import rs.sbnz.model.api.Packet;
 import rs.sbnz.model.article.Article;
 import rs.sbnz.service.article.dto.ArticleDTO;
 import rs.sbnz.service.article.dto.ArticleDetailsDTO;
+import rs.sbnz.service.article.dto.ArticlePurchaseDTO;
 import rs.sbnz.service.article.dto.NewArticleCommentDTO;
 import rs.sbnz.service.article.dto.NewArticleDTO;
 import rs.sbnz.service.article.dto.NewArticlePurchaseDTO;
@@ -76,5 +77,15 @@ public class ArticleController {
 
         articleService.save(dto, user);
         return ResponseEntity.status(HttpStatus.CREATED).body(null);  
+    }
+    
+    @GetMapping("/purchases")
+    public ResponseEntity<?> getArticlePurchases(Packet packet) {
+        requestService.onRequest(packet);
+        User user = authenticationFacade.getUser();
+        rbacUtil.preAuthorize2("buy_articles");
+
+        List<ArticlePurchaseDTO> res = articleService.findArticlePurcasesByUser(user).stream().map(p -> new ArticlePurchaseDTO(p)).toList();
+        return ResponseEntity.status(HttpStatus.OK).body(res);  
     }
 }

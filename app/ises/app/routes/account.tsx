@@ -90,7 +90,7 @@ export default function MyAccount() {
         <>
             {user && <>
                 <div className="grid grid-cols-2 gap-4 p-10 text-xl">
-                    <div className="p-7 bg-slate-50 rounded-lg">
+                    <div className="p-7 bg-slate-50 rounded-lg shadow-md">
                         <h2 className="font-bold">Account info</h2>
                         <div className="grid grid-rows-3 gap-5 p-10">
                             <span><span className="font-medium leading-6 text-gray-900">E-mail address: </span>{user.email}</span>
@@ -98,7 +98,7 @@ export default function MyAccount() {
                             <span><span className="font-medium leading-6 text-gray-900">Last name: </span>{user.lastName}</span>
                         </div>
                     </div>
-                    <div className="p-7 bg-slate-50 rounded-lg">
+                    <div className="p-7 bg-slate-50 rounded-lg shadow-md">
                         <h2 className="font-bold">Change your password</h2>
 
                         <Form className="space-y-6 mt-3 p-8" onSubmit={e => { e.preventDefault(); submitChangePassword(); }}>
@@ -122,7 +122,7 @@ export default function MyAccount() {
                                         onChange={(e) =>
                                             setCurrentPass(e.target.value)
                                         }
-                                        className="block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                        className="block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-md ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                     />
                                 </div>
                             </div>
@@ -147,7 +147,7 @@ export default function MyAccount() {
                                         onChange={(e) =>
                                             setNewPass(e.target.value)
                                         }
-                                        className="block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                        className="block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-md ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                     />
                                 </div>
                             </div>
@@ -172,7 +172,7 @@ export default function MyAccount() {
                                         onChange={(e) =>
                                             setConfirmNewPass(e.target.value)
                                         }
-                                        className="block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                        className="block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-md ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                     />
                                 </div>
                             </div>
@@ -180,7 +180,7 @@ export default function MyAccount() {
                             <div>
                                 <button
                                     type="submit"
-                                    className="flex px-10 justify-center rounded-md bg-indigo-600 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                                    className="flex px-10 justify-center rounded-md bg-indigo-600 py-1.5 text-sm font-semibold leading-6 text-white shadow-md hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                                 >
                                     Change password
                                 </button>

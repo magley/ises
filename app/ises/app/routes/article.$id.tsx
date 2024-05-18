@@ -90,9 +90,9 @@ export default function ArticleDetails() {
     }, []);
 
     return (
-        <div className="grid gap-4 grid-cols-2">
+        <div className="grid gap-4 grid-cols-2 m-10">
             {/* Left column */}
-            <div className="w-full p-10 bg-gradient-to-r from-slate-50 to-slate-100">
+            <div className="w-full p-16 bg-gradient-to-r from-slate-50 to-slate-100 shadow-md rounded-lg">
                 {/* Product details */}
                 <>
                     {
@@ -103,14 +103,14 @@ export default function ArticleDetails() {
                             Price: ${product.price} <br />
                             <img
                                 src={`data:image/png;base64,${''}`}
-                                className="h-full w-full object-cover object-center lg:h-full lg:w-full"
+                                className="h-full w-full object-cover object-center lg:h-full lg:w-full shadow-md"
                             />
                         </div>
                     }
                 </>
             </div>
             {/* Right column */}
-            <div className="w-full p-10 bg-gradient-to-r from-slate-100 to-slate-200">
+            <div className="w-full p-16 bg-gradient-to-r from-slate-100 to-slate-200 shadow-md rounded-lg">
                 {/* Purchase button */}
                 <>
                     <button
@@ -118,19 +118,19 @@ export default function ArticleDetails() {
                         {...(!canLeaveComment && { disabled: true })}
                         className="
                             flex justify-center rounded-md bg-indigo-600 px-5 py-1.5 text-sm font-semibold leading-6 
-                            text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 
+                            text-white shadow-md hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 
                             focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:bg-slate-300 
                             disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none">
                         Purchase
                     </button>
                 </>
                 {/* Comment section */}
-                <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12">
+                <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 shadow-md bg-gradient-to-r from-slate-100 to-slate-200">
                     <h2>Comments</h2> <hr />
 
                     <ul role="list" className="divide-y divide-gray-100">
                         {comments.map((comment) => (
-                            <li key={comment.id} className="flex justify-between gap-x-6 py-5">
+                            <li key={comment.id} className="flex justify-between gap-x-6 py-5 m-2 shadow-md p-2 bg-gradient-to-r from-slate-50 to-slate-100">
                                 <div className="flex min-w-0 gap-x-4">
                                     <div className="min-w-0 flex-auto">
                                         <p className="text-sm font-semibold leading-6 text-gray-900">{comment.userEmail}</p>
@@ -164,7 +164,7 @@ export default function ArticleDetails() {
                                         autoComplete="comment"
                                         value={comment}
                                         onChange={(e) => setComment(e.target.value)}
-                                        className="block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                        className="block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-md ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                     />
                                 </div>
                             </div>
@@ -174,7 +174,7 @@ export default function ArticleDetails() {
                                     {...(!canLeaveComment && { disabled: true })}
                                     className="
                                         flex justify-center rounded-md bg-indigo-600 px-5 py-1.5 text-sm font-semibold leading-6 
-                                        text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 
+                                        text-white shadow-md hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 
                                         focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:bg-slate-300 
                                         disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none">
                                     Post

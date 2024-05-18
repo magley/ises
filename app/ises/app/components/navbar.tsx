@@ -95,7 +95,7 @@ export default () => {
     }, []);
 
     return (
-        <nav className="bg-slate-900 py-2">
+        <nav className="bg-slate-900 py-2 shadow-md">
             <h1 className="text-indigo-400 rounded-md px-3 py-2 text-2xl font-medium inline-block">ises</h1>
             <span className="space-y-1 px-2 pb-3 pt-2">
                 {

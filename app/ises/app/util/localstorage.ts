@@ -59,3 +59,11 @@ export function getJwtId(): number {
     }
     return getJWT(jwtString).id;
 }
+
+export function setIpInLocalStorage(ip: string) {
+    localStorage.setItem("ip", ip);
+}
+
+export function getIpFromLocalStorage(): string {
+    return localStorage.getItem("ip") ?? "no ip";
+}

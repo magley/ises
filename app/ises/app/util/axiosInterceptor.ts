@@ -1,12 +1,12 @@
 import axios from "axios";
 import { Packet } from "./packet";
-import { getJWTStringOrNull } from "./localstorage";
+import { getIpFromLocalStorage, getJWTStringOrNull } from "./localstorage";
 
 const axiosInstance = axios.create();
 
 axiosInstance.interceptors.request.use((config) => {
     const packet: Packet = {
-        srcIp: "123.12.23.31",
+        srcIp: getIpFromLocalStorage(),
         destIp: "123.12.23.31",
         srcPort: "5173",
     }

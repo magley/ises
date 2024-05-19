@@ -1,6 +1,6 @@
 import { Link, NavLink, useNavigate } from "@remix-run/react";
 import { Fragment, useEffect, useState } from "react";
-import { clearJWT, getJwtEmail, getJwtRole } from "~/util/localstorage";
+import { clearJWT, getIpFromLocalStorage, getJwtEmail, getJwtRole, setIpInLocalStorage } from "~/util/localstorage";
 import { Disclosure, Menu, Transition } from '@headlessui/react'
 
 function classNames(...classes: any[]) {
@@ -67,8 +67,20 @@ export default () => {
 
     const [loggedIn, setLoggedIn] = useState(false);
 
+    //////////////////////////////////////////////////////////////////
+
+    const ips: string[] = ['210.171.28.38', '21.489.26.96', '111.111.111.111', '123.0.0.1'];
+    const [ip, setIp] = useState<string>("Fake IP...");
+
+    const onClickSetIp = (ip: string) => {
+        setIp(ip);
+        setIpInLocalStorage(ip);
+    }
+
     useEffect(() => {
         const role = getJwtRole();
+
+        setIp(getIpFromLocalStorage());
 
         setLoggedIn(role != "");
 
@@ -117,6 +129,50 @@ export default () => {
                     ))
                 }
                 <span>
+                    {/* Fake IP selector */}
+                    <Menu as="div" className="relative inline-block text-left">
+                        <div>
+                            <Menu.Button className="inline-flex w-full justify-center gap-x-1.5 rounded-md bg-indigo-100 px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                                {ip}
+                                <svg className="w-2.5 h-2.5 ms-3 mt-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                                    <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 4 4 4-4" />
+                                </svg>
+                            </Menu.Button>
+                        </div>
+
+                        <Transition
+                            as={Fragment}
+                            enter="transition ease-out duration-100"
+                            enterFrom="transform opacity-0 scale-95"
+                            enterTo="transform opacity-100 scale-100"
+                            leave="transition ease-in duration-75"
+                            leaveFrom="transform opacity-100 scale-100"
+                            leaveTo="transform opacity-0 scale-95"
+                        >
+                            <Menu.Items className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                                <div className="py-1">
+                                    {ips.map(ip_ =>
+                                        <Menu.Item key={ip_}>
+                                            {({ active }) => (
+                                                <Link
+                                                    to="#"
+                                                    onClick={(e) => { e.preventDefault(); onClickSetIp(ip_); }}
+                                                    className={classNames(
+                                                        active ? 'bg-indigo-100 text-indigo-900' : (ip == ip_ ? 'bg-indigo-200' : 'text-indigo-700'),
+                                                        'block px-4 py-2 text-sm'
+                                                    )}>
+                                                    {ip_}
+                                                </Link>
+
+                                            )}
+                                        </Menu.Item>)
+                                    }
+                                </div>
+                            </Menu.Items>
+                        </Transition>
+                    </Menu>
+
+                    {/* User dropdown (if logged in) */}
                     {(loggedIn && dropdown != null) &&
                         <Menu as="div" className="relative ml-3 inline-block float-right mr-5 mt-2">
                             <div>

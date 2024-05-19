@@ -3,11 +3,9 @@ package rs.sbnz.service.user;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,7 +19,6 @@ import rs.sbnz.service.request.RequestService;
 import rs.sbnz.service.user.dto.PasswordChangeDTO;
 import rs.sbnz.service.user.dto.UserDTO;
 import rs.sbnz.service.util.AuthenticationFacade;
-import rs.sbnz.service.util.RBACUtil;
 
 @RestController
 @RequestMapping("api/user")
@@ -29,7 +26,6 @@ public class UserController {
     @Autowired private RequestService requestService;
     @Autowired private UserService userService;
     @Autowired private AuthenticationFacade authenticationFacade;
-    @Autowired private RBACUtil rbacUtil;
 
     @GetMapping("/{id}")
     public ResponseEntity<?> findById(Packet packet, @PathVariable Long id) {

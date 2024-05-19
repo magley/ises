@@ -34,7 +34,7 @@ class AuthRuleTests {
         LoginEvent ev = new LoginEvent("@gmail.com", "123");
         ksession.insert(ev);
 
-        int k = ksession.fireAllRules();
+        ksession.fireAllRules();
         assertTrue(ev.getWeakPassword());
     }
 

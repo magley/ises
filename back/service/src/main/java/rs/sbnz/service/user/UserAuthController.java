@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 import rs.sbnz.model.Request;
 import rs.sbnz.model.User;
 import rs.sbnz.model.api.Packet;
-import rs.sbnz.model.events.LoginEvent;
 import rs.sbnz.service.exceptions.UnauthorizedException;
 import rs.sbnz.service.request.RequestService;
 import rs.sbnz.service.user.dto.LoginDTO;

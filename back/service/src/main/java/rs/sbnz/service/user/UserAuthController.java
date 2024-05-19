@@ -1,5 +1,7 @@
 package rs.sbnz.service.user;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +20,8 @@ import rs.sbnz.model.User;
 import rs.sbnz.model.api.Packet;
 import rs.sbnz.service.exceptions.UnauthorizedException;
 import rs.sbnz.service.request.RequestService;
+import rs.sbnz.service.role.RoleService;
+import rs.sbnz.service.role.dto.RoleDTO;
 import rs.sbnz.service.user.dto.LoginDTO;
 import rs.sbnz.service.user.dto.RegisterDTO;
 import rs.sbnz.service.util.JWTUtil;
@@ -31,6 +35,14 @@ public class UserAuthController {
     @Autowired private JWTUtil jwtUtil;
     @Autowired private AuthenticationManager authManager;
     @Autowired private RBACUtil rbacUtil;
+    @Autowired private RoleService roleService;
+
+    @GetMapping("/role")
+    public ResponseEntity<?> findAllRoles(Packet packet) {
+        requestService.onRequest(packet);
+        List<RoleDTO> roles = roleService.findAll().stream().map(r -> new RoleDTO(r)).toList();
+        return ResponseEntity.status(HttpStatus.OK).body(roles);
+    }
 
     @GetMapping("/permission")
     public ResponseEntity<?> checkForPermission(Packet packet, String permissionCode) {

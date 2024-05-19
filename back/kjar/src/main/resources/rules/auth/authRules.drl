@@ -72,7 +72,8 @@ rule "Note when too many failed logins from same ip to the same account"
         not Note(
             $attackerIp == ip, 
             $noteType: type, 
-            $noteType == NoteType.FAILED_LOGIN
+            $noteType == NoteType.FAILED_LOGIN,
+            usedInBlock == false
         ) over window:time(1m)
     then
         System.out.printf("New FAILED_LOGIN note for ip %s\n", $attackerIp);
@@ -85,13 +86,23 @@ rule "Block IP with too many failed login notes"
         $n: Note(
             $ip: ip, 
             $type: type,
-            $type == NoteType.FAILED_LOGIN
+            $type == NoteType.FAILED_LOGIN,
+            usedInBlock == false
+        )
+        $notesToRemove: Set() from accumulate(
+            $nout: Note(
+                $ip == ip,
+                $type == type,
+                usedInBlock == false
+            ) over window:time(24h),
+            collectSet($nout)
         )
         Number(intValue >= 100) from accumulate(
             Note(
                 $ip == ip,
                 $points: points,
-                $type == type
+                $type == type,
+                usedInBlock == false
             ) over window:time(24h),
             sum($points)
         )
@@ -103,6 +114,15 @@ rule "Block IP with too many failed login notes"
     then
         System.out.printf("New block for ip %s\n", $ip);
         insert(new BlockEvent($ip, 24 * 60 * 60 * 1000L, BlockReason.AUTH_ATTACK));
+
+        // Mark all notes as "used up".
+        Object[] noteArray = $notesToRemove.toArray();
+        for (int i = 0; i < $notesToRemove.size(); i++) {
+            Note note = (Note)(noteArray[i]);
+            modify(note) {
+                setUsedInBlock(true);
+            }
+        }
 end
 
 rule "Too many blocked IPs for auth attacks"

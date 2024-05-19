@@ -17,8 +17,53 @@ import rs.sbnz.model.events.BlockEvent;
 import rs.sbnz.model.events.FailedLoginEvent;
 import rs.sbnz.model.events.LoginEvent;
 import rs.sbnz.model.events.Note;
+import rs.sbnz.model.events.UnblockEvent;
 
 class AuthRuleTests {
+    @Test
+    void properRemovalOfAuthBlock() {
+        KieServices ks = KieServices.Factory.get();
+        KieContainer kContainer = ks.getKieClasspathContainer(); 
+        KieSession ksession = kContainer.newKieSession("ksessionPseudoClock");
+        SessionPseudoClock clock = ksession.getSessionClock();
+
+        String attackerIp = "127.0.0.1";
+        String victimEmail = "bob@gmail.com";
+
+        // --------------------------------------------------------------------
+        // Will activate.
+        // --------------------------------------------------------------------
+
+        for (int i = 0; i < 33; i++) {
+            for (int j = 0; j < 5; j++) {
+                ksession.insert(new FailedLoginEvent(Long.valueOf(i * 100 + j), attackerIp, victimEmail));
+            }
+
+            int k = ksession.fireAllRules();
+            assertEquals(1, k);
+            clock.advanceTime(2, TimeUnit.MINUTES);
+        }
+
+        // At this point, there should be 33 notes with 3 points each. We're 1
+        // point shy from getting the ip blocked.
+
+        ksession.insert(new Note(10009L, attackerIp, 1L, NoteType.FAILED_LOGIN));
+        int k = ksession.fireAllRules();
+        assertEquals(1, k); // Block.
+
+        // Unblock
+
+        ksession.insert(new UnblockEvent(attackerIp));
+        ksession.fireAllRules();
+
+        // Insert a single note. It should not interfere with the previous ones,
+        // because they have already been used to block the IP address once.
+
+        ksession.insert(new Note(0L, attackerIp, 3L, NoteType.FAILED_LOGIN));
+        k = ksession.fireAllRules();
+        assertEquals(0, k);
+    }
+
     @Test
     void tooManyLoginsOfDirrentAccountsWithTheSamePassword() {
         KieServices ks = KieServices.Factory.get();

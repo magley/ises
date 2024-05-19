@@ -2,13 +2,26 @@ package rs.sbnz.service;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.InputStream;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import org.drools.template.DataProvider;
+import org.drools.template.DataProviderCompiler;
 import org.drools.core.time.SessionPseudoClock;
+import org.drools.template.objects.ArrayDataProvider;
 import org.junit.jupiter.api.Test;
+import org.kie.api.KieBaseConfiguration;
 import org.kie.api.KieServices;
+import org.kie.api.io.ResourceType;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
+import org.kie.api.runtime.KieSessionConfiguration;
+import org.kie.api.runtime.conf.ClockTypeOption;
+import org.kie.api.builder.Message;
+import org.kie.api.builder.Results;
+import org.kie.api.conf.EventProcessingOption;
+import org.kie.internal.utils.KieHelper;
 
 import rs.sbnz.model.AttackSeverity;
 import rs.sbnz.model.AttackType;
@@ -20,9 +33,7 @@ import rs.sbnz.model.events.FailedLoginEvent;
 public class ReportTests {
     @Test
     void attackEventReport() {
-        KieServices ks = KieServices.Factory.get();
-        KieContainer kContainer = ks.getKieClasspathContainer(); 
-        KieSession ksession = kContainer.newKieSession("reportsPseudoClock");
+        KieSession ksession = createKSessionWithStreamProcessingAndPseudoClockFromTemplate();
         SessionPseudoClock clock = ksession.getSessionClock();
 
         // Won't print anything
@@ -48,9 +59,7 @@ public class ReportTests {
 
     @Test
     void variedAttackEventReport() {
-        KieServices ks = KieServices.Factory.get();
-        KieContainer kContainer = ks.getKieClasspathContainer(); 
-        KieSession ksession = kContainer.newKieSession("reportsPseudoClock");
+        KieSession ksession = createKSessionWithStreamProcessingAndPseudoClockFromTemplate();
         SessionPseudoClock clock = ksession.getSessionClock();
 
         // Won't print anything
@@ -78,9 +87,7 @@ public class ReportTests {
 
     @Test
     void failedLoginAttemptReport() {
-        KieServices ks = KieServices.Factory.get();
-        KieContainer kContainer = ks.getKieClasspathContainer(); 
-        KieSession ksession = kContainer.newKieSession("reportsPseudoClock");
+        KieSession ksession = createKSessionWithStreamProcessingAndPseudoClockFromTemplate();
         SessionPseudoClock clock = ksession.getSessionClock();
 
         // Won't print anything
@@ -124,9 +131,7 @@ public class ReportTests {
 
     @Test
     void blockEventReport() {
-        KieServices ks = KieServices.Factory.get();
-        KieContainer kContainer = ks.getKieClasspathContainer(); 
-        KieSession ksession = kContainer.newKieSession("reportsPseudoClock");
+        KieSession ksession = createKSessionWithStreamProcessingAndPseudoClockFromTemplate();
         SessionPseudoClock clock = ksession.getSessionClock();
 
         // Won't print anything
@@ -163,5 +168,41 @@ public class ReportTests {
         ksession.getAgenda().getAgendaGroup("reports").setFocus();
         int k3 = ksession.fireAllRules();
         assertEquals(3, k3);
+    }
+
+    // Parts copied from lab materials, then frakensteined to support stream mode with pseudo clocks
+    private KieSession createKSessionWithStreamProcessingAndPseudoClockFromTemplate(){
+        InputStream template = ReportTests.class.getResourceAsStream("/reports/reportRules.drl");
+
+        DataProvider dataProvider = new ArrayDataProvider(new String[][]{
+            // Data to fill out template
+            new String[]{"AttackType.AUTHENTICATION", "3"}
+        });
+
+        DataProviderCompiler converter = new DataProviderCompiler();
+        String drl = converter.compile(dataProvider, template);
+        KieHelper kieHelper = new KieHelper();
+        kieHelper.addContent(drl, ResourceType.DRL);
+        
+        Results results = kieHelper.verify();
+        
+        if (results.hasMessages(Message.Level.WARNING, Message.Level.ERROR)){
+            List<Message> messages = results.getMessages(Message.Level.WARNING, Message.Level.ERROR);
+            for (Message message : messages) {
+                System.out.println("Error: "+message.getText());
+            }
+            
+            throw new IllegalStateException("Compilation errors were found. Check the logs.");
+        }
+        
+        KieServices ks = KieServices.Factory.get();
+
+        KieBaseConfiguration kbconf = ks.newKieBaseConfiguration();
+        kbconf.setOption(EventProcessingOption.STREAM);
+
+        KieSessionConfiguration ksconf = ks.newKieSessionConfiguration();
+        ksconf.setOption(ClockTypeOption.get("pseudo"));
+
+        return kieHelper.build(kbconf).newKieSession(ksconf, null);
     }
 }

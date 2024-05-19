@@ -1,12 +1,13 @@
+template header
+attackType
+num
+
 package reports;
 
 import rs.sbnz.model.events.FailedLoginEvent;
 import rs.sbnz.model.events.BlockEvent;
 import rs.sbnz.model.events.AttackEvent;
 import rs.sbnz.model.AttackType;
-
-// TODO:
-// templates
 
 query reportAttackEventOver24h(AttackEvent e1, int num)
     Number(intValue >= num) from accumulate(
@@ -47,11 +48,13 @@ query reportBlockEventOver24h(BlockEvent e1, int num)
     )
 end
 
-rule "Show attack events of type AUTHENTICATION in last 24 hours if there is more than 3 of them"
+template "reports"
+
+rule "Show attack events of type @{attackType} in last 24 hours if there is more than ${num} of them"
     agenda-group "reports"
     when
-        $e1: AttackEvent(type == AttackType.AUTHENTICATION) over window:time(24h)
-        reportAttackEventOver24h($e1, 2;)
+        $e1: AttackEvent(type == @{attackType}) over window:time(24h)
+        reportAttackEventOver24h($e1, @{num}-1;)
     then
         // Note that we don't print the timestamp in the actual rule, but if need be can retrieve it through
         // insert's fact handle's getStartTimestamp()
@@ -59,29 +62,31 @@ rule "Show attack events of type AUTHENTICATION in last 24 hours if there is mor
         System.out.println($e1);
 end
 
-rule "Show attack events of all types in last 24 hours if there is more than 3 of them"
+rule "Show attack events of all types in last 24 hours if there is more than @{num} of them"
     agenda-group "reports2"
     when
         $e1: AttackEvent() over window:time(24h)
-        reportAnyAttackEventOver24h($e1, 2;)
+        reportAnyAttackEventOver24h($e1, @{num}-1;)
     then
         System.out.println($e1);
 end
 
-rule "Show failed login attempts from same ip address in last 24 hours if there is more than 3 of them"
+rule "Show failed login attempts from same ip address in last 24 hours if there is more than @{num} of them"
     agenda-group "reports"
     when
         $e1: FailedLoginEvent($ip: ip) over window:time(24h)
-        reportFailedLoginEventOver24h($e1, 2;)
+        reportFailedLoginEventOver24h($e1, @{num}-1;)
     then
         System.out.println($e1);
 end
 
-rule "Show block events for same ip address in last 24 hours if there is more than 3 of them"
+rule "Show block events for same ip address in last 24 hours if there is more than @{num} of them"
     agenda-group "reports"
     when
         $e1: BlockEvent($ip: ip) over window:time(24h)
-        reportBlockEventOver24h($e1, 2;)
+        reportBlockEventOver24h($e1, @{num}-1;)
     then
         System.out.println($e1);
 end
+
+end template

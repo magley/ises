@@ -5,12 +5,13 @@ import { UserDTO } from "./user";
 export interface NewArticleDTO {
     name: string,
     price: number,
+    imgBase64: string,
 }
 
 export interface ArticleDTO {
     id: number,
     name: string,
-    imageB64: string,
+    imgBase64: string,
     price: number,
 }
 
@@ -31,6 +32,7 @@ export interface ArticleDetailsDTO {
     id: number,
     timestamp: Date,
     owner: UserDTO,
+    imgBase64: string,
     comments: ArticleCommentDTO[],
     name: string,
     price: number

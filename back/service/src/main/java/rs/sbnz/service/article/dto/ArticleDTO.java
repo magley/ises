@@ -1,6 +1,13 @@
 package rs.sbnz.service.article.dto;
 
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.Instant;
+import java.util.Base64;
+
+import org.apache.commons.io.IOUtils;
+import org.springframework.core.io.ClassPathResource;
 
 import rs.sbnz.model.article.Article;
 
@@ -9,6 +16,7 @@ public class ArticleDTO {
     private Instant timestamp;
     private String name;
     private Double price;
+    private String imgBase64;
 
     public ArticleDTO() {
     }
@@ -25,6 +33,15 @@ public class ArticleDTO {
         this.timestamp = article.getTimestamp();
         this.name = article.getName();
         this.price = article.getPrice();
+
+        ClassPathResource resource = new ClassPathResource("static/Untitled.png");
+        byte[] bytes;
+        try {
+            bytes = IOUtils.toByteArray(resource.getInputStream());
+            this.imgBase64 = Base64.getEncoder().encodeToString(bytes);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }      
     }
 
     public Long getId() {
@@ -57,5 +74,13 @@ public class ArticleDTO {
 
     public void setPrice(Double price) {
         this.price = price;
+    }
+
+    public String getImgBase64() {
+        return this.imgBase64;
+    }
+
+    public void setImgBase64(String imgBase64) {
+        this.imgBase64 = imgBase64;
     }
 }

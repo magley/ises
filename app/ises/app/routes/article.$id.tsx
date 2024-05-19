@@ -102,7 +102,7 @@ export default function ArticleDetails() {
                             Name: {product.name} <br />
                             Price: ${product.price} <br />
                             <img
-                                src={`data:image/png;base64,${''}`}
+                                src={`data:image/png;base64,${product.imgBase64}`}
                                 className="h-full w-full object-cover object-center lg:h-full lg:w-full shadow-md"
                             />
                         </div>

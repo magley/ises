@@ -16,8 +16,31 @@ import rs.sbnz.model.Request;
 import rs.sbnz.model.api.Packet;
 import rs.sbnz.model.events.Note;
 import rs.sbnz.model.events.TextQueryEvent;
+import rs.sbnz.model.events.UnblockEvent;
 
 public class InjectionRuleTests {
+    @Test
+    void properRemovalOfSqlInjectionBlock() {
+        KieServices ks = KieServices.Factory.get();
+        KieContainer kContainer = ks.getKieClasspathContainer(); 
+        KieSession ksession = kContainer.newKieSession("ksessionPseudoClock");
+        SessionPseudoClock clock = ksession.getSessionClock();
+        String ip = "1.3.5.7";
+
+        for (int i = 0; i < 5; i++) {
+            ksession.insert(new Note(1L, ip, 5L, NoteType.INJECTION));
+            clock.advanceTime(2, TimeUnit.MINUTES);
+        }
+        assertEquals(1, ksession.fireAllRules());
+
+        ksession.insert(new UnblockEvent(ip));
+        ksession.fireAllRules();
+
+        ksession.insert(new Note(1L, ip, 5L, NoteType.INJECTION));
+        int k = ksession.fireAllRules();
+        assertEquals(0, k);
+    }
+
     @Test
     void sqlInjectionTest() {
         KieServices ks = KieServices.Factory.get();

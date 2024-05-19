@@ -9,6 +9,7 @@ import rs.sbnz.model.AttackType;
 import rs.sbnz.model.AttackSeverity;
 import rs.sbnz.model.events.BlockEvent;
 import rs.sbnz.model.BlockReason;
+import java.util.Set;
 
 rule "Detect SQL injection"
     when
@@ -32,13 +33,23 @@ rule "If too many SQL injections by the same IP address, block him"
         $n: Note(
             $ip: ip, 
             $type: type,
-            $type == NoteType.INJECTION
+            $type == NoteType.INJECTION,
+            usedInBlock == false
+        )
+        $notesToRemove: Set() from accumulate(
+            $nout: Note(
+                $ip == ip,
+                $type == type,
+                usedInBlock == false
+            ) over window:time(30m),
+            collectSet($nout)
         )
         Number(intValue >= 25) from accumulate(
             Note(
                 $ip == ip,
                 $points: points,
-                $type == type
+                $type == type,
+                usedInBlock == false
             ) over window:time(30m),
             sum($points)
         )
@@ -52,4 +63,13 @@ rule "If too many SQL injections by the same IP address, block him"
 
         // Duration must match the window for the Note collection.
         insert(new BlockEvent($ip, 30 * 60 * 1000L, BlockReason.INJECTION));
+
+        // Mark all notes as "used up".
+        Object[] noteArray = $notesToRemove.toArray();
+        for (int i = 0; i < $notesToRemove.size(); i++) {
+            Note note = (Note)(noteArray[i]);
+            modify(note) {
+                setUsedInBlock(true);
+            }
+        }
 end

@@ -34,6 +34,7 @@ public class DevServerInitializer {
 
         Permission p04 = new Permission("view_reports");
         Permission p05 = new Permission("unblock_system");
+        Permission p06 = new Permission("unban");
 
         Role r01 = new Role("User", "Regular user.");
         Role r02 = new Role("Full user", "User will maximum priveleges");
@@ -47,6 +48,7 @@ public class DevServerInitializer {
         r02.getPermissions().add(p03);
 
         r03.getPermissions().add(p04);
+        r03.getPermissions().add(p06);
 
         r04.setParent(r03);
         r04.getPermissions().add(p05);
@@ -56,11 +58,13 @@ public class DevServerInitializer {
         p03 = permissionService.save(p03);
         p04 = permissionService.save(p04);
         p05 = permissionService.save(p05);
+        p06 = permissionService.save(p06);
         ksession.insert(p01);
         ksession.insert(p02);
         ksession.insert(p03);
         ksession.insert(p04);
         ksession.insert(p05);
+        ksession.insert(p06);
 
         r01 = roleService.save(r01);
         r02 = roleService.save(r02);

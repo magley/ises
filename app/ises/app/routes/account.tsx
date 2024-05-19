@@ -90,7 +90,7 @@ export default function MyAccount() {
         <>
             {user && <>
                 <div className="grid grid-cols-2 gap-4 p-10 text-xl">
-                    <div className="p-7 bg-slate-50 rounded-lg shadow-md">
+                    <div className="p-7 bg-white rounded-lg shadow-md">
                         <h2 className="font-bold">Account info</h2>
                         <div className="grid grid-rows-3 gap-5 p-10">
                             <span><span className="font-medium leading-6 text-gray-900">E-mail address: </span>{user.email}</span>
@@ -98,7 +98,7 @@ export default function MyAccount() {
                             <span><span className="font-medium leading-6 text-gray-900">Last name: </span>{user.lastName}</span>
                         </div>
                     </div>
-                    <div className="p-7 bg-slate-50 rounded-lg shadow-md">
+                    <div className="p-7 bg-white rounded-lg shadow-md">
                         <h2 className="font-bold">Change your password</h2>
 
                         <Form className="space-y-6 mt-3 p-8" onSubmit={e => { e.preventDefault(); submitChangePassword(); }}>

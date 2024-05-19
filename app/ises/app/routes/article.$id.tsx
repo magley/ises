@@ -90,9 +90,9 @@ export default function ArticleDetails() {
     }, []);
 
     return (
-        <div className="grid gap-4 grid-cols-2 m-10">
+        <div className="grid gap-4 grid-cols-2 m-10 bg-white shadow-md p-10">
             {/* Left column */}
-            <div className="w-full p-16 bg-gradient-to-r from-slate-50 to-slate-100 shadow-md rounded-lg">
+            <div className="w-full p-16 bg-gradient-to-r from-slate-50 to-slate-100 shadow-lg rounded-lg">
                 {/* Product details */}
                 <>
                     {
@@ -110,7 +110,7 @@ export default function ArticleDetails() {
                 </>
             </div>
             {/* Right column */}
-            <div className="w-full p-16 bg-gradient-to-r from-slate-100 to-slate-200 shadow-md rounded-lg">
+            <div className="w-full p-16 bg-gradient-to-r from-slate-100 to-slate-200 shadow-lg rounded-lg">
                 {/* Purchase button */}
                 <>
                     <button

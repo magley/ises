@@ -25,7 +25,7 @@ export default function App() {
     });
 
     return (
-        <html>
+        <html className="bg-slate-50">
             <head>
                 <link rel="icon" href="data:image/x-icon;base64,AA" />
                 <Meta />

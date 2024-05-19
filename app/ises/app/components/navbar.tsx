@@ -95,8 +95,8 @@ export default () => {
     }, []);
 
     return (
-        <nav className="bg-slate-900 py-2 shadow-md">
-            <h1 className="text-indigo-400 rounded-md px-3 py-2 text-2xl font-medium inline-block">ises</h1>
+        <nav className="bg-indigo-900 py-2 shadow-md">
+            <h1 className="text-indigo-50 rounded-md px-3 py-2 text-2xl font-bold inline-block">ises</h1>
             <span className="space-y-1 px-2 pb-3 pt-2">
                 {
                     navigation.map((item) => (
@@ -104,14 +104,14 @@ export default () => {
                             <Link
                                 key={item.name}
                                 to={item.route}
-                                className="text-gray-300 hover:bg-gray-700 hover:text-white inline-block rounded-md px-3 py-2 text-base font-extrabold">
+                                className="text-gray-300 hover:bg-indigo-700 hover:text-white inline-block rounded-md px-3 py-2 text-base font-extrabold">
                                 {item.name}
                             </Link> :
                             <Link
                                 key={item.name}
                                 to=""
                                 onClick={(e) => { e.preventDefault(); if (item.onClick != null) item.onClick(); }}
-                                className="text-gray-300 hover:bg-gray-700 hover:text-white inline-block rounded-md px-3 py-2 text-base font-extrabold">
+                                className="text-gray-300 hover:bg-indigo-700 hover:text-white inline-block rounded-md px-3 py-2 text-base font-extrabold">
                                 {item.name}
                             </Link>
                     ))
@@ -120,7 +120,7 @@ export default () => {
                     {(loggedIn && dropdown != null) &&
                         <Menu as="div" className="relative ml-3 inline-block float-right mr-5 mt-2">
                             <div>
-                                <Menu.Button className="relative flex rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
+                                <Menu.Button className="relative flex rounded-full bg-indigo-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-indigo-800">
                                     <span className="absolute inset-1.5" />
                                     <span className="sr-only">Open user menu</span>
                                     <img
@@ -140,12 +140,12 @@ export default () => {
                                 leaveFrom="transform opacity-100 scale-100"
                                 leaveTo="transform opacity-0 scale-95"
                             >
-                                <Menu.Items className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                                    <div className="py-1">
-                                        <Menu.Item>
+                                <Menu.Items className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-indigo ring-opacity-5 focus:outline-none">
+                                    <div key="1331331" className="py-1">
+                                        <Menu.Item key="12353263223">
                                             {({ active }) => (
                                                 <>
-                                                    <span className='block px-4 py-2 text-sm text-slate-400'>
+                                                    <span className='block px-4 py-2 text-sm text-gray-400'>
                                                         {email}
                                                     </span>
                                                     <hr />
@@ -153,29 +153,27 @@ export default () => {
                                             )}
                                         </Menu.Item>
                                         {dropdown.map((item) => (
-                                            <Menu.Item>
+                                            <Menu.Item key={item.name}>
                                                 {({ active }) => (
                                                     item.route ?
                                                         <Link
-                                                            key={item.name}
                                                             to={item.route}
                                                             className={classNames(
-                                                                active ? 'bg-indigo-100 text-gray-900' : 'text-gray-700',
+                                                                active ? 'bg-indigo-100 text-indigo-900' : 'text-indigo-700',
                                                                 'block px-4 py-2 text-sm'
                                                             )}>
-                                                            <img src={item.iconFname} className="h-6 w-6 inline-block mr-2 text-gray-700" />
+                                                            <img src={item.iconFname} className="h-6 w-6 inline-block mr-2 text-indigo-700" />
                                                             {item.name}
                                                         </Link>
                                                         :
                                                         <Link
-                                                            key={item.name}
                                                             to=""
                                                             onClick={(e) => { e.preventDefault(); if (item.onClick != null) item.onClick(); }}
                                                             className={classNames(
-                                                                active ? 'bg-indigo-100 text-gray-900' : 'text-gray-700',
+                                                                active ? 'bg-indigo-100 text-indigo-900' : 'text-indigo-700',
                                                                 'block px-4 py-2 text-sm'
                                                             )}>
-                                                            <img src={item.iconFname} className="h-6 w-6 inline-block mr-2 text-gray-700" />
+                                                            <img src={item.iconFname} className="h-6 w-6 inline-block mr-2 text-indigo-700" />
                                                             {item.name}
                                                         </Link>
                                                 )}

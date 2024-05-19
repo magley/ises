@@ -8,17 +8,50 @@ import rs.sbnz.model.AttackType;
 // TODO:
 // templates
 
+query reportAttackEventOver24h(AttackEvent e1, int num)
+    Number(intValue >= num) from accumulate(
+        $e2: AttackEvent(
+            this != e1,
+            type == e1.type
+        ) over window:time(24h),
+        count($e2)
+    )
+end
+
+query reportAnyAttackEventOver24h(AttackEvent e1, int num)
+    Number(intValue >= num) from accumulate(
+        $e2: AttackEvent(
+            this != e1
+        ) over window:time(24h),
+        count($e2)
+    )
+end
+
+query reportFailedLoginEventOver24h(FailedLoginEvent e1, int num)
+    Number(intValue >= num) from accumulate(
+        $e2: FailedLoginEvent(
+            this != e1,
+            ip == e1.ip
+        ) over window:time(24h),
+        count($e2)
+    )
+end
+
+query reportBlockEventOver24h(BlockEvent e1, int num)
+    Number(intValue >= num) from accumulate(
+        $e2: BlockEvent(
+            this != e1,
+            ip == e1.ip
+        ) over window:time(24h),
+        count($e2)
+    )
+end
+
 rule "Show attack events of type AUTHENTICATION in last 24 hours if there is more than 3 of them"
     agenda-group "reports"
     when
         $e1: AttackEvent(type == AttackType.AUTHENTICATION) over window:time(24h)
-        Number(intValue >= 2) from accumulate(
-            $e2: AttackEvent(
-                this != $e1,
-                type == AttackType.AUTHENTICATION
-            ) over window:time(24h),
-            count($e2)
-        )
+        reportAttackEventOver24h($e1, 2;)
     then
         // Note that we don't print the timestamp in the actual rule, but if need be can retrieve it through
         // insert's fact handle's getStartTimestamp()
@@ -30,12 +63,7 @@ rule "Show attack events of all types in last 24 hours if there is more than 3 o
     agenda-group "reports2"
     when
         $e1: AttackEvent() over window:time(24h)
-        Number(intValue >= 2) from accumulate(
-            $e2: AttackEvent(
-                this != $e1
-            ) over window:time(24h),
-            count($e2)
-        )
+        reportAnyAttackEventOver24h($e1, 2;)
     then
         System.out.println($e1);
 end
@@ -44,13 +72,7 @@ rule "Show failed login attempts from same ip address in last 24 hours if there 
     agenda-group "reports"
     when
         $e1: FailedLoginEvent($ip: ip) over window:time(24h)
-        Number(intValue >= 2) from accumulate(
-            $e2: FailedLoginEvent(
-                this != $e1,
-                ip == $ip
-            ) over window:time(24h),
-            count($e2)
-        )
+        reportFailedLoginEventOver24h($e1, 2;)
     then
         System.out.println($e1);
 end
@@ -59,13 +81,7 @@ rule "Show block events for same ip address in last 24 hours if there is more th
     agenda-group "reports"
     when
         $e1: BlockEvent($ip: ip) over window:time(24h)
-        Number(intValue >= 2) from accumulate(
-            $e2: BlockEvent(
-                this != $e1,
-                ip == $ip
-            ) over window:time(24h),
-            count($e2)
-        )
+        reportBlockEventOver24h($e1, 2;)
     then
         System.out.println($e1);
 end

@@ -1,5 +1,7 @@
 package rs.sbnz.service.user;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +34,13 @@ public class UserController {
         requestService.onRequest(packet);
         User user = userService.findById(id);
         return ResponseEntity.status(HttpStatus.OK).body(new UserDTO(user));
+    }
+
+    @GetMapping()
+    public ResponseEntity<?> findAll(Packet packet) {
+        requestService.onRequest(packet);
+        List<UserDTO> users = userService.findAll().stream().map(u -> new UserDTO(u)).toList();
+        return ResponseEntity.status(HttpStatus.OK).body(users);
     }
 
     @PostMapping("/passchange")

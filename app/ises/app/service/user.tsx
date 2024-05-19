@@ -26,4 +26,8 @@ export abstract class UserService {
     static changePassword(dto: PasswordChangeDTO): Promise<AxiosResponse<void>> {
         return axiosInstance.post(`http://localhost:8080/api/user/passchange`, dto);
     }
+
+    static findAll(): Promise<AxiosResponse<UserDTO[]>> {
+        return axiosInstance.get(`http://localhost:8080/api/user`);
+    }
 }

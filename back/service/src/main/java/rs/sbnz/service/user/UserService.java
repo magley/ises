@@ -1,5 +1,6 @@
 package rs.sbnz.service.user;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +54,10 @@ public class UserService implements UserDetailsService {
 
         user.setPassword(passwordUtil.encode(dto.getNewPassword()));
         userRepo.save(user);
+    }
+
+    public List<User> findAll() {
+        return userRepo.findAll();
     }
 
     /**

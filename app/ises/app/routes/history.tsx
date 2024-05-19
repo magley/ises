@@ -36,11 +36,11 @@ export default function PurchaseHistory() {
                         <h1 className="text-4xl font-semibold mb-12 text-center">My purchases</h1>
                         <ul role="list" className="divide-y divide-gray-100 mx-56">
                             {purchases.map((p) => (
-                                <li key={p.id} className="flex justify-between gap-x-6 py-5 bg-gray-50 p-10 my-10 rounded-2xl shadow-md">
-                                    <div className="shadow-md flex aspect-h-1 aspect-w-1 w-36 h-36 overflow-hidden rounded-md bg-gray-200 lg:aspect-none group-hover:opacity-75">
+                                <li key={p.id} className="flex justify-between gap-x-6 py-5 bg-white p-10 my-10 rounded-2xl shadow-md">
+                                    <div className="shadow-md flex aspect-h-1 aspect-w-1 w-36 h-36 overflow-hidden rounded-md bg-gray-50 lg:aspect-none group-hover:opacity-75">
                                         <img
-                                            src={`data:image/png;base64,${p.article.imageB64}`}
-                                            className="h-full w-full object-cover object-center lg:h-full lg:w-full"
+                                            src={`data:image/png;base64,${p.article.imgBase64}`}
+                                            className="p-5 h-full w-full object-cover object-center lg:h-full lg:w-full"
                                         />
                                     </div>
                                     <div className="flex min-w-0 gap-x-4">

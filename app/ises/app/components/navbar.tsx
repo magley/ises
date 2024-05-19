@@ -182,7 +182,7 @@ export default () => {
                                     <span className="sr-only">Open user menu</span>
                                     <img
                                         className="h-8 w-8 rounded-full"
-                                        src="nopfp.jpg"
+                                        src="/nopfp.jpg"
                                         alt=""
                                     />
                                 </Menu.Button>
@@ -219,7 +219,7 @@ export default () => {
                                                                 active ? 'bg-indigo-100 text-indigo-900' : 'text-indigo-700',
                                                                 'block px-4 py-2 text-sm'
                                                             )}>
-                                                            <img src={item.iconFname} className="h-6 w-6 inline-block mr-2 text-indigo-700" />
+                                                            <img src={`/${item.iconFname}`} className="h-6 w-6 inline-block mr-2 text-indigo-700" />
                                                             {item.name}
                                                         </Link>
                                                         :
@@ -230,7 +230,7 @@ export default () => {
                                                                 active ? 'bg-indigo-100 text-indigo-900' : 'text-indigo-700',
                                                                 'block px-4 py-2 text-sm'
                                                             )}>
-                                                            <img src={item.iconFname} className="h-6 w-6 inline-block mr-2 text-indigo-700" />
+                                                            <img src={`/${item.iconFname}`} className="h-6 w-6 inline-block mr-2 text-indigo-700" />
                                                             {item.name}
                                                         </Link>
                                                 )}

@@ -67,7 +67,7 @@ export default function AdminBlocksPage() {
                         </thead>
                         <tbody>
                             {blocked.map(block => (
-                                <tr className="bg-white border-b hover:bg-gray-50">
+                                <tr key={block.ip} className="bg-white border-b hover:bg-gray-50">
                                     <td className="px-6 py-4">{block.ip}</td>
                                     <td className="px-6 py-4">{durationText(block.duration)}</td>
                                     <td className="px-6 py-4">{block.reason}</td>

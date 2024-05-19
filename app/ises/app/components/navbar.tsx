@@ -46,6 +46,7 @@ export default () => {
 
     const navigationAdmin: NavigationItem[] = [
         { name: 'Home', route: '/', onClick: null },
+        { name: 'Block list', route: '/admin/blocks', onClick: null },
     ];
 
     //////////////////////////////////////////////////////////////

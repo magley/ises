@@ -1,6 +1,7 @@
 package rs.sbnz.service.role;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -18,5 +19,9 @@ public class RoleService {
 
     public List<Role> findAll() {
         return roleRepo.findAll();
+    }
+
+    public Optional<Role> findById(Long id) {
+        return roleRepo.findById(id);
     }
 }

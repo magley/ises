@@ -56,7 +56,6 @@ rule "Unblock when there is no block for that IP"
 end
 
 
-// TODO: Write similar rule for User instead of IP.
 rule "If too many requests in a short amount of time, create a Note"
     when
         $r: Request(

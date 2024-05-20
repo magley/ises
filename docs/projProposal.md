@@ -129,7 +129,7 @@ then
 
 
 when
-    count_unique(Login(same $password, count $email) over 6h) > 5
+    count_unique(Login(same $password, count $email) over 6h) > 2
 then
     new Note(None, 2, Type.Auth_Pass, "Weak password {password}")
     new WeakPassword($password)
@@ -147,22 +147,19 @@ when
 then
     new Alarm(Type.Auth_Pass, Severity.Medium, "Please increase password complexity for new users.")
 
-
 when
-    count_unique(WeakPassword) > 100
+    WeakPassword(p)
+    $cp: ChangePassword(user, newPassword == p)
 then
-    for user in [ unique(list(WeakPassword)).user ]
-        user.Notify("Your password is too weak.")
-    end
+    $cp.weak = true; # Password won't be changed because it's weak.
 
-
-when
-    accumulate(
-        Note($user, $points, Type.Transaction) over 1w,
-        sum($points)
-    ) > 15
-then
-    new PurchaseBlock($user, 48h)
+# when
+#     accumulate(
+#         Note($user, $points, Type.Transaction) over 1w,
+#         sum($points)
+#     ) > 15
+# then
+#     new PurchaseBlock($user, 48h)
 ```
 
 Пример сложеног ланца правила (**CEP** и **FC**):
@@ -182,7 +179,6 @@ when # Level 2
 then
     new Block($ip, 24h)
 
-
 when # Level 3
     count_unique(Block over 24h) > 100
 then
@@ -197,18 +193,18 @@ then
     new Attack(Type.DoS) # TCP Flood Attack
 
 
-when # Level 1
-    $t1: Transaction($ip1, $accountId1, $time1) &&
-    $t2: Transaction($ip2, $accountId2, $time2) &&
-    $t1 != $t2 &&
-    ($time1 - $time2) < 1min
-then
-    new Alarm(Severity.SuperHigh)
-    new Attack(Type.AccessControlAttack)
+# when # Level 1
+#     $t1: Transaction($ip1, $accountId1, $time1) &&
+#     $t2: Transaction($ip2, $accountId2, $time2) &&
+#     $t1 != $t2 &&
+#     ($time1 - $time2) < 1min
+# then
+#     new Alarm(Severity.SuperHigh)
+#     new Attack(Type.AccessControlAttack)
 
 
 when # Level 1
-    Transaction($ip, $port1) &&
+    Request($ip, $port1) &&
     ($port1 != 3000 || ($ip not in internalIpAddresses))
 then
     new Alarm(Severity.Medium)
@@ -217,7 +213,7 @@ then
 
 when # Level 1
     SearchQuery($ip, $queryText) &&
-    queryText like "' UNION SELECT"
+    queryText like "' * ;"
 then
     new Alarm(Severity.Low)
     new Attack(Type.Injection)
@@ -226,12 +222,18 @@ then
 
 when # Level 2
     accumulate(
-        Note($ip, $points, Type.Injection) over 10h,
+        Note($ip, $points, Type.Injection) over 30m,
         sum($points)
     ) > 25
 then
     new Block($ip, 30m)
 
+when # Level 4
+    Attack($type1, $severity1) &&
+    $severity1 >= Severity.Critical
+then
+    new Alarm(Severity.Critical)
+    Server.Config.SetAvailability(ServerAvailability.RestrictAccessToAdmins)
 
 when # Level 4
     Attack($type1, $severity1) &&
@@ -241,15 +243,6 @@ when # Level 4
 then
     new Alarm(Severity.SuperHigh)
     Server.Config.SetAvailability(ServerAvailability.RestrictAccessToAdmins)
-
-
-when # Level 4
-    Attack($type1, $severity1) &&
-    $severity1 >= Severity.Critical
-then
-    new Alarm(Severity.Critical)
-    Server.Config.SetAvailability(ServerAvailability.RestrictAccessToAdmins)
-    # Do something else...
 
 when # Level 4
     Attack($type1) &&
@@ -262,6 +255,8 @@ then
     Server.Config.SetAvailability(ServerAvailability.RestrictAccessToAdmins)
 ```
 
+Рад са блокирањем корисника:
+
 ```ruby
 when
     $r: Request($ip)
@@ -269,6 +264,35 @@ when
 then
     $r.setRejected(true);
     # Finish the request early, returning 403 Forbidden.
+
+# DeleteStaleBlocks would periodically be sent to remove Block events that have
+# finished (but not expired)
+when
+    DeleteStaleBlocks()
+    $b : Block(
+        after now()
+    )
+then
+    delete($b)
+
+when
+    $d: DeleteStaleBlocks()
+    not Block(after now())
+then
+    delete($d)
+
+when
+    $b: Block($ip)
+    $u: Unblock(ip == $ip)
+then
+    delete($b)
+    delete($u)
+
+when
+    $u: Unblock($ip)
+    not Block(ip == $ip)
+then
+    delete($u)
 ```
 
 **Backward chaining**:
@@ -364,66 +388,51 @@ void banUser(Long userId) {
 }
 ```
 
-2. Извештавање система ради препознавања најчешћих догађаја који доводе до нарушавања безбедности. Пример:
-
--   добавити све кориснике који су у последњих месец дана блокирани бар три пута због високих транзакција
--   добавити IP адресе које су спамовале сервер у периоду између два датума
--   читање логова... **TODO**
-
-**Template**-и ће се реализовати параметризацијом правила користећи UI (или учитавањем
-података из xlsx табеле). Пример:
+**Template** чине параметризована правила за извештавање:
 
 ```ruby
-when
-    count(Transaction($user, amount > 1000) over 1h) >= 3
-then
-    new Note($user, 2, Type.Transaction, "Suspicious transactions")
+do query q1(type, n)
+    count(AttackEvent($type) over 24h) > n
+end
+
+do query q2(n)
+    count(AttackEvent over 24h) > n
+end
+
+do query q3(ip, n)
+    count(FailedLogin($ip) over 24h) > n
+end
+
+do query q4(ip,n )
+    count(Block($ip) over 24h) > n
+end
+
+
+do template (attack_type, n)
 
 when
-    count(Transaction($user, amount > 5000) over 6h) >= 3
+    $attack: AttackEvent(type == $attack_type) over 24h
+    q1($attack_type, $n)
 then
-    new Note($user, 3, Type.Transaction, "Suspicious transactions")
-
-# Template
-when
-    count(Transaction($user, amount > ${AMOUNT}) over ${TIME}) >= ${NUM_OF_TRANSACTIONS}
-then
-    new Note($user, ${POINTS}, Type.Transaction, "Suspicious transactions")
-```
-
-```ruby
-when
-    $user: User
-    $user.balance <= 0.5 * (
-        $user.balance + accumulate(Transaction($user, $amount) over 1h, sum($amount))
-    )
-then
-    new Note($user, 3, Type.Transaction, "User spent too much, account possibly breached")
+    print($attack)
 
 when
-    $user: User
-    $user.balance <= 0.1 * (
-        $user.balance + accumulate(Transaction($user, $amount) over 24h, sum($amount))
-    )
+    $attack: AttackEvent(type == $attack_type) over 24h
+    q2($attack_type)
 then
-    new Note($user, 7, Type.Transaction, "User spent too much, account possibly breached")
+    print($attack)
 
 when
-    $user: User
-    $user.balance <= 0.1 * (
-        $user.balance + accumulate(Transaction($user, $amount) over 1h, sum($amount))
-    )
+    $login: FailedLogin($ip) over 24h
+    q3($ip, $n)
 then
-    new Note($user, 10, Type.Transaction, "User spent too much, account possibly breached")
+    print($login)
 
-# Template
 when
-    $user: User
-    $user.balance <= ${REMAINING_BALANCE} * (
-        $user.balance + accumulate(Transaction($user, $amount) over ${TIME}, sum($amount))
-    )
+    $block: Block($ip) over 24h
+    q3($ip, $n)
 then
-    new Note($user, ${POINTS}, Type.Transaction, "User spent too much, account possibly breached")
+    print($block)
 ```
 
 ## Пример резоновања

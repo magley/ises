@@ -192,7 +192,7 @@ export default function ArticleDetails() {
 										onChange={(e) =>
 											setComment(e.target.value)
 										}
-										className="block w-full rounded-md border-0 p-1.5 dark:disabled:bg-slate-700 text-gray-900 dark:text-gray-100 shadow-md ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+										className="block w-full rounded-md border-0 p-1.5 dark:bg-slate-800 dark:disabled:bg-slate-700 text-gray-900 dark:text-gray-100 shadow-md ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
 									/>
 								</div>
 							</div>

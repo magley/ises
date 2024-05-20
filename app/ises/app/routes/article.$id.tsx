@@ -37,6 +37,10 @@ export default function ArticleDetails() {
 	};
 
 	const checkPermissions = () => {
+		// TODO: This is buggy? When signed in as admin, sometimes one of the
+		// buttons becomes enabled even though both of these `canDoX` booleans
+		// are false. Investigate.
+
 		UserService.hasPermission("comment_on_articles")
 			.then((res) => {
 				setCanLeaveComment(res.data);
@@ -52,6 +56,8 @@ export default function ArticleDetails() {
 			.catch((err) => {
 				console.error(err);
 			});
+
+		console.log(canLeaveComment, canPurchase);
 	};
 
 	const buyArticle = () => {
@@ -128,7 +134,7 @@ export default function ArticleDetails() {
 				<>
 					<button
 						onClick={buyArticle}
-						{...(!canPurchase && { disabled: true })}
+						disabled={!canPurchase}
 						className="
                             dark:text-slate-900 dark:disabled:bg-slate-500 dark:disabled:text-slate-700
                             flex justify-center rounded-md bg-indigo-600 px-5 py-1.5 text-sm font-semibold leading-6 
@@ -177,9 +183,7 @@ export default function ArticleDetails() {
 								</label>
 								<div className="mt-2">
 									<textarea
-										{...(!canLeaveComment && {
-											disabled: true,
-										})}
+										disabled={!canLeaveComment}
 										id="comment"
 										name="comment"
 										rows={5}
@@ -198,9 +202,7 @@ export default function ArticleDetails() {
 										e.preventDefault();
 										submitComment();
 									}}
-									{...(!canLeaveComment && {
-										disabled: true,
-									})}
+									disabled={!canLeaveComment}
 									className="
                                         dark:text-slate-900 dark:disabled:bg-slate-500 dark:disabled:text-slate-700
                                         flex justify-center rounded-md bg-indigo-600 px-5 py-1.5 text-sm font-semibold leading-6 

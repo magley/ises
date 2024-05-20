@@ -19,10 +19,10 @@ export default function ArticleDetails() {
 	// Comment section state
 	const [comment, setComment] = useState<string>("");
 	const [errMsg, setErrMsg] = useState<string | null>("");
-	const [canLeaveComment, setCanLeaveComment] = useState<boolean>(true);
+	const [canLeaveComment, setCanLeaveComment] = useState<boolean>(false);
 
 	// Purchase state
-	const [canPurchase, setCanPurchase] = useState<boolean>(true);
+	const [canPurchase, setCanPurchase] = useState<boolean>(false);
 
 	const loadProduct = (id: number) => {
 		ArticleService.findById(id).then((res) => {
@@ -128,7 +128,7 @@ export default function ArticleDetails() {
 				<>
 					<button
 						onClick={buyArticle}
-						{...(!canLeaveComment && { disabled: true })}
+						{...(!canPurchase && { disabled: true })}
 						className="
                             dark:text-slate-900 dark:disabled:bg-slate-500 dark:disabled:text-slate-700
                             flex justify-center rounded-md bg-indigo-600 px-5 py-1.5 text-sm font-semibold leading-6 

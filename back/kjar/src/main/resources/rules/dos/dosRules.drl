@@ -6,6 +6,7 @@ import rs.sbnz.model.AttackType;
 import rs.sbnz.model.AttackSeverity;
 
 rule "Source IP is Dest IP"
+    salience 175
     when
         Number(intValue >= 1000) from accumulate(
             $r: Request(

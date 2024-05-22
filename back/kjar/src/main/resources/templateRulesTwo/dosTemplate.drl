@@ -1,0 +1,31 @@
+template header
+numberOfRequests
+timeFrame
+
+package templateRulesTwo;
+
+import rs.sbnz.model.Request;
+import rs.sbnz.model.events.AttackEvent;
+import rs.sbnz.model.AttackType;
+import rs.sbnz.model.AttackSeverity;
+
+template "dosTemplate"
+
+rule "Detect DOS when @{numberOfRequests} of requests are made in @{timeFrame}"
+    when
+        Number(intValue >= @{numberOfRequests}) from accumulate(
+            $r: Request(
+                isRejected == false,
+                $id: id
+            ) over window:time(@{timeFrame}),
+            count($id)
+        )
+        not AttackEvent(
+            type == AttackType.DENIAL_OF_SERVICE
+        ) over window:time(@{timeFrame})
+    then
+        System.out.printf("DOS attack!\n");
+        insert(new AttackEvent(AttackType.DENIAL_OF_SERVICE, AttackSeverity.SUPERHIGH));
+end
+
+end template

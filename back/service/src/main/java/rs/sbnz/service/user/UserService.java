@@ -1,5 +1,6 @@
 package rs.sbnz.service.user;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,14 +9,23 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
+import rs.sbnz.model.Role;
 import rs.sbnz.model.User;
 import rs.sbnz.model.UserRole;
+import rs.sbnz.service.exceptions.NewPasswordIsWeakException;
+import rs.sbnz.service.exceptions.NotFoundException;
+import rs.sbnz.service.exceptions.WrongPasswordException;
+import rs.sbnz.service.request.RequestService;
+import rs.sbnz.service.role.RoleService;
+import rs.sbnz.service.user.dto.PasswordChangeDTO;
 import rs.sbnz.service.util.PasswordUtil;
 
 @Component
 public class UserService implements UserDetailsService {
     @Autowired private IUserRepo userRepo;
     @Autowired private PasswordUtil passwordUtil;
+    @Autowired private RequestService requestService;
+    @Autowired private RoleService roleService;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -24,6 +34,41 @@ public class UserService implements UserDetailsService {
             .findByEmail(username)
             .orElseThrow(() -> new UsernameNotFoundException(username));
         return user;
+    }
+
+    public User save(User user) {
+        userRepo.save(user);
+        return user;
+    }
+
+    public User findById(Long id) {
+        return userRepo.findById(id).orElseThrow(() -> new NotFoundException());
+    }
+
+    public void changePassword(User user, PasswordChangeDTO dto) {
+        if (!passwordUtil.doPasswordsMatch(dto.getCurrentPassword(), user.getPassword())) {
+            throw new WrongPasswordException();
+        }
+
+        boolean isWeakPassword = requestService.onChangePassword(dto.getNewPassword());
+        if (isWeakPassword) {
+            throw new NewPasswordIsWeakException();
+        }
+
+        user.setPassword(passwordUtil.encode(dto.getNewPassword()));
+        userRepo.save(user);
+    }
+
+    public List<User> findAll() {
+        return userRepo.findAll();
+    }
+
+    public void changeRole(Long userId, Long roleId) {
+        User user = findById(userId);
+        Role role = roleService.findById(roleId).orElseThrow(() -> new NotFoundException());
+
+        user.setRbacRole(role);
+        userRepo.save(user);
     }
 
     /**

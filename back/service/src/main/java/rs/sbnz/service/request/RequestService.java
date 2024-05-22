@@ -1,20 +1,36 @@
 package rs.sbnz.service.request;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.kie.api.runtime.KieSession;
+import org.kie.api.runtime.rule.QueryResults;
+import org.kie.api.runtime.rule.QueryResultsRow;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import rs.sbnz.model.BlockReason;
 import rs.sbnz.model.Request;
 import rs.sbnz.model.api.Packet;
 import rs.sbnz.model.events.BlockEvent;
+import rs.sbnz.model.events.DeleteStaleBlocksEvent;
 import rs.sbnz.model.events.FailedLoginEvent;
+import rs.sbnz.model.events.LoginEvent;
+import rs.sbnz.model.events.PasswordChangeEvent;
+import rs.sbnz.model.events.TextQueryEvent;
 import rs.sbnz.service.exceptions.IPBlockedException;
 
 @Component
 public class RequestService {
     @Autowired private KieSession ksession;
     @Autowired private IRequestRepo requestRepo;
+
+    @Scheduled(fixedRate = 5 * 60 * 1000)
+    private void TryToClearStaleBlocks() {
+        ksession.insert(new DeleteStaleBlocksEvent());
+        ksession.fireAllRules();
+    }
 
     /**
      * Method to call on start of every HTTP Request made to the server.
@@ -38,8 +54,32 @@ public class RequestService {
     }
 
     /**
+     * Method to call after a successful login. Used to capture weak passwords.
+     * @param email Email
+     * @param password Password
+     * @return Whether the password is weak.
+     */
+    public boolean onLoginAttempt(String email, String password) {
+        LoginEvent ev = new LoginEvent(email, password);
+        ksession.insert(ev);
+        ksession.fireAllRules();
+        return ev.isWeakPassword();
+    }
+
+    /**
+     * Method to call whenever the user submits a request with textual data.
+     * Used to detect SQL injection.
+     * @param text The submitted text.
+     * @param req The request where the text was submitted.
+     */
+    public void onTextSubmission(String text, Request req) {
+        TextQueryEvent ev = new TextQueryEvent(text, req);
+        ksession.insert(ev);
+        ksession.fireAllRules();
+    }
+
+    /**
      * Method to call when the user enters incorrect credentails for logging in.
-     * TODO: This method may not belong here. Rename the class or split it.
      * 
      * @param srcIp IP address from where the request came.
      * @param email Email address that the user attempted to enter.
@@ -48,6 +88,19 @@ public class RequestService {
         FailedLoginEvent event = new FailedLoginEvent(0L, srcIp, email);
         ksession.insert(event);
         ksession.fireAllRules();
+    }
+
+    /**
+     * Method to call when a password change event is attempted, used for
+     * detecting weak passwords.
+     * @param newPassword The new password
+     * @return True if the password is weak.
+     */
+    public boolean onChangePassword(String newPassword) {
+        PasswordChangeEvent ev = new PasswordChangeEvent(newPassword);
+        ksession.insert(ev);
+        ksession.fireAllRules();
+        return ev.getIsWeak();
     }
 
     /**

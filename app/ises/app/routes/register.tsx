@@ -66,19 +66,25 @@ export default function Register() {
 
 	return (
 		<>
-			<div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
+			<div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8 bg-white dark:bg-slate-800 shadow-md mx-64 mt-16">
 				<div className="sm:mx-auto sm:w-full sm:max-w-sm">
-					<h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
+					<h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900 dark:text-white">
 						Join us
 					</h2>
 				</div>
 
 				<div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-					<Form className="space-y-6" onSubmit={submitRegister}>
+					<Form
+						className="space-y-6"
+						onSubmit={(e) => {
+							e.preventDefault();
+							submitRegister();
+						}}
+					>
 						<div>
 							<label
 								htmlFor="email"
-								className="block text-sm font-medium leading-6 text-gray-900"
+								className="block text-sm font-medium leading-6 text-black dark:text-white"
 							>
 								Email address
 							</label>
@@ -91,7 +97,10 @@ export default function Register() {
 									required
 									value={email}
 									onChange={(e) => setEmail(e.target.value)}
-									className="block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+									className="block w-full rounded-md border-0 p-1.5 
+                                    text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 
+                                    focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6
+                                    dark:text-gray-100 dark:placeholder:text-gray-400 dark:bg-slate-800"
 								/>
 							</div>
 						</div>
@@ -100,7 +109,7 @@ export default function Register() {
 							<div className="flex items-center justify-between">
 								<label
 									htmlFor="password"
-									className="block text-sm font-medium leading-6 text-gray-900"
+									className="block text-sm font-medium leading-6 text-black dark:text-white"
 								>
 									Password
 								</label>
@@ -116,7 +125,10 @@ export default function Register() {
 									onChange={(e) =>
 										setPassword(e.target.value)
 									}
-									className="block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+									className="block w-full rounded-md border-0 p-1.5 
+                                    text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 
+                                    focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6
+                                    dark:text-gray-100 dark:placeholder:text-gray-400 dark:bg-slate-800"
 								/>
 							</div>
 						</div>
@@ -125,7 +137,7 @@ export default function Register() {
 							<div className="flex items-center justify-between">
 								<label
 									htmlFor="passwordConfirm"
-									className="block text-sm font-medium leading-6 text-gray-900"
+									className="block text-sm font-medium leading-6 text-black dark:text-white"
 								>
 									Confirm password
 								</label>
@@ -141,7 +153,10 @@ export default function Register() {
 									onChange={(e) =>
 										setPasswordConfirm(e.target.value)
 									}
-									className="block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+									className="block w-full rounded-md border-0 p-1.5 
+                                    text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 
+                                    focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6
+                                    dark:text-gray-100 dark:placeholder:text-gray-400 dark:bg-slate-800"
 								/>
 							</div>
 						</div>
@@ -151,7 +166,7 @@ export default function Register() {
 								<div className="flex items-center justify-between">
 									<label
 										htmlFor="name"
-										className="block text-sm font-medium leading-6 text-gray-900"
+										className="block text-sm font-medium leading-6 text-black dark:text-white"
 									>
 										Name
 									</label>
@@ -167,7 +182,10 @@ export default function Register() {
 										onChange={(e) =>
 											setName(e.target.value)
 										}
-										className="block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+										className="block w-full rounded-md border-0 p-1.5 
+                                        text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 
+                                        focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6
+                                        dark:text-gray-100 dark:placeholder:text-gray-400 dark:bg-slate-800"
 									/>
 								</div>
 							</div>
@@ -176,7 +194,7 @@ export default function Register() {
 								<div className="flex items-center justify-between">
 									<label
 										htmlFor="lastName"
-										className="block text-sm font-medium leading-6 text-gray-900"
+										className="block text-sm font-medium leading-6 text-black dark:text-white"
 									>
 										Last Name
 									</label>
@@ -192,7 +210,10 @@ export default function Register() {
 										onChange={(e) =>
 											setLastName(e.target.value)
 										}
-										className="block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+										className="block w-full rounded-md border-0 p-1.5 
+                                        text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 
+                                        focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6
+                                        dark:text-gray-100 dark:placeholder:text-gray-400 dark:bg-slate-800"
 									/>
 								</div>
 							</div>
@@ -212,11 +233,11 @@ export default function Register() {
 						</div>
 					</Form>
 
-					<p className="mt-10 text-center text-sm text-gray-500">
+					<p className="mt-10 text-center text-sm text-gray-500 dark:text-gray-200">
 						Already have an account?{" "}
 						<Link
 							to={"/login"}
-							className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500"
+							className="font-semibold leading-6 text-indigo-600 hover:text-indigo-400"
 						>
 							Sign in
 						</Link>

@@ -1,7 +1,5 @@
 package rs.sbnz.model;
 
-import javax.persistence.OneToMany;
-
 public class RbacRequest {
     private User user;
     private Permission permission;

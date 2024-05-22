@@ -5,4 +5,5 @@
 export interface Packet {
     srcIp: string,
     destIp: string,
+    srcPort: string,
 };

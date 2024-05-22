@@ -93,10 +93,6 @@ public class Note {
         return this.usedInBlock;
     }
 
-    public boolean getUsedInBlock() {
-        return this.usedInBlock;
-    }
-
     public void setUsedInBlock(boolean usedInBlock) {
         this.usedInBlock = usedInBlock;
     }

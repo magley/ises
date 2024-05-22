@@ -85,14 +85,31 @@ public class DroolsBeans {
     }
 
     private String buildTemplateForSecondBatchOfTemplates() {
-        InputStream template = ServiceApplication.class.getResourceAsStream("/templateRulesTwo/dosTemplate.drl");
-        DataProvider dataProvider = new ArrayDataProvider(new String[][]{
-            new String[]{"100000", "1s"},
-            new String[]{"10000", "5s"},
-            new String[]{"1000", "1m"},
-        });
-        DataProviderCompiler converter = new DataProviderCompiler();
-        return converter.compile(dataProvider, template);
+        String drl = "";
+
+        {
+            InputStream template = ServiceApplication.class.getResourceAsStream("/templateRulesTwo/dosTemplate.drl");
+            DataProvider dataProvider = new ArrayDataProvider(new String[][]{
+                new String[]{"100000", "1s"},
+                new String[]{"10000", "5s"},
+                new String[]{"100", "1m"},
+            });
+            DataProviderCompiler converter = new DataProviderCompiler();
+            drl += converter.compile(dataProvider, template);
+        }
+
+        {
+            InputStream template = ServiceApplication.class.getResourceAsStream("/templateRulesTwo/ddosTemplate.drl");
+            DataProvider dataProvider = new ArrayDataProvider(new String[][]{
+                new String[]{"100000", "1s", "100"},
+                new String[]{"10000", "5s", "25"},
+                new String[]{"100", "1m", "2"},
+            });
+            DataProviderCompiler converter = new DataProviderCompiler();
+            drl += converter.compile(dataProvider, template);
+        }
+
+        return drl;
     }
 
     private String preCompile(String drl) {

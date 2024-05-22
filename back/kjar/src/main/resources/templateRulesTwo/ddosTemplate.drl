@@ -1,6 +1,7 @@
 template header
 numberOfRequests
 timeFrame
+numberOfUniqueIPs
 
 package templateRulesTwo;
 
@@ -8,12 +9,20 @@ import rs.sbnz.model.Request;
 import rs.sbnz.model.events.AttackEvent;
 import rs.sbnz.model.AttackType;
 import rs.sbnz.model.AttackSeverity;
+import java.util.Set;
 
-template "dosTemplate"
+template "ddosTemplate"
 
-rule "Detect DOS when @{numberOfRequests} requests are made in @{timeFrame}"
-    salience 1880
+rule "Detect DDOS when @{numberOfUniqueIPs} make @{numberOfRequests} requests are made in @{timeFrame}"
+    salience 1888
     when
+        Set(size >= @{numberOfUniqueIPs}) from accumulate(
+            $r: Request(
+                isRejected == false,
+                $srcIp: srcIp
+            ) over window:time(@{timeFrame}),
+            collectSet($srcIp)
+        )
         Number(intValue >= @{numberOfRequests}) from accumulate(
             $r: Request(
                 isRejected == false,
@@ -28,8 +37,8 @@ rule "Detect DOS when @{numberOfRequests} requests are made in @{timeFrame}"
             type == AttackType.DENIAL_OF_SERVICE
         ) over window:time(@{timeFrame})
     then
-        System.out.printf("DOS attack!\n");
-        insert(new AttackEvent(AttackType.DENIAL_OF_SERVICE, AttackSeverity.SUPERHIGH));
+        System.out.printf("DDOS attack!\n");
+        insert(new AttackEvent(AttackType.DISTRIBUTED_DENIAL_OF_SERVICE, AttackSeverity.SUPERHIGH));
 end
 
 end template

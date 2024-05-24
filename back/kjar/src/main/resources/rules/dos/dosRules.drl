@@ -4,6 +4,9 @@ import rs.sbnz.model.Request;
 import rs.sbnz.model.events.AttackEvent;
 import rs.sbnz.model.AttackType;
 import rs.sbnz.model.AttackSeverity;
+import rs.sbnz.model.Alarm;
+import rs.sbnz.model.AlarmSeverity;
+import rs.sbnz.model.AlarmType;
 
 rule "Source IP is Dest IP"
     salience 1885
@@ -26,5 +29,6 @@ rule "Source IP is Dest IP"
         ) over window:time(1m)
     then
         System.out.printf("TCP Flood Attack!\n");
+        insert(new Alarm(AlarmSeverity.HIGH, AlarmType.DOS, "A TCP flood attack has been detected."));
         insert(new AttackEvent(AttackType.DENIAL_OF_SERVICE, AttackSeverity.SUPERHIGH));
 end

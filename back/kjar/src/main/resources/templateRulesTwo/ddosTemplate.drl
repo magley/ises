@@ -10,6 +10,9 @@ import rs.sbnz.model.events.AttackEvent;
 import rs.sbnz.model.AttackType;
 import rs.sbnz.model.AttackSeverity;
 import java.util.Set;
+import rs.sbnz.model.Alarm;
+import rs.sbnz.model.AlarmSeverity;
+import rs.sbnz.model.AlarmType;
 
 template "ddosTemplate"
 
@@ -38,6 +41,7 @@ rule "Detect DDOS when @{numberOfUniqueIPs} make @{numberOfRequests} requests ar
         ) over window:time(@{timeFrame})
     then
         System.out.printf("DDOS attack!\n");
+        insert(new Alarm(AlarmSeverity.CRITICAL, AlarmType.DOS, "A DDOS has been detected."));
         insert(new AttackEvent(AttackType.DISTRIBUTED_DENIAL_OF_SERVICE, AttackSeverity.SUPERHIGH));
 end
 

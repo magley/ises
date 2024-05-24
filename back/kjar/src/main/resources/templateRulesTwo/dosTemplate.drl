@@ -8,6 +8,9 @@ import rs.sbnz.model.Request;
 import rs.sbnz.model.events.AttackEvent;
 import rs.sbnz.model.AttackType;
 import rs.sbnz.model.AttackSeverity;
+import rs.sbnz.model.Alarm;
+import rs.sbnz.model.AlarmSeverity;
+import rs.sbnz.model.AlarmType;
 
 template "dosTemplate"
 
@@ -29,6 +32,7 @@ rule "Detect DOS when @{numberOfRequests} requests are made in @{timeFrame}"
         ) over window:time(@{timeFrame})
     then
         System.out.printf("DOS attack!\n");
+        insert(new Alarm(AlarmSeverity.HIGH, AlarmType.DOS, "A DOS has been detected."));
         insert(new AttackEvent(AttackType.DENIAL_OF_SERVICE, AttackSeverity.SUPERHIGH));
 end
 

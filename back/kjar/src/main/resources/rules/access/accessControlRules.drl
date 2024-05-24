@@ -10,6 +10,12 @@ import rs.sbnz.model.AttackType;
 import java.util.Set;
 import rs.sbnz.model.Request;
 import rs.sbnz.model.AttackSeverity;
+import rs.sbnz.model.events.AttackEvent;
+import rs.sbnz.model.AttackType;
+import rs.sbnz.model.AttackSeverity;
+import rs.sbnz.model.Alarm;
+import rs.sbnz.model.AlarmSeverity;
+import rs.sbnz.model.AlarmType;
 
 rule "Detect CORS violation"
     when
@@ -25,5 +31,6 @@ rule "Detect CORS violation"
         )
     then
         System.out.printf("Access Control Attack (CORS Violation)!\n");
+        insert(new Alarm(AlarmSeverity.NORMAL, AlarmType.WEAK_PASSWORD, "Suspicious request from IP address" + $srcIp + ":" + $srcPort));
         insert(new AttackEvent(AttackType.ACCESS_CONTROL, AttackSeverity.MEDIUM));
 end

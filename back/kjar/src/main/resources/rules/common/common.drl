@@ -9,6 +9,10 @@ import rs.sbnz.model.events.DeleteStaleBlocksEvent;
 import rs.sbnz.model.Alarm;
 import rs.sbnz.model.AlarmRemove;
 
+query "getAllUnhandledAlarms"
+    $alarm: Alarm(handled == false)
+end
+
 rule "Handle alarm"
     when
         $alarmRemove: AlarmRemove(

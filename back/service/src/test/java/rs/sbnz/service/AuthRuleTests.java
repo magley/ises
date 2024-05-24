@@ -65,25 +65,6 @@ class AuthRuleTests {
     }
 
     @Test
-    void tooManyLoginsOfDirrentAccountsWithTheSamePassword() {
-        KieServices ks = KieServices.Factory.get();
-        KieContainer kContainer = ks.getKieClasspathContainer(); 
-        KieSession ksession = kContainer.newKieSession("ksessionPseudoClock");
-        SessionPseudoClock clock = ksession.getSessionClock();
-
-        for (int i = 0; i < 4; i++) {
-            ksession.insert(new LoginEvent(i + "@gmail.com", "123"));
-            clock.advanceTime(1, TimeUnit.MINUTES);
-        }
-
-        LoginEvent ev = new LoginEvent("@gmail.com", "123");
-        ksession.insert(ev);
-
-        ksession.fireAllRules();
-        assertTrue(ev.getWeakPassword());
-    }
-
-    @Test
     void tooManyFailedLogins() {
         KieServices ks = KieServices.Factory.get();
         KieContainer kContainer = ks.getKieClasspathContainer(); 

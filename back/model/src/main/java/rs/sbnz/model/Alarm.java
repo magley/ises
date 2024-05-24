@@ -51,10 +51,6 @@ public class Alarm {
         return this.handled;
     }
 
-    public boolean getHandled() {
-        return this.handled;
-    }
-
     public void setHandled(boolean handled) {
         this.handled = handled;
     }

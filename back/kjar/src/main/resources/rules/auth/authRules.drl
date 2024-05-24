@@ -13,47 +13,6 @@ import rs.sbnz.model.AttackSeverity;
 import rs.sbnz.model.WeakPassword;
 import java.util.Set;
 
-rule "Warn when too many accounts try to log in with the same password"
-    salience 99
-    when
-        LoginEvent($thePassword: password)
-        Set(size >= 2) from accumulate(
-            LoginEvent(
-                $email: email,
-                password == $thePassword
-            ) over window:time(6h),
-            collectSet($email)
-        )
-        not WeakPassword(password == $thePassword);
-    then
-        insert(new WeakPassword($thePassword));
-        System.out.printf("Password %s is weak. Do something!\n", $thePassword);
-end
-
-rule "Nag user if his password is weak"
-    salience 98
-    no-loop true
-    when
-        $loginEvent: LoginEvent($email: email, $password: password)
-        WeakPassword(password == $password)
-    then
-        modify($loginEvent){
-            setWeakPassword(true);   
-        }
-        System.out.printf("User %s has a weak password.\n", $email);
-end
-
-rule "Toggle flag if new password is weak"
-    no-loop true
-    when
-       $ev: PasswordChangeEvent($password: password)
-       WeakPassword(password == $password)
-    then
-        modify($ev){
-            setIsWeak(true);   
-        }
-end
-
 
 rule "Note when too many failed logins from same ip to the same account"
     when

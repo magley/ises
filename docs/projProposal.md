@@ -147,6 +147,7 @@ when
 then
     new Alarm(Type.Auth_Pass, Severity.Medium, "Please increase password complexity for new users.")
 
+
 when
     WeakPassword(p)
     $cp: ChangePassword(user, newPassword == p)

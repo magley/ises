@@ -16,6 +16,10 @@ import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.rule.QueryResults;
 import org.kie.api.runtime.rule.QueryResultsRow;
 
+import rs.sbnz.model.Alarm;
+import rs.sbnz.model.AlarmRemove;
+import rs.sbnz.model.AlarmSeverity;
+import rs.sbnz.model.AlarmType;
 import rs.sbnz.model.BlockReason;
 import rs.sbnz.model.Request;
 import rs.sbnz.model.events.BlockEvent;
@@ -23,6 +27,29 @@ import rs.sbnz.model.events.DeleteStaleBlocksEvent;
 import rs.sbnz.model.events.UnblockEvent;
 
 public class OtherTests {
+    @Test
+    void alarmTest() {
+        KieServices ks = KieServices.Factory.get();
+        KieContainer kContainer = ks.getKieClasspathContainer(); 
+        KieSession ksession = kContainer.newKieSession("ksessionPseudoClock");
+
+        Alarm a1 = new Alarm(AlarmSeverity.HIGH, AlarmType.WEAK_PASSWORD, "");
+        ksession.insert(a1);
+        ksession.fireAllRules();
+        assertEquals(1, TestUtils.<Alarm>getFactsFrom(ksession).stream().filter(a -> !a.isHandled()).count());
+        assertEquals(0, TestUtils.<Alarm>getFactsFrom(ksession).stream().filter(a -> a.isHandled()).count());
+
+        ksession.insert(new AlarmRemove("Wrong UUID"));
+        ksession.fireAllRules();
+        assertEquals(1, TestUtils.<Alarm>getFactsFrom(ksession).stream().filter(a -> !a.isHandled()).count());
+        assertEquals(0, TestUtils.<Alarm>getFactsFrom(ksession).stream().filter(a -> a.isHandled()).count());
+
+        ksession.insert(new AlarmRemove(a1.getUuid()));
+        ksession.fireAllRules();
+        assertEquals(0, TestUtils.<Alarm>getFactsFrom(ksession).stream().filter(a -> !a.isHandled()).count());
+        assertEquals(1, TestUtils.<Alarm>getFactsFrom(ksession).stream().filter(a -> a.isHandled()).count());
+    }
+
     @Test void deleteStaleBlockEvents() {
         KieServices ks = KieServices.Factory.get();
         KieContainer kContainer = ks.getKieClasspathContainer(); 

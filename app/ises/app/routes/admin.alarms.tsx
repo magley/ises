@@ -1,9 +1,24 @@
 import { NavLink } from "@remix-run/react";
+import classNames from "classnames";
 import { useEffect, useState } from "react";
 import { AdminService, AlarmDTO } from "~/service/admin";
+import pkg from 'lodash';
+const { orderBy } = pkg;
+
+
+class Sorter {
+    column: string = "";
+    asc: boolean = true;
+
+    constructor(column: string, asc: boolean) {
+        this.column = column;
+        this.asc = asc;
+    }
+}
 
 export default function Alarms() {
     const [alarms, setAlarms] = useState<AlarmDTO[]>([]);
+    const [sorter, setSorter] = useState<Sorter>(new Sorter('uuid', true));
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -27,10 +42,28 @@ export default function Alarms() {
 
     const getAlarms = () => {
         AdminService.getActiveAlarms().then((res) => {
-            setAlarms(res.data);
+            const arr = sortAlarms(res.data);
+            setAlarms(arr);
         }).catch((err) => {
             console.error(err);
         });
+    }
+
+    const onClickSort = (column: string) => {
+        if (sorter.column == column) {
+            sorter.asc = !sorter.asc;
+        } else {
+            sorter.column = column;
+            sorter.asc = true;
+        }
+
+        const arr = sortAlarms(alarms);
+        setAlarms(arr);
+    }
+
+    const sortAlarms = (data: AlarmDTO[]): AlarmDTO[] => {
+        const res = orderBy(data, [sorter.column], [sorter.asc ? 'asc' : 'desc'])
+        return res;
     }
 
     return (
@@ -48,10 +81,10 @@ export default function Alarms() {
                         </caption>
                         <thead className="text-xs dark:bg-slate-800 dark:text-gray-400 text-gray-700 uppercase bg-gray-50 ">
                             <tr>
-                                <th className="px-6 py-3">UUID</th>
-                                <th className="px-6 py-3">Severity</th>
-                                <th className="px-6 py-3">Type</th>
-                                <th className="px-6 py-3">Description</th>
+                                <th className="px-6 py-3" onClick={(e) => onClickSort('uuid')}>UUID</th>
+                                <th className="px-6 py-3" onClick={(e) => onClickSort('severity')}>Severity</th>
+                                <th className="px-6 py-3" onClick={(e) => onClickSort('type')}>Type</th>
+                                <th className="px-6 py-3" onClick={(e) => onClickSort('description')}>Description</th>
                                 <th className="px-6 py-3"></th>
                             </tr>
                         </thead>
@@ -61,8 +94,14 @@ export default function Alarms() {
                                     key={alarm.uuid}
                                     className="bg-white border-b hover:bg-gray-50 dark:bg-slate-700 dark:text-gray-300 dark:hover:bg-slate-600"
                                 >
-                                    <td className="px-6 py-4">{alarm.uuid}</td>
-                                    <td className="px-6 py-4">{alarm.severity}</td>
+                                    <td className="px-6 py-4"><div className="text-xs">{alarm.uuid}</div></td>
+                                    <td className='px-6 py-4'>
+                                        <div className={classNames(`m-1 p-1.5 rounded-xl text-center shadow-md font-bold`, {
+                                            'bg-red-400 text-black': alarm.severity == 'CRITICAL',
+                                            'bg-red-500 text-white': alarm.severity == 'HIGH',
+                                            'bg-yellow-300 text-black': alarm.severity == 'NORMAL',
+                                        })}>{alarm.severity}</div>
+                                    </td>
                                     <td className="px-6 py-4">{alarm.type}</td>
                                     <td className="px-6 py-4">{alarm.description}</td>
                                     <td className="px-6 py-4">
@@ -82,7 +121,8 @@ export default function Alarms() {
                         </tbody>
                     </table>
                 </div>
-            )}
-        </div>
+            )
+            }
+        </div >
     );
 }

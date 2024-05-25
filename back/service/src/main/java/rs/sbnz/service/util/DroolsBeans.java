@@ -92,7 +92,7 @@ public class DroolsBeans {
             DataProvider dataProvider = new ArrayDataProvider(new String[][]{
                 new String[]{"100000", "1s"},
                 new String[]{"10000", "5s"},
-                new String[]{"100", "1m"},
+                new String[]{"200", "1m"},
             });
             DataProviderCompiler converter = new DataProviderCompiler();
             drl += converter.compile(dataProvider, template);
@@ -103,7 +103,7 @@ public class DroolsBeans {
             DataProvider dataProvider = new ArrayDataProvider(new String[][]{
                 new String[]{"100000", "1s", "100"},
                 new String[]{"10000", "5s", "25"},
-                new String[]{"100", "1m", "2"},
+                new String[]{"200", "1m", "2"},
             });
             DataProviderCompiler converter = new DataProviderCompiler();
             drl += converter.compile(dataProvider, template);

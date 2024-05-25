@@ -13,12 +13,6 @@ import toast, { Toaster } from "react-hot-toast";
 import { useEffect } from "react";
 import { getJwtShouldNagPassword } from "./util/localstorage";
 
-import {
-    StompSessionProvider,
-    useSubscription,
-} from "react-stomp-hooks";
-
-
 export const links: LinksFunction = () => [
     { rel: "stylesheet", href: stylesheet },
 ];
@@ -40,14 +34,12 @@ export default function App() {
                 <Links />
             </head>
             <body>
-                <StompSessionProvider url={"http://localhost:8080/ws"}>
-                    <Navbar />
+                <Navbar />
 
-                    <ScrollRestoration />
-                    <Scripts />
-                    <Outlet />
-                    <Toaster />
-                </StompSessionProvider>
+                <ScrollRestoration />
+                <Scripts />
+                <Outlet />
+                <Toaster />
             </body>
         </html>
     );

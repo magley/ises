@@ -13,6 +13,6 @@ export interface RoleDTO {
 
 export abstract class RoleService {
     static findAll(): Promise<AxiosResponse<RoleDTO[]>> {
-        return axiosInstance.get(`ws://localhost:8080/api/auth/role`);
+        return axiosInstance.get(`http://localhost:8080/api/auth/role`);
     }
 }

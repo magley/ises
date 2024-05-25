@@ -31,7 +31,7 @@ rule "Detect DOS when @{numberOfRequests} requests are made in @{timeFrame}"
             type == AttackType.DENIAL_OF_SERVICE
         ) over window:time(@{timeFrame})
     then
-        System.out.printf("DOS attack!\n");
+        System.out.printf("DOS attack [@{numberOfRequests} @{timeFrame}]!\n");
         insert(new Alarm(AlarmSeverity.HIGH, AlarmType.DOS, "A DOS has been detected."));
         insert(new AttackEvent(AttackType.DENIAL_OF_SERVICE, AttackSeverity.SUPERHIGH));
 end

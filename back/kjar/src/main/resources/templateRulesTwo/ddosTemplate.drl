@@ -40,7 +40,7 @@ rule "Detect DDOS when @{numberOfUniqueIPs} make @{numberOfRequests} requests ar
             type == AttackType.DENIAL_OF_SERVICE
         ) over window:time(@{timeFrame})
     then
-        System.out.printf("DDOS attack!\n");
+        System.out.printf("DDOS attack [@{numberOfRequests} @{timeFrame}]!\n");
         insert(new Alarm(AlarmSeverity.CRITICAL, AlarmType.DOS, "A DDOS has been detected."));
         insert(new AttackEvent(AttackType.DISTRIBUTED_DENIAL_OF_SERVICE, AttackSeverity.SUPERHIGH));
 end

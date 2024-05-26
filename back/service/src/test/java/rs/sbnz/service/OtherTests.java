@@ -1,11 +1,6 @@
 package rs.sbnz.service;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.drools.core.time.SessionPseudoClock;
@@ -13,21 +8,9 @@ import org.junit.jupiter.api.Test;
 import org.kie.api.KieServices;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
-import org.kie.api.runtime.rule.QueryResults;
-import org.kie.api.runtime.rule.QueryResultsRow;
-
-import rs.sbnz.model.Alarm;
-import rs.sbnz.model.AlarmRemove;
-import rs.sbnz.model.AlarmSeverity;
-import rs.sbnz.model.AlarmType;
-import rs.sbnz.model.BlockReason;
 import rs.sbnz.model.Request;
-import rs.sbnz.model.events.BlockEvent;
-import rs.sbnz.model.events.DeleteStaleBlocksEvent;
-import rs.sbnz.model.events.UnblockEvent;
 
 public class OtherTests {
-
     @Test
     void IfUserIsSpamming_ThenCreateNote() {
         KieServices ks = KieServices.Factory.get();

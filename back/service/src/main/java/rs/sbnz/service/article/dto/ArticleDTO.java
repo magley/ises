@@ -1,8 +1,6 @@
 package rs.sbnz.service.article.dto;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.time.Instant;
 import java.util.Base64;
 

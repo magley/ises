@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import rs.sbnz.model.RbacRequest;
 import rs.sbnz.model.Request;
 import rs.sbnz.model.User;
 import rs.sbnz.model.api.Packet;

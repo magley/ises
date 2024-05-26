@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.kie.api.runtime.ClassObjectFilter;
 import org.kie.api.runtime.KieSession;
-import rs.sbnz.model.Alarm;
 
 public class TestUtils {
     static <T> List<T> getFactsFrom(KieSession ksession, Class<T> clazz) {

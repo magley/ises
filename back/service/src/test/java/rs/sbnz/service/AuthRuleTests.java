@@ -1,6 +1,5 @@
 package rs.sbnz.service;
 
-import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.concurrent.TimeUnit;
@@ -19,7 +18,6 @@ import rs.sbnz.model.NoteType;
 import rs.sbnz.model.events.AttackEvent;
 import rs.sbnz.model.events.BlockEvent;
 import rs.sbnz.model.events.FailedLoginEvent;
-import rs.sbnz.model.events.LoginEvent;
 import rs.sbnz.model.events.Note;
 import rs.sbnz.model.events.UnblockEvent;
 

@@ -16,7 +16,6 @@ import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.rule.QueryResults;
 import org.kie.api.runtime.rule.QueryResultsRow;
 
-import rs.sbnz.model.Alarm;
 import rs.sbnz.model.BlockReason;
 import rs.sbnz.model.Request;
 import rs.sbnz.model.events.BlockEvent;

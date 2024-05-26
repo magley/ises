@@ -1,12 +1,10 @@
 package rs.sbnz.service.admin;
 
-import java.text.SimpleDateFormat;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,8 +15,6 @@ import rs.sbnz.model.Alarm;
 import rs.sbnz.model.api.Packet;
 import rs.sbnz.model.events.BlockEvent;
 import rs.sbnz.service.request.RequestService;
-import rs.sbnz.service.user.UserService;
-import rs.sbnz.service.util.AuthenticationFacade;
 import rs.sbnz.service.util.RBACUtil;
 
 @RestController
@@ -27,8 +23,6 @@ public class AdminController {
     @Autowired private RequestService requestService;
     @Autowired private RBACUtil rbacUtil;
     @Autowired private AdminService adminService;
-    @Autowired private UserService userService;
-    @Autowired private AuthenticationFacade authenticationFacade;
 
     @GetMapping("/alarms")
     public ResponseEntity<?> getActiveAlarms(Packet packet) throws Exception {

@@ -9,7 +9,6 @@ import java.util.concurrent.TimeUnit;
 import org.drools.core.time.SessionPseudoClock;
 import org.junit.jupiter.api.Test;
 import org.kie.api.KieServices;
-import org.kie.api.runtime.ClassObjectFilter;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
 

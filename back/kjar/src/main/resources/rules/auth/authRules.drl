@@ -87,6 +87,7 @@ rule "Block IP with too many failed login notes"
         }
 end
 
+
 rule "Too many blocked IPs for auth attacks"
     when
         Set(size >= 100) from accumulate(

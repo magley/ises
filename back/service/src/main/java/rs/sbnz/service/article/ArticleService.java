@@ -1,11 +1,13 @@
 package rs.sbnz.service.article;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
 import rs.sbnz.model.User;
 import rs.sbnz.model.article.Article;
 import rs.sbnz.model.article.ArticleComment;
@@ -13,12 +15,14 @@ import rs.sbnz.model.article.ArticlePurchase;
 import rs.sbnz.service.article.dto.NewArticleCommentDTO;
 import rs.sbnz.service.article.dto.NewArticleDTO;
 import rs.sbnz.service.exceptions.NotFoundException;
+import rs.sbnz.service.util.FileUtil;
 
 @Component
 public class ArticleService {
     @Autowired private IArticleRepo articleRepo;
     @Autowired private IArticlePurchaseRepo articlePurchaseRepo;
     @Autowired private IArticleCommentRepo articleCommentRepo;
+    @Autowired private FileUtil fileUtil;
 
     //-------------------------------------------------------------------------
     // Article
@@ -31,6 +35,13 @@ public class ArticleService {
     public Article save(NewArticleDTO dto, User ownerOfTheArticle) {
         Article a = new Article(null, Instant.now(), ownerOfTheArticle, dto.getName(), dto.getPrice());
         a = save(a);
+
+        try {
+            fileUtil.saveImage(dto.getImgBase64(), "" + a.getId());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        
         return a;
     }
 

@@ -1,6 +1,8 @@
 package rs.sbnz.service.article.dto;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.time.Instant;
 import java.util.Base64;
 
@@ -32,14 +34,14 @@ public class ArticleDTO {
         this.name = article.getName();
         this.price = article.getPrice();
 
-        ClassPathResource resource = new ClassPathResource("static/Untitled.png");
+        File file = new File("./images/article/" + id + ".jpg");
         byte[] bytes;
         try {
-            bytes = IOUtils.toByteArray(resource.getInputStream());
-            this.imgBase64 = Base64.getEncoder().encodeToString(bytes);
+            bytes = Files.readAllBytes(file.toPath());
+            imgBase64 = Base64.getEncoder().encodeToString(bytes);
         } catch (IOException e) {
             e.printStackTrace();
-        }      
+        }
     }
 
     public Long getId() {

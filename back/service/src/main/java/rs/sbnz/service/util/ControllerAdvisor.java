@@ -8,12 +8,13 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import rs.sbnz.service.exceptions.IPBlockedException;
 import rs.sbnz.service.exceptions.NotFoundException;
 import rs.sbnz.service.exceptions.UnauthorizedException;
+import rs.sbnz.service.request.dto.IPBlockedDTO;
 
 @ControllerAdvice
 public class ControllerAdvisor {
     @ExceptionHandler(IPBlockedException.class)
     public ResponseEntity<?> exception_IPBlockedException(IPBlockedException ex) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new IPBlockedDTO());
     }
 
     @ExceptionHandler(UnauthorizedException.class)

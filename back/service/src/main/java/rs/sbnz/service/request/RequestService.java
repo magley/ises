@@ -48,6 +48,16 @@ public class RequestService {
         return request;
     }
 
+    public boolean isIPBlocked(Packet packet) {
+        Request request = new Request(0L, packet);
+        request = requestRepo.save(request);
+
+        ksession.insert(request);
+        ksession.fireAllRules();
+
+        return request.getIsRejected();
+    }
+    
     /**
      * Method to call after a successful login. Used to capture weak passwords.
      * @param email Email

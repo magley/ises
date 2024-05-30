@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
+import org.drools.decisiontable.ExternalSpreadsheetCompiler;
 import org.drools.template.DataProvider;
 import org.drools.template.DataProviderCompiler;
 import org.drools.template.objects.ArrayDataProvider;
@@ -89,24 +90,16 @@ public class DroolsBeans {
 
         {
             InputStream template = ServiceApplication.class.getResourceAsStream("/templateRulesTwo/dosTemplate.drl");
-            DataProvider dataProvider = new ArrayDataProvider(new String[][]{
-                new String[]{"100000", "1s"},
-                new String[]{"10000", "5s"},
-                new String[]{"200", "1m"},
-            });
-            DataProviderCompiler converter = new DataProviderCompiler();
-            drl += converter.compile(dataProvider, template);
+            InputStream dosData = ServiceApplication.class.getResourceAsStream("/templateRulesTwo/dos_and_ddos_parameters.xls");
+            ExternalSpreadsheetCompiler converter = new ExternalSpreadsheetCompiler();
+            drl += converter.compile(dosData, template, 3, 6);
         }
 
         {
             InputStream template = ServiceApplication.class.getResourceAsStream("/templateRulesTwo/ddosTemplate.drl");
-            DataProvider dataProvider = new ArrayDataProvider(new String[][]{
-                new String[]{"100000", "1s", "100"},
-                new String[]{"10000", "5s", "25"},
-                new String[]{"200", "1m", "2"},
-            });
-            DataProviderCompiler converter = new DataProviderCompiler();
-            drl += converter.compile(dataProvider, template);
+            InputStream ddosData = ServiceApplication.class.getResourceAsStream("/templateRulesTwo/dos_and_ddos_parameters.xls");
+            ExternalSpreadsheetCompiler converter = new ExternalSpreadsheetCompiler();
+            drl += converter.compile(ddosData, template, 3, 2);
         }
 
         return drl;

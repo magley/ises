@@ -26,4 +26,14 @@ axiosInstance.interceptors.request.use((config) => {
     return Promise.reject(error);
 });
 
+axiosInstance.interceptors.response.use(function (response) {
+    return response;
+}, function (error) {
+    const data: object = error.response.data;
+    if ('ipBlockedReason' in data) {
+        window.location.replace("/banned");
+    }
+    return Promise.reject(error);
+});
+
 export default axiosInstance;

@@ -7,9 +7,6 @@ import java.time.Instant;
 import java.util.Base64;
 import java.util.List;
 
-import org.apache.commons.io.IOUtils;
-import org.springframework.core.io.ClassPathResource;
-
 import rs.sbnz.model.article.Article;
 import rs.sbnz.service.user.dto.UserDTO;
 

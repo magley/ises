@@ -6,9 +6,6 @@ import java.nio.file.Files;
 import java.time.Instant;
 import java.util.Base64;
 
-import org.apache.commons.io.IOUtils;
-import org.springframework.core.io.ClassPathResource;
-
 import rs.sbnz.model.article.Article;
 
 public class ArticleDTO {

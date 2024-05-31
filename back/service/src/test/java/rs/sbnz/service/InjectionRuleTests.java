@@ -20,6 +20,23 @@ import rs.sbnz.model.events.UnblockEvent;
 
 public class InjectionRuleTests {
     @Test
+    void detectSQLInjection() {
+        KieServices ks = KieServices.Factory.get();
+        KieContainer kContainer = ks.getKieClasspathContainer(); 
+        KieSession ksession = kContainer.newKieSession("ksessionPseudoClock");
+ 
+        Request r1 = new Request(1L, "123", "dest", "5173");
+        ksession.insert(r1);
+        ksession.insert(new TextQueryEvent("' or 1=1;", r1));
+        assertEquals(1, ksession.fireAllRules());
+        
+        Request r2 = new Request(2L, "123", "dest", "5173");
+        ksession.insert(r2);
+        ksession.insert(new TextQueryEvent("not an injection", r2));
+        assertEquals(0, ksession.fireAllRules());
+    }
+    
+    @Test
     void properRemovalOfSqlInjectionBlock() {
         KieServices ks = KieServices.Factory.get();
         KieContainer kContainer = ks.getKieClasspathContainer(); 

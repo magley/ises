@@ -28,13 +28,15 @@
 
 ## Методологија рада
 
-Три корисничке улоге у софтверу су: непријављени корисник, корисник, администратор.
+Три корисничке улоге у софтверу су: непријављени корисник, корисник, администратор. 
 
-**Непријављени корисници** могу да врше претрагу артикала као и да прегледају саме артикле. Такође им је омогућена регистрација и пријава на систем.
+Роле су: обични корисник, full корисник, обичан администратор и super администратор. Пријављени корисник има једну ролу.
 
-**Пријављени корисници** могу да постављају артикле на продају, купују артикле других корисника и да остављају рецензију на артикле и кориснике. Пријављени корисник има "рачун" везан за налог. Уплата на рачун се симулира. Поред овога, корисници могу да мењају своје личне податке.
+**Непријављени корисници** могу да прегледају продавницу и детаље индивидуалних артикала. Такође им је омогућена регистрација и пријава на систем. Провера да ли је његова IP адреса блокирана.
 
-**Администратори** имају увид у све акције (постављање артикала, куповина артикала, рецензија) на нивоу система као и на нивоу корисника (које захтеве је корисник упутио на систем и сл.). Администратори додатно могу да праве извештаје.
+**Пријављени корисници** могу да постављају артикле на продају (ово могу само одређени корисници који имају високе привилегије), купују артикле других корисника и да остављају коментаре на артикле. Корисник може да види историју купљених артикала. Корисник може да види своје личне податке и да мења своју лозинку.
+
+**Администратори** имају увид у све кориснике у систему. Могу да мењају ролу другим корисницима (али не и себи). Додатно могу да виде све IP адресе које су тренутно блокиране, дужину трајања тог блокирања као и разлог зашто је та IP адреса блокирана. У сваком тренутку администратор може да уклони блок са IP адресе. Администратор може да види аларме који се дешавају у систему и да у реалном времену прати нове аларме. Администратор може аларм да означи као "обрађен" чиме се он "деактивира". Администратор има приступ извештајима система.
 
 ### Улази
 
@@ -44,20 +46,22 @@
     -   IP адреса извора
     -   IP адреса дестинације
     -   Port извора
-    -   Port дестинације
-    -   Протокол (`TCP`)
-    -   Endpoint
 -   кориснички захев:
     -   регистрација корисника (име, презиме, имејл адреса, лозинка, профилна слика)
     -   пријава корисника (имејл адреса, лозинка)
-    -   уплата на рачун (износ)
+    -   добављање артикала
     -   објава артикла (назив, опис, слика, цена)
     -   куповина артикла
-    -   рецензија (артикал/корисник, оцена, коментар)
-
-За сваку акцију се прати и корисник који је ту акцију извршио (његов налог, евентуално и IP адреса).
-
-Наведени улази и њихови подаци нису коначни и склони су проширењу/измени/уклањању.
+    -   рецензија (артикал, коментар)
+    -   измена лозинке (стара лозинка, нова лозинка)
+-   администраторски захтев:
+    -   добављање корисника
+    -   измена роле корисника (корисник, рола)
+    -   добављање блокираних IP адреса
+    -   уклањање блока на IP адресу (IP adresa)
+    -   добављање аларма
+    -   уклањање аларма (UUID аларма)
+    -   креирање извештаја
 
 ### Излази
 
@@ -65,253 +69,53 @@
 -   предузета мера:
     -   активација аларма
     -   одбијање захтева
-    -   привремено блокирање корисника
-    -   трајно блокирање корисника
-    -   привремени прекид рада система
-
-Наведени излази нису коначни.
+    -   блокирање IP адресе
+-   подаци из базе података и базе знања (када се добављају подаци)
 
 ### База знања
 
-База знања је сачињена од продукционих правила везаних за безбедност веб апликација са плаћањем.
-Правила су писана ручно, од којих су нека динамички направљена употребом шаблона.
-Испод су дати примери правила који чине базу знања..
-Корисници преко интеракције са апликацијом попуњавају радну меморију чињеницама и догађајима.
-Систем евалуира правила и на основу њих окида правила која производе нове чињенице или извршавају пословну логику.
+База знања је сачињена од продукционих правила везаних за безбедност веб апликација. Правила су писана ручно, од којих су нека параметризована и праве се преко шаблона.
 
-Испод су наведена правила и примери употребе CEP, FC, BC и Template механизама.
-Овај списак ће се по потреби проширити.
+Корисници преко интеракције са апликацијом попуњавају радну меморију чињеницама и догађајима. Систем евалуира правила и на основу њих окида правила која производе нове чињенице или извршавају пословну логику.
 
-Пример простих правила:
+#### Forward Chaining
 
-```ruby
-class Note {
-    user,
-    points,
-    type,
-    message,
-}
+Испод су дата два примера forward chaining-а. У систему постоји много комбинација правила која се међусобно уланчавају (јер су све догађаји), те постоји и више forward chaining токова.
 
-class Request {
-    srcIp,
-    srcPort,
-    destIp,
-    destPort,
-    protocol,
-    endpoint,
-    user,
-    timestamp,
-    type,
-    ...
-}
-
-class Alarm {
-    type,
-    severity,
-    desc,
-}
-
-class Block {
-    user,
-    duration,
-}
-
-class PurchaseBlock {
-    user,
-    duration,
-}
-
-
-when
-    count(Request($user) over 10s) > 50
-then
-    Note($user, 5, Type.Requests, "Too many requests")
-
-
-when
-    count_unique(Login(same $password, count $email) over 6h) > 2
-then
-    new Note(None, 2, Type.Auth_Pass, "Weak password {password}")
-    new WeakPassword($password)
-
-
-when
-    Login($password)
-    WeakPassword($password)
-then
-    user.shouldChangePassword = true;
-
-
-when
-    count_unique(WeakPassword) > 50
-then
-    new Alarm(Type.Auth_Pass, Severity.Medium, "Please increase password complexity for new users.")
-
-
-when
-    WeakPassword(p)
-    $cp: ChangePassword(user, newPassword == p)
-then
-    $cp.weak = true; # Password won't be changed because it's weak.
-
-# when
-#     accumulate(
-#         Note($user, $points, Type.Transaction) over 1w,
-#         sum($points)
-#     ) > 15
-# then
-#     new PurchaseBlock($user, 48h)
-```
-
-Пример сложеног ланца правила (**CEP** и **FC**):
-
-```ruby
-
-when # Level 1
-    count(FailedLogin($ip, $email) over 1min) > 5
-then
-    new Note($ip, 3, Type.Auth, "Brute forcing user {email}")
-
-when # Level 2
-    accumulate(
-        Note($ip, $points, Type.Auth) over 24h,
-        sum($points)
-    ) > 100
-then
-    new Block($ip, 24h)
-
-when # Level 3
-    count_unique(Block over 24h) > 100
-then
-    new Alarm(Severity.High)
-    new Attack(Type.AuthenticationAttack)
-
-
-when # Level 1
-    count(Request($srcIp, $destIp, $srcIp == $destIp) over 1min) > 1000
-then
-    new Alarm(Severity.SuperHigh)
-    new Attack(Type.DoS) # TCP Flood Attack
-
-
-# when # Level 1
-#     $t1: Transaction($ip1, $accountId1, $time1) &&
-#     $t2: Transaction($ip2, $accountId2, $time2) &&
-#     $t1 != $t2 &&
-#     ($time1 - $time2) < 1min
-# then
-#     new Alarm(Severity.SuperHigh)
-#     new Attack(Type.AccessControlAttack)
-
-
-when # Level 1
-    Request($ip, $port1) &&
-    ($port1 != 3000 || ($ip not in internalIpAddresses))
-then
-    new Alarm(Severity.Medium)
-    new Attack(Type.AccessControlAttack) # CORS
-
-
-when # Level 1
-    SearchQuery($ip, $queryText) &&
-    queryText like "' * ;"
-then
-    new Alarm(Severity.Low)
-    new Attack(Type.Injection)
-    new Note($ip, 5, Type.Injection)
-    # Hibernate protects us against SQLi, but someone tried to attack either way
-
-when # Level 2
-    accumulate(
-        Note($ip, $points, Type.Injection) over 30m,
-        sum($points)
-    ) > 25
-then
-    new Block($ip, 30m)
-
-when # Level 4
-    Attack($type1, $severity1) &&
-    $severity1 >= Severity.Critical
-then
-    new Alarm(Severity.Critical)
-    Server.Config.SetAvailability(ServerAvailability.RestrictAccessToAdmins)
-
-when # Level 4
-    Attack($type1, $severity1) &&
-    Attack($type2, $severity2) &&
-    $type1 != $type2 &&
-    ($severity1 >= Severity.SuperHigh || $severity2 >= Severity.SuperHigh)
-then
-    new Alarm(Severity.SuperHigh)
-    Server.Config.SetAvailability(ServerAvailability.RestrictAccessToAdmins)
-
-when # Level 4
-    Attack($type1) &&
-    Attack($type2) &&
-    Attack($type3) &&
-    Attack($type4) &&
-    $type1 != $type2 != $type3 != $type4
-then
-    new Alarm(Severity.Critical)
-    Server.Config.SetAvailability(ServerAvailability.RestrictAccessToAdmins)
-```
-
-Рад са блокирањем корисника:
-
-```ruby
-when
-    $r: Request($ip)
-    Block($ip)
-then
-    $r.setRejected(true);
-    # Finish the request early, returning 403 Forbidden.
-
-# DeleteStaleBlocks would periodically be sent to remove Block events that have
-# finished (but not expired)
-when
-    DeleteStaleBlocks()
-    $b : Block(
-        after now()
-    )
-then
-    delete($b)
-
-when
-    $d: DeleteStaleBlocks()
-    not Block(after now())
-then
-    delete($d)
-
-when
-    $b: Block($ip)
-    $u: Unblock(ip == $ip)
-then
-    delete($b)
-    delete($u)
-
-when
-    $u: Unblock($ip)
-    not Block(ip == $ip)
-then
-    delete($u)
-```
-
-**Backward chaining**:
-
-1. Хијерархијски RBAC: Сваки endpoint зависи од једне (или потенцијално више)
-   пермисија које мора имати корисник који шаље захтев. Улога има ниједну или
-   више пермисија. Улога може имати највише једну улогу као родитеља, при чему она
-   наслеђује пермисије родитељске улоге. Сваки корисник има једну улогу.
-   Неаутентификовани корисник нема улогу.
-
-Пример стабла улога:
+**Ланац 1**
 
 ```
-        [SuperAdmin]
-           |      \
-         Admin     \
-           |        \
-      [Ban users]  [Unlock system]
+1. Када се превише често деси неуспели login на исти налог са једне IP адресе, IP адреса је кажњена.
+2. Ако је IP адреса често кажњена због неуспеле аутентификације, она бива блокирана.
+3. Ако је много IP адреса блокирано због напада на аутентификацију, огласи аларм о нападу на аутентификацију.
+4. Ако администратор пошаље догађај за брисање аларма који постоји у бази знања, уклонити га.
+```
+
+**Ланац 2**
+
+```
+1. Ако се детектује кориснички унос текста облика `; or 1=1;`, казни корисника да покушава урадити SQL инјекцију и детектуј то као напад
+2. Ако је иста IP адреса кажњена више пута због SQL инјекције, блокирај је.
+3. Ако администратор пошаље догађај за брисање блока на IP адресу, уклони блок.
+```
+
+#### Backward Chaining
+
+
+Хијерархијски RBAC: Сваки endpoint зависи од једне (или потенцијално више)
+пермисија које мора имати корисник који шаље захтев. Улога има ниједну или више
+пермисија. Улога може имати највише једну улогу као родитеља, при чему она
+наслеђује пермисије родитељске улоге. Сваки корисник има једну улогу.
+Неаутентификовани корисник нема улогу.
+
+Пример стабла:
+
+```
+            [Full user]                           | < Рола
+           /           \                          | 
+       [User]           \                         | < Рола
+       /                 \                        | 
+ (Купи артикал)     (Стави артикал на продају)    | < Пермисија
 ```
 
 Пример уланчавања уназад:
@@ -389,101 +193,102 @@ void banUser(Long userId) {
 }
 ```
 
-**Template** чине параметризована правила за извештавање:
+#### CEP
+
+Горенаведене чињенице (захтев, блок IP адресе, аларм, напад итд.) су догађаји. Испод су дата два примера обраде правила на финијем нивоу где је приказан CEP. У оба случаја је дат исечак кода самог правила, али су неки делови правила изостављени ради прегледности.
+
+**CEP 1**
 
 ```ruby
-do query q1(type, n)
-    count(AttackEvent($type) over 24h) > n
-end
-
-do query q2(n)
-    count(AttackEvent over 24h) > n
-end
-
-do query q3(ip, n)
-    count(FailedLogin($ip) over 24h) > n
-end
-
-do query q4(ip,n )
-    count(Block($ip) over 24h) > n
-end
-
-
-do template (attack_type, n)
-
+rule "Детекција слабе лозинке"
 when
-    $attack: AttackEvent(type == $attack_type) over 24h
-    q1($attack_type, $n)
+    LoginEvent($thePassword: password)
+    Set(size >= 2) from accumulate(
+        LoginEvent(
+            $email: email,
+            password == $thePassword
+        ) over window:time(6h),
+        collectSet($email)
+    )
+    not WeakPassword(password == $thePassword);
 then
-    print($attack)
-
-when
-    $attack: AttackEvent(type == $attack_type) over 24h
-    q2($attack_type)
-then
-    print($attack)
-
-when
-    $login: FailedLogin($ip) over 24h
-    q3($ip, $n)
-then
-    print($login)
-
-when
-    $block: Block($ip) over 24h
-    q3($ip, $n)
-then
-    print($block)
+    insert(new WeakPassword($thePassword));
+end
 ```
+
+**CEP 2**
+
+```ruby
+rule "Блокирање IP адресе због SQL инјекције"
+when
+    $n: Note(
+        $ip: ip, 
+        $type: type,
+        $type == NoteType.INJECTION,
+        usedInBlock == false
+    )
+    Number(intValue >= 25) from accumulate(
+        Note(
+            $ip == ip,
+            $points: points,
+            $type == type,
+            usedInBlock == false
+        ) over window:time(30m),
+        sum($points)
+    )
+then
+    insert(new BlockEvent($ip, 30 * 60 * 1000L, BlockReason INJECTION));
+end
+```
+
+#### Template
+
+**Template 1**
+
+Извештаји. **TODO* допунити
+
+**Template 2**
+
+Детекције DOS напада. Прати се број захтева у јединици времена са исте IP адресе, и у случају да систем није скоро под DOS/DDOS нападом, оглашава се аларм о DOS нападу. Испод је дат псеудокод.
+
+```ruby
+when
+    count(
+        accumulate(
+            Request(same(ip))
+        ) over window:time(@timeFrame)
+    ) > @numberOfRequests
+then
+    insert(new DOSAttack())
+```
+
+Параметри `timeFrame` и `numberOfRequests` се учитавају из `.xlsl` табеле.
+
+**Template 3**
+
+Детекције DDOS напада. Прати се број захтева у јединици времена са неколико IP адреса, и у случају да систем није скоро под DOS/DDOS нападом, оглашава се аларм о DDOS нападу. Испод је дат псеудокод.
+
+```ruby
+when
+    count(
+        accumulate(
+            Request(same(ip))
+        ) over window:time(@timeFrame)
+    ) > @numberOfRequests
+    count(
+        accumulate(
+            Request($ip)
+        ) over window:time(@timeFrame)
+    ) > @minimumNumberOfUniqueIPs
+then
+    insert(new DDOSAttack())
+```
+
+Параметри `timeFrame`, `numberOfRequests` и `minimumNumberOfUniqueIPs` се учитавају из `.xlsl` табеле.
 
 ## Пример резоновања
 
-Постоји корисник `U` и артикли `A1`, `A2`, `A3`.
-
-0. У радној меморији се налазе следеће чињенице:
-
-```java
-Transaction($U, $A1, 1500, 10/10/2024 18:05)
-Transaction($U, $A2, 1700, 10/10/2024 18:26)
-Note($U, 2, Type.Transaction, "Suspicious transaction" 9/10/2024 18:05)
-Note($U, 3, Type.Transaction, "Suspicious transaction" 8/10/2024 18:05)
-Note($U, 4, Type.Transaction, "Suspicious transaction" 7/10/2024 18:05)
-Note($U, 5, Type.Transaction, "Suspicious transaction" 6/10/2024 18:05)
-```
-
-1. Корисник `U` жели за купи артикал `A3` који кошта `2800`.
-2. У систем улази `Transaction($U, $A3, 2800, 10/10/2024 18:44)`
-3. Чињеница се пропушта кроз правила.
-4. LHS следећег правила је задовољен:
-
-```ruby
-when
-    count(Transaction($U, amount > 1000) over 1h) >= 3
-```
-
-5. Окида се RHS истог тог правила:
-
-```ruby
-then
-    new Note($U, 2, Type.Transaction, "Suspicious transactions")
-```
-
-6. Та чињеница се пропушта кроз базу знања и задовољава се следећи LHS:
-
-```ruby
-when
-    accumulate(
-        Note($U, $points, Type.Transaction) over 1w,
-        sum($points)
-    ) > 15
-```
-
-7. Због тога се окида RHS одговарајућег правила:
-
-```ruby
-then
-    new PurchaseBlock($U, 48h)
-```
+TODO: Навести неки пример.
 
 ## Литература
 

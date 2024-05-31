@@ -5,7 +5,7 @@
 ![Static Badge](https://img.shields.io/badge/Drools-7.49.0-yellow)
 
 
-Information security expert system. Powered by Drools, 
+Information security expert system. Powered by Drools.
 
 # Getting started
 

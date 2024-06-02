@@ -9,6 +9,8 @@ import org.kie.api.runtime.rule.QueryResultsRow;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import rs.sbnz.model.Alarm;
+import rs.sbnz.model.AlarmRemove;
 import rs.sbnz.model.events.BlockEvent;
 import rs.sbnz.model.events.UnblockEvent;
 
@@ -24,6 +26,21 @@ public class AdminService {
             blocks.add(block);
         }
         return blocks;
+    }
+
+    public List<Alarm> getUnhandledAlarms() {
+        List<Alarm> alarms = new ArrayList<Alarm>();
+        QueryResults results = ksession.getQueryResults("getAllUnhandledAlarms"); 
+        for ( QueryResultsRow row : results ) {
+            Alarm alarm = (Alarm) row.get( "$alarm" );
+            alarms.add(alarm);
+        }
+        return alarms;
+    }
+
+    public void markAlarmAsRead(String alarmUUID) {
+        ksession.insert(new AlarmRemove(alarmUUID));
+        ksession.fireAllRules();
     }
 
     public void unblockIP(String ip) {

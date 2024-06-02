@@ -1,11 +1,6 @@
 package rs.sbnz.service.request;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.kie.api.runtime.KieSession;
-import org.kie.api.runtime.rule.QueryResults;
-import org.kie.api.runtime.rule.QueryResultsRow;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -53,6 +48,16 @@ public class RequestService {
         return request;
     }
 
+    public boolean isIPBlocked(Packet packet) {
+        Request request = new Request(0L, packet);
+        request = requestRepo.save(request);
+
+        ksession.insert(request);
+        ksession.fireAllRules();
+
+        return request.getIsRejected();
+    }
+    
     /**
      * Method to call after a successful login. Used to capture weak passwords.
      * @param email Email

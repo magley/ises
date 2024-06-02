@@ -1,5 +1,9 @@
 package rs.sbnz.model;
 
+import org.kie.api.definition.type.Expires;
+import org.kie.api.definition.type.Role;
+
+@Role(Role.Type.EVENT)
 public class WeakPassword {
     private String password;
 

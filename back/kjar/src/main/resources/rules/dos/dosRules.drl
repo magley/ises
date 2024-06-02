@@ -4,8 +4,12 @@ import rs.sbnz.model.Request;
 import rs.sbnz.model.events.AttackEvent;
 import rs.sbnz.model.AttackType;
 import rs.sbnz.model.AttackSeverity;
+import rs.sbnz.model.Alarm;
+import rs.sbnz.model.AlarmSeverity;
+import rs.sbnz.model.AlarmType;
 
 rule "Source IP is Dest IP"
+    salience 1885
     when
         Number(intValue >= 1000) from accumulate(
             $r: Request(
@@ -17,7 +21,14 @@ rule "Source IP is Dest IP"
             ) over window:time(1m),
             count($id)
         )
+        not AttackEvent(
+            type == AttackType.DISTRIBUTED_DENIAL_OF_SERVICE
+        ) over window:time(1m)
+        not AttackEvent(
+            type == AttackType.DENIAL_OF_SERVICE
+        ) over window:time(1m)
     then
         System.out.printf("TCP Flood Attack!\n");
+        insert(new Alarm(AlarmSeverity.HIGH, AlarmType.DOS, "A TCP flood attack has been detected."));
         insert(new AttackEvent(AttackType.DENIAL_OF_SERVICE, AttackSeverity.SUPERHIGH));
 end

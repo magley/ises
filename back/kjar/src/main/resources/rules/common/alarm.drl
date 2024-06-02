@@ -1,0 +1,46 @@
+package rules.common;
+
+import rs.sbnz.model.Request;
+import rs.sbnz.model.events.BlockEvent;
+import rs.sbnz.model.events.Note;
+import rs.sbnz.model.NoteType;
+import rs.sbnz.model.events.UnblockEvent;
+import rs.sbnz.model.events.DeleteStaleBlocksEvent;
+import rs.sbnz.model.Alarm;
+import rs.sbnz.model.AlarmRemove;
+
+query "getAllUnhandledAlarms"
+    $alarm: Alarm(handled == false)
+end
+
+rule "Handle alarm"
+    when
+        $alarmRemove: AlarmRemove(
+            $uuid: uuid
+        )
+        $alarm: Alarm(
+            uuid == $uuid, 
+            handled == false
+        )
+    then
+        modify($alarm) {
+            setHandled(true);
+        }
+        delete($alarmRemove);
+        System.out.printf("Alarm %s handled\n", $uuid);
+end
+
+rule "Remove AlarmRemove if no corresponding alarm exists"
+    when
+        $alarmRemove: AlarmRemove(
+            $uuid: uuid
+        )
+        not Alarm(
+            uuid == $uuid, 
+            handled == false
+        )
+    then
+        delete($alarmRemove);
+        System.out.printf("No unhandled alarm $s, skipping\n", $uuid);
+end
+

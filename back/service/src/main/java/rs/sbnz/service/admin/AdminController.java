@@ -11,11 +11,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import rs.sbnz.model.Alarm;
 import rs.sbnz.model.api.Packet;
 import rs.sbnz.model.events.BlockEvent;
 import rs.sbnz.service.request.RequestService;
-import rs.sbnz.service.user.UserService;
-import rs.sbnz.service.util.AuthenticationFacade;
 import rs.sbnz.service.util.RBACUtil;
 
 @RestController
@@ -24,8 +23,24 @@ public class AdminController {
     @Autowired private RequestService requestService;
     @Autowired private RBACUtil rbacUtil;
     @Autowired private AdminService adminService;
-    @Autowired private UserService userService;
-    @Autowired private AuthenticationFacade authenticationFacade;
+
+    @GetMapping("/alarms")
+    public ResponseEntity<?> getActiveAlarms(Packet packet) throws Exception {
+        requestService.onRequest(packet);
+        rbacUtil.preAuthorize2("alarms");
+
+        List<Alarm> alarms = adminService.getUnhandledAlarms();
+        return ResponseEntity.status(HttpStatus.OK).body(alarms);
+    }
+
+    @PostMapping("/alarms/{uuid}")
+    public ResponseEntity<?> handleAlarm(Packet packet, @PathVariable String uuid) throws Exception {
+        requestService.onRequest(packet);
+        rbacUtil.preAuthorize2("alarms");
+
+        adminService.markAlarmAsRead(uuid);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
 
     @GetMapping("/blocks")
     public ResponseEntity<?> getAllBlocks(Packet packet) {

@@ -8,6 +8,21 @@ export default function NewArticle() {
 	const [price, setPrice] = useState<string>("");
 	const [errMsg, setErrMsg] = useState<string | null>("");
 
+	const [selectedImage, setSelectedImage] = useState<File | null>(null);
+
+	const convertBase64 = (file: File): Promise<string> => {
+		return new Promise((resolve, reject) => {
+			const fileReader = new FileReader();
+			fileReader.readAsDataURL(file);
+			fileReader.onload = () => {
+				resolve(fileReader.result as string);
+			};
+			fileReader.onerror = (error) => {
+				reject(error);
+			};
+		});
+	};
+
 	const validateForm = (): FormValidation => {
 		let res: FormValidation = {
 			invalid: false,
@@ -35,6 +50,11 @@ export default function NewArticle() {
 			res.invalid_message = "Price must be a number greater than 0.";
 		}
 
+		if (selectedImage == null) {
+			res.invalid = true;
+			res.invalid_message = "Please select an image of your product.";
+		}
+
 		return res;
 	};
 
@@ -48,21 +68,33 @@ export default function NewArticle() {
 		}
 		const priceNumber = Number(price);
 
-		const dto: NewArticleDTO = {
+		let dto: NewArticleDTO = {
 			name: name,
 			price: priceNumber,
 			imgBase64: "",
 		};
 
-		ArticleService.create(dto)
-			.then((res) => {
-				setErrMsg(null);
-				toast.success("Article is set up for sale!");
-			})
-			.catch((err) => {
-				console.error(err);
-				setErrMsg("Could not create article.");
-			});
+		if (selectedImage != null) {
+			// ^^^ neccessary to shut typescript up
+
+			convertBase64(selectedImage)
+				.then((res) => {
+					dto.imgBase64 = res;
+
+					ArticleService.create(dto)
+						.then((res) => {
+							setErrMsg(null);
+							toast.success("Article is set up for sale!");
+						})
+						.catch((err) => {
+							console.error(err);
+							setErrMsg("Could not create article.");
+						});
+				})
+				.catch((err) => {
+					console.error(err);
+				});
+		}
 	};
 
 	return (
@@ -112,44 +144,34 @@ export default function NewArticle() {
 							</div>
 							<div className="col-span-full">
 								<label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-									Upload photo (Not implemented)
+									Upload photo
 								</label>
-								<div className="flex items-center justify-center w-full">
-									<label className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
-										<div className="flex flex-col items-center justify-center pt-5 pb-6">
-											<svg
-												className="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400"
-												aria-hidden="true"
-												xmlns="http://www.w3.org/2000/svg"
-												fill="none"
-												viewBox="0 0 20 16"
-											>
-												<path
-													stroke="currentColor"
-													strokeLinecap="round"
-													strokeLinejoin="round"
-													strokeWidth="2"
-													d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
-												/>
-											</svg>
-											<p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
-												<span className="font-semibold">
-													Click to upload
-												</span>{" "}
-												or drag and drop
-											</p>
-											<p className="text-xs text-gray-500 dark:text-gray-400">
-												SVG, PNG, JPG or GIF (MAX.
-												800x400px)
-											</p>
-										</div>
-										<input
-											id="dropzone-file"
-											type="file"
-											className="hidden"
+								{selectedImage && (
+									<div>
+										<img
+											alt="not found"
+											width={"250px"}
+											src={URL.createObjectURL(
+												selectedImage
+											)}
 										/>
-									</label>
-								</div>
+									</div>
+								)}
+								<br />
+								<input
+									type="file"
+									name="myImage"
+									onChange={(event) => {
+										if (
+											event.target &&
+											event.target.files
+										) {
+											setSelectedImage(
+												event.target.files[0]
+											);
+										}
+									}}
+								/>
 							</div>
 						</div>
 

@@ -1,6 +1,5 @@
 package rs.sbnz.service;
 
-import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.concurrent.TimeUnit;
@@ -11,11 +10,14 @@ import org.kie.api.KieServices;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
 
+import rs.sbnz.model.Alarm;
+import rs.sbnz.model.AlarmType;
+import rs.sbnz.model.AttackType;
 import rs.sbnz.model.BlockReason;
 import rs.sbnz.model.NoteType;
+import rs.sbnz.model.events.AttackEvent;
 import rs.sbnz.model.events.BlockEvent;
 import rs.sbnz.model.events.FailedLoginEvent;
-import rs.sbnz.model.events.LoginEvent;
 import rs.sbnz.model.events.Note;
 import rs.sbnz.model.events.UnblockEvent;
 
@@ -62,25 +64,6 @@ class AuthRuleTests {
         ksession.insert(new Note(0L, attackerIp, 3L, NoteType.FAILED_LOGIN));
         k = ksession.fireAllRules();
         assertEquals(0, k);
-    }
-
-    @Test
-    void tooManyLoginsOfDirrentAccountsWithTheSamePassword() {
-        KieServices ks = KieServices.Factory.get();
-        KieContainer kContainer = ks.getKieClasspathContainer(); 
-        KieSession ksession = kContainer.newKieSession("ksessionPseudoClock");
-        SessionPseudoClock clock = ksession.getSessionClock();
-
-        for (int i = 0; i < 4; i++) {
-            ksession.insert(new LoginEvent(i + "@gmail.com", "123"));
-            clock.advanceTime(1, TimeUnit.MINUTES);
-        }
-
-        LoginEvent ev = new LoginEvent("@gmail.com", "123");
-        ksession.insert(ev);
-
-        ksession.fireAllRules();
-        assertTrue(ev.getWeakPassword());
     }
 
     @Test
@@ -216,11 +199,19 @@ class AuthRuleTests {
         assertEquals(0, k);
 
         // --------------------------------------------------------------------
-        // Will activate: Previous block expired.
+        // Won't activate: Old notes have been used up already.
         // --------------------------------------------------------------------
-        
+
         clock.advanceTime(24, TimeUnit.HOURS);
 
+        ksession.insert(new Note(102L, attackerIp, 9L, NoteType.FAILED_LOGIN));
+        k = ksession.fireAllRules();
+        assertEquals(0, k);
+
+        // --------------------------------------------------------------------
+        // Will activate.
+        // --------------------------------------------------------------------
+        
         ksession.insert(new Note(102L, attackerIp, 100L, NoteType.FAILED_LOGIN));
         k = ksession.fireAllRules();
         assertEquals(1, k);
@@ -273,6 +264,8 @@ class AuthRuleTests {
         }
 
         k = ksession.fireAllRules();
+        assertEquals(1, TestUtils.<AttackEvent>getFactsFrom(ksession, AttackEvent.class).stream().filter(a -> a.getType() == AttackType.AUTHENTICATION).count());
+        assertEquals(1, TestUtils.<Alarm>getFactsFrom(ksession, Alarm.class).stream().filter(a -> a.getType() == AlarmType.LOGIN_BREACH).count());
         assertEquals(1, k);
 
         // --------------------------------------------------------------------

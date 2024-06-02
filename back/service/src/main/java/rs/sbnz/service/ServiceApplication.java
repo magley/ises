@@ -1,5 +1,6 @@
 package rs.sbnz.service;
 
+import java.io.IOException;
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +10,6 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-
 import rs.sbnz.service.util.DevServerInitializer;
 
 @SpringBootApplication
@@ -24,7 +24,7 @@ public class ServiceApplication extends SpringBootServletInitializer {
 	}
 
     @PostConstruct
-    private void onInit() {
+    private void onInit() throws IOException {
         System.out.println("Initializing data...");
         devServerInitializer.initData();
         System.out.println("Initializing data... DONE");

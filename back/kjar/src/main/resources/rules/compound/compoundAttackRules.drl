@@ -4,7 +4,9 @@ import rs.sbnz.model.Request;
 import rs.sbnz.model.events.AttackEvent;
 import rs.sbnz.model.AttackType;
 import rs.sbnz.model.AttackSeverity;
-
+import rs.sbnz.model.Alarm;
+import rs.sbnz.model.AlarmSeverity;
+import rs.sbnz.model.AlarmType;
 
 rule "One Critical attack"
     salience 5
@@ -15,6 +17,7 @@ rule "One Critical attack"
         )
     then
         System.out.println("A single ciritcal attack! Aah!");
+        insert(new Alarm(AlarmSeverity.CRITICAL, AlarmType.TARGETED_ATTACK, "A critical attack has been detected!"));
         modify($attack1) {
             setMadeAwareOf(true);
         }    
@@ -36,6 +39,7 @@ rule "Two SuperHigh (or above) attacks of different type"
         )
     then
         System.out.println("Two super high attacks of different type! Aaah!");
+        insert(new Alarm(AlarmSeverity.CRITICAL, AlarmType.TARGETED_ATTACK, "Two super-high attacks have been detected!"));
         modify($attack1) {
             setMadeAwareOf(true);
         }
@@ -71,6 +75,7 @@ rule "Four attacks of any severity, each with a different attack"
         )
     then
         System.out.println("Four attacks of a different type! Aaah!");
+        insert(new Alarm(AlarmSeverity.CRITICAL, AlarmType.TARGETED_ATTACK, "Four attacks have been detected!"));
         modify($attack1) {
             setMadeAwareOf(true);
         }

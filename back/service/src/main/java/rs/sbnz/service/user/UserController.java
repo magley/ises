@@ -12,13 +12,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import rs.sbnz.model.RbacRequest;
 import rs.sbnz.model.Request;
 import rs.sbnz.model.User;
 import rs.sbnz.model.api.Packet;
 import rs.sbnz.service.exceptions.NewPasswordIsWeakException;
 import rs.sbnz.service.exceptions.WrongPasswordException;
 import rs.sbnz.service.request.RequestService;
+import rs.sbnz.service.user.dto.IsBlockedDTO;
 import rs.sbnz.service.user.dto.PasswordChangeDTO;
 import rs.sbnz.service.user.dto.SetUserRoleDTO;
 import rs.sbnz.service.user.dto.UserDTO;
@@ -32,6 +32,11 @@ public class UserController {
     @Autowired private UserService userService;
     @Autowired private AuthenticationFacade authenticationFacade;
     @Autowired private RBACUtil rbacUtil;
+
+    @GetMapping("/banned")
+    public ResponseEntity<?> amIBanned(Packet packet) {
+        return ResponseEntity.status(HttpStatus.OK).body(new IsBlockedDTO(requestService.isIPBlocked(packet)));
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> findById(Packet packet, @PathVariable Long id) {

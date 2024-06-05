@@ -58,7 +58,7 @@ public class AdminController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    @GetMapping("/report")
+    @GetMapping("/report/{reportName}")
     public ResponseEntity<?> report(Packet packet, @PathVariable String reportName) {
         requestService.onRequest(packet);
         rbacUtil.preAuthorize2("report");

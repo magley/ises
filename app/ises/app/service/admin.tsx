@@ -31,4 +31,8 @@ export abstract class AdminService {
     static markAlarmAsRead(uuid: string): Promise<AxiosResponse<void>> {
         return axiosInstance.post(`http://localhost:8080/api/admin/alarms/${uuid}`);
     }
+
+    static report(reportName: string): Promise<AxiosResponse<string[]>> {
+        return axiosInstance.get(`http://localhost:8080/api/admin/report/${reportName}`);
+    }
 }

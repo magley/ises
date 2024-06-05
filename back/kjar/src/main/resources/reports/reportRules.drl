@@ -8,6 +8,7 @@ import rs.sbnz.model.events.FailedLoginEvent;
 import rs.sbnz.model.events.BlockEvent;
 import rs.sbnz.model.events.AttackEvent;
 import rs.sbnz.model.AttackType;
+import rs.sbnz.model.ReportRequest;
 
 query reportAttackEventOver24h(AttackEvent e1, int num)
     Number(intValue >= num) from accumulate(
@@ -51,42 +52,51 @@ end
 template "reports"
 
 rule "Show attack events of type @{attackType} in last 24 hours if there is more than ${num} of them"
-    agenda-group "reports"
+    no-loop
     when
+        $req: ReportRequest(reportName == "attackEventSpecific")
         $e1: AttackEvent(type == @{attackType}) over window:time(24h)
         reportAttackEventOver24h($e1, @{num}-1;)
     then
-        // Note that we don't print the timestamp in the actual rule, but if need be can retrieve it through
-        // insert's fact handle's getStartTimestamp()
-        // https://lists.jboss.org/archives/list/rules-users@lists.jboss.org/thread/FOYSWWYQ6H3IQ22I7YWBGJQSMJWM6NEE/
-        System.out.println($e1);
+        modify($req) {
+            addResult($e1.toString());
+        }
 end
 
 rule "Show attack events of all types in last 24 hours if there is more than @{num} of them"
-    agenda-group "reports2"
+    no-loop
     when
+        $req: ReportRequest(reportName == "attackEventAll")
         $e1: AttackEvent() over window:time(24h)
         reportAnyAttackEventOver24h($e1, @{num}-1;)
     then
-        System.out.println($e1);
+        modify($req) {
+            addResult($e1.toString());
+        }
 end
 
 rule "Show failed login attempts from same ip address in last 24 hours if there is more than @{num} of them"
-    agenda-group "reports"
+    no-loop
     when
+        $req: ReportRequest(reportName == "failedLogin")
         $e1: FailedLoginEvent($ip: ip) over window:time(24h)
         reportFailedLoginEventOver24h($e1, @{num}-1;)
     then
-        System.out.println($e1);
+        modify($req) {
+            addResult($e1.toString());
+        }
 end
 
 rule "Show block events for same ip address in last 24 hours if there is more than @{num} of them"
-    agenda-group "reports"
+    no-loop
     when
+        $req: ReportRequest(reportName == "blockEvent")
         $e1: BlockEvent($ip: ip) over window:time(24h)
         reportBlockEventOver24h($e1, @{num}-1;)
     then
-        System.out.println($e1);
+        modify($req) {
+            addResult($e1.toString());
+        }
 end
 
 end template

@@ -41,6 +41,12 @@ public class UserService implements UserDetailsService {
         return user;
     }
 
+    public User saveAndHashPassword(User user) {
+        user.setPassword(passwordUtil.encode(user.getPassword()));
+        user = userRepo.save(user);
+        return user;
+    }
+
     public User findById(Long id) {
         return userRepo.findById(id).orElseThrow(() -> new NotFoundException());
     }

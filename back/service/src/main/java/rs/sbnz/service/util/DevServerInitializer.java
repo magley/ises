@@ -117,5 +117,32 @@ public class DevServerInitializer {
         Article a02 = new Article(2L, Instant.now(), u03, "Lamp", 456.0);
         a02 = articleService.save(a02);
         articleService.save(new ArticleComment(3L, Instant.now(), "too bright..........", u02, a02));
+    
+        ////////////////////////////////////////////////////////////////////////
+
+        // Passwords: 0..49
+        // Each password gets 2 users
+        //      0_0@gmail.com       Password is 0
+        //      0_1@gmail.com       Password is 0
+        //      1_0@gmail.com       Password is 1
+        //      1_1@gmail.com       Password is 1
+        //      2_0@gmail.com       Password is 2
+        //      2_1@gmail.com       Password is 2
+        //          ..
+
+        Long k = 3L;
+        for (int i = 0; i < 50; i++) {
+            String password = i + "";
+            for (int j = 0; j < 2; j++) {
+                String email = password + "_" + j + "@gmail.com";
+                User u = new User(k, email, password, UserRole.CLIENT, i + "", j + "");
+                u.setRbacRole(r01);
+                u = userService.saveAndHashPassword(u);
+
+                k++;
+            }
+        }
+
+        ////////////////////////////////////////////////////////////////////////
     }
 }

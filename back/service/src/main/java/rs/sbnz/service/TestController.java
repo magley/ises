@@ -28,6 +28,14 @@ public class TestController {
         return new ResponseEntity<String>(event.getIp() + " has been blocked for " + durationMs + "ms!", HttpStatus.OK);
     }
 
+    @GetMapping("/gimmie/auth-attack")
+    public ResponseEntity<?> createFakeAuthAttack(Packet packet) {
+        requestService.onRequest(packet);
+        requestService.TEMP_fake_auth_attack();
+
+        return ResponseEntity.noContent().build();
+    }
+
     // NOTE: /api/test allows unauthenticated users to access
     // (SecurityConfig.java), these endpoints were written with security in
     // mind. Not that it matters because they were for testing authorization

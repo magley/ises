@@ -19,7 +19,7 @@ import rs.sbnz.model.AlarmType;
 
 rule "Detect CORS violation"
     when
-        Request(
+        $req: Request(
             isRejected == false,
             $srcIp: srcIp, 
             $srcPort: srcPort, 
@@ -31,6 +31,9 @@ rule "Detect CORS violation"
         )
     then
         System.out.printf("Access Control Attack (CORS Violation)!\n");
-        insert(new Alarm(AlarmSeverity.NORMAL, AlarmType.WEAK_PASSWORD, "Suspicious request from IP address" + $srcIp + ":" + $srcPort));
+        modify($req) {
+            setIsRejected(true);
+        }
+        insert(new Alarm(AlarmSeverity.NORMAL, AlarmType.ACCESS_CONTROL, "Suspicious request from IP address" + $srcIp + ":" + $srcPort));
         insert(new AttackEvent(AttackType.ACCESS_CONTROL, AttackSeverity.MEDIUM));
 end

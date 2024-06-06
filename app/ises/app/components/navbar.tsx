@@ -54,6 +54,7 @@ export default () => {
         { name: "Home", route: "/", onClick: null },
         { name: "Users", route: "/admin/users", onClick: null },
         { name: "Block list", route: "/admin/blocks", onClick: null },
+        { name: "Reports", route: "/admin/reports", onClick: null },
         { name: "Alarms", route: "/admin/alarms", onClick: null },
     ];
 

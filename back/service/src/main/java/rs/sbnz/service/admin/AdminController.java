@@ -57,4 +57,12 @@ public class AdminController {
         adminService.unblockIP(ip);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
+
+    @GetMapping("/report/{reportName}")
+    public ResponseEntity<?> report(Packet packet, @PathVariable String reportName) {
+        requestService.onRequest(packet);
+        rbacUtil.preAuthorize2("report");
+        var res = adminService.report(reportName);
+        return ResponseEntity.status(HttpStatus.OK).body(res);
+    }
 }

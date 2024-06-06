@@ -25,6 +25,7 @@ import org.kie.internal.utils.KieHelper;
 import rs.sbnz.model.AttackSeverity;
 import rs.sbnz.model.AttackType;
 import rs.sbnz.model.BlockReason;
+import rs.sbnz.model.ReportRequest;
 import rs.sbnz.model.events.AttackEvent;
 import rs.sbnz.model.events.BlockEvent;
 import rs.sbnz.model.events.FailedLoginEvent;
@@ -35,12 +36,14 @@ public class ReportTests {
         KieSession ksession = createKSessionWithStreamProcessingAndPseudoClockFromTemplate();
         SessionPseudoClock clock = ksession.getSessionClock();
 
+        ReportRequest req = new ReportRequest("attackEventSpecific");
+        ksession.insert(req);
+
         // Won't print anything
         for (int i = 0; i < 2; ++i) {
             ksession.insert(new AttackEvent(AttackType.AUTHENTICATION, AttackSeverity.HIGH));
             clock.advanceTime(1, TimeUnit.SECONDS);
         }
-        ksession.getAgenda().getAgendaGroup("reports").setFocus();
         int k1 = ksession.fireAllRules();
         assertEquals(0, k1);
 
@@ -51,9 +54,12 @@ public class ReportTests {
             ksession.insert(new AttackEvent(AttackType.AUTHENTICATION, AttackSeverity.HIGH));
             clock.advanceTime(1, TimeUnit.SECONDS);
         }
-        ksession.getAgenda().getAgendaGroup("reports").setFocus();
         int k2 = ksession.fireAllRules();
         assertEquals(5, k2);
+
+        for (String res : req.getResult()) {
+            System.out.println(res);
+        }
     }
 
     @Test
@@ -61,12 +67,14 @@ public class ReportTests {
         KieSession ksession = createKSessionWithStreamProcessingAndPseudoClockFromTemplate();
         SessionPseudoClock clock = ksession.getSessionClock();
 
+        ReportRequest req = new ReportRequest("attackEventAll");
+        ksession.insert(req);
+
         // Won't print anything
         for (int i = 0; i < 2; ++i) {
             ksession.insert(new AttackEvent(AttackType.AUTHENTICATION, AttackSeverity.HIGH));
             clock.advanceTime(1, TimeUnit.SECONDS);
         }
-        ksession.getAgenda().getAgendaGroup("reports2").setFocus();
         int k1 = ksession.fireAllRules();
         assertEquals(0, k1);
 
@@ -79,9 +87,12 @@ public class ReportTests {
             ksession.insert(new AttackEvent(type, AttackSeverity.HIGH));
             clock.advanceTime(1, TimeUnit.SECONDS);
         }
-        ksession.getAgenda().getAgendaGroup("reports2").setFocus();
         int k2 = ksession.fireAllRules();
         assertEquals(5, k2);
+
+        for (String res : req.getResult()) {
+            System.out.println(res);
+        }
     }
 
     @Test
@@ -89,6 +100,9 @@ public class ReportTests {
         KieSession ksession = createKSessionWithStreamProcessingAndPseudoClockFromTemplate();
         SessionPseudoClock clock = ksession.getSessionClock();
 
+        ReportRequest req = new ReportRequest("failedLogin");
+        ksession.insert(req);
+
         // Won't print anything
         for (int i = 0; i < 2; ++i) {
             String ip = "135.246.98.89";
@@ -96,7 +110,6 @@ public class ReportTests {
             ksession.insert(new FailedLoginEvent((long)i, ip, email));
             clock.advanceTime(1, TimeUnit.SECONDS);
         }
-        ksession.getAgenda().getAgendaGroup("reports").setFocus();
         int k1 = ksession.fireAllRules();
         assertEquals(0, k1);
 
@@ -109,7 +122,6 @@ public class ReportTests {
             ksession.insert(new FailedLoginEvent((long)i, ip, email));
             clock.advanceTime(1, TimeUnit.SECONDS);
         }
-        ksession.getAgenda().getAgendaGroup("reports").setFocus();
         int k2 = ksession.fireAllRules();
         assertEquals(3, k2);
 
@@ -123,9 +135,12 @@ public class ReportTests {
             ksession.insert(new FailedLoginEvent((long)i, ip, email));
             clock.advanceTime(1, TimeUnit.SECONDS);
         }
-        ksession.getAgenda().getAgendaGroup("reports").setFocus();
         int k3 = ksession.fireAllRules();
         assertEquals(3, k3);
+
+        for (String res : req.getResult()) {
+            System.out.println(res);
+        }
     }
 
     @Test
@@ -133,13 +148,15 @@ public class ReportTests {
         KieSession ksession = createKSessionWithStreamProcessingAndPseudoClockFromTemplate();
         SessionPseudoClock clock = ksession.getSessionClock();
 
+        ReportRequest req = new ReportRequest("blockEvent");
+        ksession.insert(req);
+
         // Won't print anything
         for (int i = 0; i < 2; ++i) {
             String ip = "135.246.98.89";
             ksession.insert(new BlockEvent(ip, 1000L, BlockReason.AUTH_ATTACK));
             clock.advanceTime(1, TimeUnit.SECONDS);
         }
-        ksession.getAgenda().getAgendaGroup("reports").setFocus();
         int k1 = ksession.fireAllRules();
         assertEquals(0, k1);
 
@@ -151,7 +168,6 @@ public class ReportTests {
             ksession.insert(new BlockEvent(ip, 1000L, BlockReason.AUTH_ATTACK));
             clock.advanceTime(1, TimeUnit.SECONDS);
         }
-        ksession.getAgenda().getAgendaGroup("reports").setFocus();
         int k2 = ksession.fireAllRules();
         assertEquals(3, k2);
 
@@ -164,9 +180,12 @@ public class ReportTests {
             ksession.insert(new BlockEvent(ip, 1000L, BlockReason.AUTH_ATTACK));
             clock.advanceTime(1, TimeUnit.SECONDS);
         }
-        ksession.getAgenda().getAgendaGroup("reports").setFocus();
         int k3 = ksession.fireAllRules();
         assertEquals(3, k3);
+
+        for (String res : req.getResult()) {
+            System.out.println(res);
+        }
     }
 
     // Parts copied from lab materials, then frakensteined to support stream mode with pseudo clocks

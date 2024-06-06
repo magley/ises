@@ -117,7 +117,13 @@
 
 1. Ако се деси белик број захтева у јединици времена из једне IP адресе, огласи DOS напад.
 
-TODO: Правила за извештаје
+1. Ако има више од 3 напада типа "Аутентификација" у последња 24 сата, додај напад у листу
+
+1. Ако има више од 3 напада било ког типа у последња 24 сата, додај напад у листу
+
+1. Ако има више од 3 неуспела покушаја логина са исте адресе у последња 24 сата, додај покушај у листу
+
+1. Ако има више од 3 блок догађаја са исте адресе у последња 24 сата, додај догађај у листу
 
 #### Forward Chaining
 
@@ -286,7 +292,59 @@ end
 
 **Template 1**
 
-Извештаји. **TODO* допунити
+Извештаји. Параметри су следећи:
+- `attackType`: Врста напада у извештају специфичног напада. Подразумевано `AttackType.AUTHENTICATION`.
+- `num`: Број догађаја потребан да се извештај окине. Подразумевано 3.
+
+```ruby
+rule "Show attack events of type @{attackType} in last 24 hours if there is more than ${num} of them"
+    no-loop
+    when
+        $req: ReportRequest(reportName == "attackEventSpecific")
+        $e1: AttackEvent(type == @{attackType}) over window:time(24h)
+        reportAttackEventOver24h($e1, @{num}-1;)
+    then
+        modify($req) {
+            addResult($e1.toString());
+        }
+end
+
+rule "Show attack events of all types in last 24 hours if there is more than @{num} of them"
+    no-loop
+    when
+        $req: ReportRequest(reportName == "attackEventAll")
+        $e1: AttackEvent() over window:time(24h)
+        reportAnyAttackEventOver24h($e1, @{num}-1;)
+    then
+        modify($req) {
+            addResult($e1.toString());
+        }
+end
+
+rule "Show failed login attempts from same ip address in last 24 hours if there is more than @{num} of them"
+    no-loop
+    when
+        $req: ReportRequest(reportName == "failedLogin")
+        $e1: FailedLoginEvent($ip: ip) over window:time(24h)
+        reportFailedLoginEventOver24h($e1, @{num}-1;)
+    then
+        modify($req) {
+            addResult($e1.toString());
+        }
+end
+
+rule "Show block events for same ip address in last 24 hours if there is more than @{num} of them"
+    no-loop
+    when
+        $req: ReportRequest(reportName == "blockEvent")
+        $e1: BlockEvent($ip: ip) over window:time(24h)
+        reportBlockEventOver24h($e1, @{num}-1;)
+    then
+        modify($req) {
+            addResult($e1.toString());
+        }
+end
+```
 
 **Template 2**
 

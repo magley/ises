@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import rs.sbnz.model.Alarm;
 import rs.sbnz.model.AlarmRemove;
+import rs.sbnz.model.ReportRequest;
 import rs.sbnz.model.events.BlockEvent;
 import rs.sbnz.model.events.UnblockEvent;
 
@@ -46,6 +47,14 @@ public class AdminService {
     public void unblockIP(String ip) {
         ksession.insert(new UnblockEvent(ip));
         ksession.fireAllRules();
+    }
+
+    public List<String> report(String reportName) {
+        ReportRequest req = new ReportRequest(reportName);
+        var reqHandle = ksession.insert(req);
+        ksession.fireAllRules();
+        ksession.delete(reqHandle);
+        return req.getResult();
     }
 
 }

@@ -11,6 +11,16 @@ Backend server for ises.
 You can build everything using `build.bat`. Be careful as this does a `clean
 install` on all three projects, which is an overkill for most cases.
 
+## Running
+
+You may run the server using maven in the `service` directory:
+
+```bash
+mvn mvn spring-boot:run
+```
+
+or through an IDE of your choice.
+
 ## Database
 
 MariaDB 11.3.2 is used for storing SQL data.

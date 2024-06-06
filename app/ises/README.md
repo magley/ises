@@ -4,7 +4,15 @@ Frontend app for ises. Written in React (Remix framework) running in Vite.
 
 ## Getting started
 
-Make sure you have a recent version of Node installed. Then, run the dev server:
+Make sure you have a recent version of Node installed. 
+
+Install the dependencies
+
+```bash
+npm install
+```
+
+Then, run the dev server:
 
 ```bash
 npm run dev

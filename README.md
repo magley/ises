@@ -15,7 +15,9 @@ For instructions on how to run the web app, consult the `README` in `app/`.
 
 # Using the application
 
-TODO: Add screenshots (or just remove this section)
+This is a standard web app designed to be intuitive and easy to use! For a
+ detailed overview of how to "activate" certain rules, see
+ `docs/ruleDemonstration.md`.
 
 # Development notes
 

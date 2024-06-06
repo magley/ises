@@ -5,9 +5,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import rs.sbnz.model.AttackSeverity;
+import rs.sbnz.model.AttackType;
 import rs.sbnz.model.BlockReason;
 import rs.sbnz.model.Request;
 import rs.sbnz.model.api.Packet;
+import rs.sbnz.model.events.AttackEvent;
 import rs.sbnz.model.events.BlockEvent;
 import rs.sbnz.model.events.DeleteStaleBlocksEvent;
 import rs.sbnz.model.events.FailedLoginEvent;
@@ -120,5 +123,11 @@ public class RequestService {
         ksession.insert(event);
         ksession.fireAllRules();
         return event;
+    }
+
+    public void TEMP_fake_auth_attack() {
+        AttackEvent attackEvent = new AttackEvent(AttackType.AUTHENTICATION, AttackSeverity.HIGH);
+        ksession.insert(attackEvent);
+        ksession.fireAllRules();
     }
 }

@@ -1,32 +1,75 @@
 import type { MetaFunction } from "@remix-run/node";
+import { Link } from "@remix-run/react";
 import { useEffect, useState } from "react";
+import { ArticleDTO, ArticleService } from "~/service/article";
 import axiosInstance from "~/util/axiosInterceptor";
 
 export const meta: MetaFunction = () => {
-    return [
-        { title: "New Remix App" },
-        { name: "description", content: "Welcome to Remix!" },
-    ];
+	return [
+		{ title: "ises" },
+		{ name: "description", content: "ises - [Buy] something from [here]" },
+	];
 };
 
-
 export default function Home() {
-    const [text, setText] = useState<string | null>(null);
+	const [articles, setArticles] = useState<ArticleDTO[]>([]);
 
-    useEffect(() => {
-        axiosInstance.get("http://localhost:8080/api/test/any")
-            .then((res) => setText(res.data))
-            .catch((err) => console.error(err));
-    }, []);
+	function loadArticles() {
+		ArticleService.getAllArticles()
+			.then((res) => {
+				setArticles(res.data);
+			})
+			.catch((err) => {
+				console.error(err);
+			});
+	}
 
-    return (
-        <div>
-            Welcome to <b>ises</b>.
+	useEffect(() => {
+		loadArticles();
+	}, []);
 
-            <div>Message from the backend: <b>{text}</b></div>
-            <br />
-            This page should contain articles and other stuff that all users have
-            access to.
-        </div>
-    );
+	return (
+		<div
+			key="what"
+			className="bg-white dark:bg-slate-800 shadow-md mx-16 mt-16"
+		>
+			<div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
+				<h2 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
+					Browse our articles
+				</h2>
+
+				<div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
+					{articles.map((product) => (
+						<div
+							key={product.id}
+							className="group relative shadow-md bg-gray-100 dark:bg-slate-700 px-10 py-5 rounded-md"
+						>
+							<div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-md bg-gray-200 dark:bg-slate-600 shadow-lg lg:aspect-none group-hover:opacity-75 lg:h-60">
+								<img
+									src={`data:image/png;base64,${product.imgBase64}`}
+									className="h-full w-full object-cover object-center lg:h-full lg:w-full"
+								/>
+							</div>
+							<div className="mt-4 flex justify-between">
+								<div>
+									<h3 className="text-sm text-gray-700 dark:text-gray-300">
+										<Link to={`article/${product.id}`}>
+											<span
+												aria-hidden="true"
+												className="absolute inset-0"
+											/>
+											{product.name}
+										</Link>
+									</h3>
+								</div>
+								<p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+									${product.price}
+								</p>
+							</div>
+						</div>
+					))}
+				</div>
+			</div>
+		</div>
+	);
 }

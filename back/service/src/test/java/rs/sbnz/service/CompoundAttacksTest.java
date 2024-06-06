@@ -21,12 +21,22 @@ public class CompoundAttacksTest {
         KieContainer kContainer = ks.getKieClasspathContainer(); 
         KieSession ksession = kContainer.newKieSession("ksessionPseudoClock");
 
-        // ---------------------------------------------------------------------
+        // --------------------------------------------------------------------
+        // Won't activate - not critical or above.
+        // --------------------------------------------------------------------
+
+        ksession.insert(new AttackEvent(AttackType.AUTHENTICATION, AttackSeverity.SUPERHIGH));
+        int k = ksession.fireAllRules();
+        assertEquals(0, k);
+
+        ksession = kContainer.newKieSession("ksessionPseudoClock"); // Have to reset to prevent other compund attacks from firing.
+
+        // --------------------------------------------------------------------
         // Will activate
-        // ---------------------------------------------------------------------
+        // --------------------------------------------------------------------
 
         ksession.insert(new AttackEvent(AttackType.AUTHENTICATION, AttackSeverity.CRITICAL));
-        int k = ksession.fireAllRules();
+        k = ksession.fireAllRules();
         assertEquals(1, k);
     }
 
@@ -36,9 +46,9 @@ public class CompoundAttacksTest {
         KieContainer kContainer = ks.getKieClasspathContainer(); 
         KieSession ksession = kContainer.newKieSession("ksessionPseudoClock");
 
-        // ---------------------------------------------------------------------
+        // --------------------------------------------------------------------
         // Will activate
-        // ---------------------------------------------------------------------
+        // --------------------------------------------------------------------
 
         ksession.insert(new AttackEvent(AttackType.AUTHENTICATION, AttackSeverity.LOW));
         ksession.insert(new AttackEvent(AttackType.DENIAL_OF_SERVICE, AttackSeverity.LOW));
@@ -46,6 +56,17 @@ public class CompoundAttacksTest {
         ksession.insert(new AttackEvent(AttackType.INJECTION, AttackSeverity.LOW));
         int k = ksession.fireAllRules();
         assertEquals(1, k);
+
+        // --------------------------------------------------------------------
+        // Won't activate: The all must be of different type.
+        // --------------------------------------------------------------------
+
+        ksession.insert(new AttackEvent(AttackType.AUTHENTICATION, AttackSeverity.LOW));
+        ksession.insert(new AttackEvent(AttackType.DENIAL_OF_SERVICE, AttackSeverity.LOW));
+        ksession.insert(new AttackEvent(AttackType.INJECTION, AttackSeverity.LOW));
+        ksession.insert(new AttackEvent(AttackType.INJECTION, AttackSeverity.LOW));
+        k = ksession.fireAllRules();
+        assertEquals(0, k);
     }
 
     @Test

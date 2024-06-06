@@ -10,13 +10,62 @@ import org.kie.api.KieServices;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
 
+import rs.sbnz.model.Alarm;
+import rs.sbnz.model.AlarmType;
+import rs.sbnz.model.AttackType;
 import rs.sbnz.model.BlockReason;
 import rs.sbnz.model.NoteType;
+import rs.sbnz.model.events.AttackEvent;
 import rs.sbnz.model.events.BlockEvent;
 import rs.sbnz.model.events.FailedLoginEvent;
 import rs.sbnz.model.events.Note;
+import rs.sbnz.model.events.UnblockEvent;
 
 class AuthRuleTests {
+    @Test
+    void properRemovalOfAuthBlock() {
+        KieServices ks = KieServices.Factory.get();
+        KieContainer kContainer = ks.getKieClasspathContainer(); 
+        KieSession ksession = kContainer.newKieSession("ksessionPseudoClock");
+        SessionPseudoClock clock = ksession.getSessionClock();
+
+        String attackerIp = "127.0.0.1";
+        String victimEmail = "bob@gmail.com";
+
+        // --------------------------------------------------------------------
+        // Will activate.
+        // --------------------------------------------------------------------
+
+        for (int i = 0; i < 33; i++) {
+            for (int j = 0; j < 5; j++) {
+                ksession.insert(new FailedLoginEvent(Long.valueOf(i * 100 + j), attackerIp, victimEmail));
+            }
+
+            int k = ksession.fireAllRules();
+            assertEquals(1, k);
+            clock.advanceTime(2, TimeUnit.MINUTES);
+        }
+
+        // At this point, there should be 33 notes with 3 points each. We're 1
+        // point shy from getting the ip blocked.
+
+        ksession.insert(new Note(10009L, attackerIp, 1L, NoteType.FAILED_LOGIN));
+        int k = ksession.fireAllRules();
+        assertEquals(1, k); // Block.
+
+        // Unblock
+
+        ksession.insert(new UnblockEvent(attackerIp));
+        ksession.fireAllRules();
+
+        // Insert a single note. It should not interfere with the previous ones,
+        // because they have already been used to block the IP address once.
+
+        ksession.insert(new Note(0L, attackerIp, 3L, NoteType.FAILED_LOGIN));
+        k = ksession.fireAllRules();
+        assertEquals(0, k);
+    }
+
     @Test
     void tooManyFailedLogins() {
         KieServices ks = KieServices.Factory.get();
@@ -150,11 +199,19 @@ class AuthRuleTests {
         assertEquals(0, k);
 
         // --------------------------------------------------------------------
-        // Will activate: Previous block expired.
+        // Won't activate: Old notes have been used up already.
         // --------------------------------------------------------------------
-        
+
         clock.advanceTime(24, TimeUnit.HOURS);
 
+        ksession.insert(new Note(102L, attackerIp, 9L, NoteType.FAILED_LOGIN));
+        k = ksession.fireAllRules();
+        assertEquals(0, k);
+
+        // --------------------------------------------------------------------
+        // Will activate.
+        // --------------------------------------------------------------------
+        
         ksession.insert(new Note(102L, attackerIp, 100L, NoteType.FAILED_LOGIN));
         k = ksession.fireAllRules();
         assertEquals(1, k);
@@ -207,6 +264,8 @@ class AuthRuleTests {
         }
 
         k = ksession.fireAllRules();
+        assertEquals(1, TestUtils.<AttackEvent>getFactsFrom(ksession, AttackEvent.class).stream().filter(a -> a.getType() == AttackType.AUTHENTICATION).count());
+        assertEquals(1, TestUtils.<Alarm>getFactsFrom(ksession, Alarm.class).stream().filter(a -> a.getType() == AlarmType.LOGIN_BREACH).count());
         assertEquals(1, k);
 
         // --------------------------------------------------------------------

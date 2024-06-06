@@ -4,8 +4,12 @@ import rs.sbnz.model.Request;
 import rs.sbnz.model.events.BlockEvent;
 import rs.sbnz.model.events.Note;
 import rs.sbnz.model.NoteType;
+import rs.sbnz.model.events.UnblockEvent;
+import rs.sbnz.model.events.DeleteStaleBlocksEvent;
+import rs.sbnz.model.Alarm;
+import rs.sbnz.model.AlarmRemove;
 
-// TODO: Write similar rule for User instead of IP.
+
 rule "If too many requests in a short amount of time, create a Note"
     when
         $r: Request(
@@ -26,42 +30,4 @@ rule "If too many requests in a short amount of time, create a Note"
     then
         System.out.printf("Stop spamming, %s!\n", $srcIp);
         insert(new Note(0L, $srcIp, 5L, NoteType.SPAMMING_REQUESTS));
-end
-
-rule "If IP blocked, reject request"
-    salience 1000
-    when
-        $request: Request(
-            isRejected == false,
-            $userIp: srcIp
-        )
-
-        $block: BlockEvent(
-            $userIp == ip, 
-            // The line below checks if the BlockEvent is still happening, i.e.
-            // it hasn't finished.
-            //
-            // BlockEvent    [t1]-----------------[t2] 
-            // Request                  [t]
-            //
-            //    t1 = When the block started. 
-            //    t2 = t1 + block duration
-            //    t  = When this request was made (i.e. "now").
-            //
-            // NOTE: This means that `t` must be in the interval `(t1, t2)`
-            // (exclusive) and NOT `[t1, t2]` (inclusive). Therefore, if Request
-            // and BlockEvent occur at the same time, this rule won't pass. This
-            // is extremely rare to happen IRL (whereas during unit testing with
-            // a pseudoclock it can happen rather easily). This could be solved
-            // by changing the line below to:
-            //
-            //      `this includes $request || this starts $request`
-            //
-            this includes $request
-        )
-    then
-        System.out.printf("IP %s blocked, request is rejected.\n", $userIp);
-        modify($request) {
-            setIsRejected(true);
-        }
 end

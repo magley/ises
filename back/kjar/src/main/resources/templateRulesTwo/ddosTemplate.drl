@@ -1,0 +1,48 @@
+template header
+numberOfRequests
+timeFrame
+numberOfUniqueIPs
+
+package templateRulesTwo;
+
+import rs.sbnz.model.Request;
+import rs.sbnz.model.events.AttackEvent;
+import rs.sbnz.model.AttackType;
+import rs.sbnz.model.AttackSeverity;
+import java.util.Set;
+import rs.sbnz.model.Alarm;
+import rs.sbnz.model.AlarmSeverity;
+import rs.sbnz.model.AlarmType;
+
+template "ddosTemplate"
+
+rule "Detect DDOS when @{numberOfUniqueIPs} make @{numberOfRequests} requests are made in @{timeFrame}"
+    salience 1888
+    when
+        Set(size >= @{numberOfUniqueIPs}) from accumulate(
+            $r: Request(
+                isRejected == false,
+                $srcIp: srcIp
+            ) over window:time(@{timeFrame}),
+            collectSet($srcIp)
+        )
+        Number(intValue >= @{numberOfRequests}) from accumulate(
+            $r: Request(
+                isRejected == false,
+                $id: id
+            ) over window:time(@{timeFrame}),
+            count($id)
+        )
+        not AttackEvent(
+            type == AttackType.DISTRIBUTED_DENIAL_OF_SERVICE
+        ) over window:time(@{timeFrame})
+        not AttackEvent(
+            type == AttackType.DENIAL_OF_SERVICE
+        ) over window:time(@{timeFrame})
+    then
+        System.out.printf("DDOS attack [@{numberOfRequests} @{timeFrame}]!\n");
+        insert(new Alarm(AlarmSeverity.CRITICAL, AlarmType.DOS, "A DDOS has been detected."));
+        insert(new AttackEvent(AttackType.DISTRIBUTED_DENIAL_OF_SERVICE, AttackSeverity.SUPERHIGH));
+end
+
+end template

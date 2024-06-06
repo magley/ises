@@ -6,11 +6,24 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import rs.sbnz.service.exceptions.IPBlockedException;
+import rs.sbnz.service.exceptions.NotFoundException;
+import rs.sbnz.service.exceptions.UnauthorizedException;
+import rs.sbnz.service.request.dto.IPBlockedDTO;
 
 @ControllerAdvice
 public class ControllerAdvisor {
     @ExceptionHandler(IPBlockedException.class)
-    public ResponseEntity<?> exception(IPBlockedException ex) {
+    public ResponseEntity<?> exception_IPBlockedException(IPBlockedException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new IPBlockedDTO());
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<?> exception_UnauthorizedException(UnauthorizedException ex) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<?> exception_NotFoundException(NotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 }

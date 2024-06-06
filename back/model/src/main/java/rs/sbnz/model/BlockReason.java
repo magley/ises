@@ -1,5 +1,5 @@
 package rs.sbnz.model;
 
 public enum BlockReason {
-    AUTH_ATTACK, TEMP
+    TEMP, AUTH_ATTACK, INJECTION 
 }

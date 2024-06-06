@@ -3,7 +3,6 @@ package rs.sbnz.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -12,11 +11,14 @@ import org.springframework.web.bind.annotation.RestController;
 import rs.sbnz.model.api.Packet;
 import rs.sbnz.model.events.BlockEvent;
 import rs.sbnz.service.request.RequestService;
+import rs.sbnz.service.util.RBACUtil;
 
 @RestController
 @RequestMapping("api/test")
 public class TestController {
     @Autowired private RequestService requestService;
+    @Autowired private RBACUtil rbacUtil;
+
     
     @GetMapping("/gimmie/ip-block")
     public ResponseEntity<?> ipBlock(Packet packet, @RequestParam Long durationMs) {
@@ -24,6 +26,14 @@ public class TestController {
         BlockEvent event = requestService.TEMP_force_block_ip(packet.getSrcIp(), durationMs);
 
         return new ResponseEntity<String>(event.getIp() + " has been blocked for " + durationMs + "ms!", HttpStatus.OK);
+    }
+
+    @GetMapping("/gimmie/auth-attack")
+    public ResponseEntity<?> createFakeAuthAttack(Packet packet) {
+        requestService.onRequest(packet);
+        requestService.TEMP_fake_auth_attack();
+
+        return ResponseEntity.noContent().build();
     }
 
     // NOTE: /api/test allows unauthenticated users to access
@@ -36,21 +46,21 @@ public class TestController {
     public ResponseEntity<?> test1(Packet packet) {
         requestService.onRequest(packet);
 
-        return new ResponseEntity<String>("Hello any authenticated user!", HttpStatus.OK);
+        return new ResponseEntity<String>("Hello any user!", HttpStatus.OK);
     }
 
     @GetMapping("/admin")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> test2(Packet packet) {
         requestService.onRequest(packet);
+        rbacUtil.preAuthorize2("view_reports"); // i.e. needs admin.
 
         return new ResponseEntity<String>("Hello admin!", HttpStatus.OK);
     }
 
     @GetMapping("/client")
-    @PreAuthorize("hasRole('ROLE_CLIENT')")
     public ResponseEntity<?> test3(Packet packet) {
         requestService.onRequest(packet);
+        rbacUtil.preAuthorize2("buy_articles"); // i.e. needs client.
 
         return new ResponseEntity<String>("Hello client!", HttpStatus.OK);
     }

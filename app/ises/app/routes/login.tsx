@@ -1,7 +1,8 @@
 import { Form, Link, redirect, useNavigate } from "@remix-run/react";
 import { useState } from "react";
+import toast from "react-hot-toast";
 import axiosInstance from "~/util/axiosInterceptor";
-import { setJWT } from "~/util/localstorage";
+import { getJwtShouldNagPassword, setJWT } from "~/util/localstorage";
 
 export default function Login() {
 	const [email, setEmail] = useState<string>("");
@@ -10,15 +11,14 @@ export default function Login() {
 	const navigate = useNavigate();
 
 	const submitLogin = () => {
-		console.log(email, password);
-
 		axiosInstance
 			.post("http://localhost:8080/api/auth/login", { email, password })
 			.then((res) => {
 				setErrMsg(null);
 				const jwt = res.data;
 				setJWT(jwt);
-				navigate("/");
+				window.location.replace("/");
+				//navigate("/");
 			})
 			.catch((err) => {
 				setErrMsg("Wrong email or password.");
@@ -33,19 +33,25 @@ export default function Login() {
                 Tailwind installed following this guide:
                 https://tailwindcss.com/docs/guides/remix
             */}
-			<div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
+			<div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8 bg-white dark:bg-slate-800 shadow-md mx-64 mt-16">
 				<div className="sm:mx-auto sm:w-full sm:max-w-sm">
-					<h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
+					<h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900 dark:text-white">
 						Sign in to your account
 					</h2>
 				</div>
 
 				<div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-					<Form className="space-y-6" onSubmit={submitLogin}>
+					<Form
+						className="space-y-6"
+						onSubmit={(e) => {
+							e.preventDefault();
+							submitLogin();
+						}}
+					>
 						<div>
 							<label
 								htmlFor="email"
-								className="block text-sm font-medium leading-6 text-gray-900"
+								className="block text-sm font-medium leading-6 text-black dark:text-white"
 							>
 								Email address
 							</label>
@@ -58,7 +64,10 @@ export default function Login() {
 									required
 									value={email}
 									onChange={(e) => setEmail(e.target.value)}
-									className="block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+									className="block w-full rounded-md border-0 p-1.5 
+                                    text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 
+                                    focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6
+                                    dark:text-gray-100 dark:placeholder:text-gray-400 dark:bg-slate-800"
 								/>
 							</div>
 						</div>
@@ -67,7 +76,7 @@ export default function Login() {
 							<div className="flex items-center justify-between">
 								<label
 									htmlFor="password"
-									className="block text-sm font-medium leading-6 text-gray-900"
+									className="block text-sm font-medium leading-6 text-black dark:text-white"
 								>
 									Password
 								</label>
@@ -83,7 +92,10 @@ export default function Login() {
 									onChange={(e) =>
 										setPassword(e.target.value)
 									}
-									className="block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+									className="block w-full rounded-md border-0 p-1.5 
+                                    text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 
+                                    focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6
+                                    dark:text-gray-100 dark:placeholder:text-gray-400 dark:bg-slate-800"
 								/>
 							</div>
 						</div>
@@ -102,11 +114,11 @@ export default function Login() {
 						</div>
 					</Form>
 
-					<p className="mt-10 text-center text-sm text-gray-500">
+					<p className="mt-10 text-center text-sm text-gray-500 dark:text-gray-200">
 						Not a member?{" "}
 						<Link
 							to={"/register"}
-							className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500"
+							className="font-semibold leading-6 text-indigo-600 hover:text-indigo-400"
 						>
 							Create an account
 						</Link>

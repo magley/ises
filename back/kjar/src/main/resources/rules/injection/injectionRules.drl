@@ -1,0 +1,79 @@
+package rules.injection;
+
+import rs.sbnz.model.events.TextQueryEvent;
+import rs.sbnz.model.Request;
+import rs.sbnz.model.events.AttackEvent;
+import rs.sbnz.model.events.Note;
+import rs.sbnz.model.NoteType;
+import rs.sbnz.model.AttackType;
+import rs.sbnz.model.AttackSeverity;
+import rs.sbnz.model.events.BlockEvent;
+import rs.sbnz.model.BlockReason;
+import java.util.Set;
+import rs.sbnz.model.Alarm;
+import rs.sbnz.model.AlarmSeverity;
+import rs.sbnz.model.AlarmType;
+
+rule "Detect SQL injection"
+    when
+        $r: Request(
+            $ip: srcIp, 
+            isRejected == false
+        )
+        $q: TextQueryEvent(
+            $queryText: queryText,
+            request == $r,
+            $queryText matches "'(([^']*);)|(\\b(ALTER|CREATE|DELETE|DROP|EXEC(UTE){0,1}|INSERT( +INTO){0,1}|MERGE|SELECT|UPDATE|UNION( +ALL){0,1})\b)"
+        )
+    then
+        System.out.printf("SQL Injection: %s!\n", $queryText);
+        insert(new AttackEvent(AttackType.INJECTION, AttackSeverity.LOW));
+        insert(new Note(0L, $ip, 5L, NoteType.INJECTION));
+end
+
+rule "If too many SQL injections by the same IP address, block him"
+    when
+        $n: Note(
+            $ip: ip, 
+            $type: type,
+            $type == NoteType.INJECTION,
+            usedInBlock == false
+        )
+        $notesToRemove: Set() from accumulate(
+            $nout: Note(
+                $ip == ip,
+                $type == type,
+                usedInBlock == false
+            ) over window:time(30m),
+            collectSet($nout)
+        )
+        Number(intValue >= 25) from accumulate(
+            Note(
+                $ip == ip,
+                $points: points,
+                $type == type,
+                usedInBlock == false
+            ) over window:time(30m),
+            sum($points)
+        )
+        (
+            (not BlockEvent($ip == ip))
+            or 
+            (BlockEvent($ip == ip, this before $n))
+        )
+    then
+        System.out.printf("[SQL injection attack] New block for ip %s\n", $ip);
+        insert(new Alarm(AlarmSeverity.NORMAL, AlarmType.INJECTION, "A user has attempted to compromise the system using an SQL injection."));
+
+        // Duration must match the window for the Note collection.
+        insert(new BlockEvent($ip, 30 * 60 * 1000L, BlockReason.INJECTION));
+
+        // Mark all notes as "used up".
+        Object[] noteArray = $notesToRemove.toArray();
+        for (int i = 0; i < $notesToRemove.size(); i++) {
+            Note note = (Note)(noteArray[i]);
+            modify(note) {
+                setUsedInBlock(true);
+            }
+        }
+end

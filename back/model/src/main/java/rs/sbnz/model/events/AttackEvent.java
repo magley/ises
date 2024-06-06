@@ -42,10 +42,6 @@ public class AttackEvent {
         return this.madeAwareOf;
     }
 
-    public boolean getMadeAwareOf() {
-        return this.madeAwareOf;
-    }
-
     public void setMadeAwareOf(boolean madeAwareOf) {
         this.madeAwareOf = madeAwareOf;
     }

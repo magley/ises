@@ -18,27 +18,20 @@ query roleHasPermission(int roleId, int permissionId)
     )
 end
 
-query userHasPermission(int userId, int permissionId)
-    User(id == userId, $rbacRole: rbacRole, rbacRole != null)
-    and roleHasPermission($rbacRole.id, permissionId;)
-end
-
-rule "Show which permissions the user has"
-    when
-        $user: User($userId: id)
-        Request(isRejected == false, user == $user)
-        Permission($permId: id, $permName: name)
-        userHasPermission($userId, $permId;)
-    then
-        System.out.printf("User with id %d has permission %d (%s)\n", $userId, $permId, $permName);
-end
-
-rule "Pre-authorize"
+rule "Pre-authorize against role"
     no-loop
     salience 1
     when
         $req: RbacRequest($user: user, $permission: permission)
-        not userHasPermission($user.id, $permission.id; )
+        (
+            (
+                eval($user.getRbacRole() == null)
+            )
+            or
+            (
+                not roleHasPermission($user.rbacRole.id, $permission.id; )
+            )
+        )
     then
         System.out.printf("Unauthorized user %d for permission %d\n", $user.getId(), $permission.getId());
         modify($req) {

@@ -25,6 +25,9 @@ public class Note {
     /** Type of note. */
     private NoteType type;
 
+    /** Flag to check whether this note was used in a block. */
+    private boolean usedInBlock = false;
+
     public Note() {
     }
 
@@ -34,6 +37,7 @@ public class Note {
         this.user = null;
         this.points = points;
         this.type = type;
+        this.usedInBlock = false;
     }
 
     public Note(Long id, User user, Long points, NoteType type) {
@@ -42,6 +46,7 @@ public class Note {
         this.user = user;
         this.points = points;
         this.type = type;
+        this.usedInBlock = false;
     }
 
     public Long getId() {
@@ -82,5 +87,13 @@ public class Note {
 
     public void setType(NoteType type) {
         this.type = type;
+    }
+
+    public boolean isUsedInBlock() {
+        return this.usedInBlock;
+    }
+
+    public void setUsedInBlock(boolean usedInBlock) {
+        this.usedInBlock = usedInBlock;
     }
 }

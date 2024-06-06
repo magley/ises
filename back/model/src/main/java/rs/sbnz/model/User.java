@@ -40,6 +40,9 @@ public class User implements UserDetails {
     @ManyToOne
     private Role rbacRole;
 
+    @Column
+    private boolean shouldChangePassword;
+
     // ------------------------------------------------------------------------
     // UserDetails interface implementation
     // ------------------------------------------------------------------------
@@ -96,6 +99,7 @@ public class User implements UserDetails {
         this.name = name;
         this.lastName = lastName;
         this.rbacRole = null;
+        this.shouldChangePassword = false;
     }
 
     public Long getId() {
@@ -152,5 +156,13 @@ public class User implements UserDetails {
 
     public void setRbacRole(Role rbacRole) {
         this.rbacRole = rbacRole;
+    }
+
+    public boolean getShouldChangePassword() {
+        return shouldChangePassword;
+    }
+
+    public void setShouldChangePassword(boolean should) {
+        this.shouldChangePassword = should;
     }
 }
